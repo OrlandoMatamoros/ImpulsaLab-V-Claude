@@ -52,4 +52,19 @@ export default function DiagnosticSection() {
           <div className="bg-white p-8 rounded-lg shadow-lg transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
             <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mb-6">
               <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidt
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} 
+                      d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold mb-2 text-gray-900">Eje Z: MARKETING</h3>
+            <h4 className="text-lg font-medium mb-3 text-purple-600">Crea tu Marca, Atrae Clientes</h4>
+            <p className="text-gray-600">
+              Usamos IA para ayudarte a diseñar tu marca, crear contenido y lanzar 
+              campañas que conecten con tu público.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}

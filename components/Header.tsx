@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { COMPANY_INFO } from '@/lib/constants'
 import Image from 'next/image'
 import { COMPANY_INFO, IMAGES } from '@/lib/constants'
 export default function Header() {

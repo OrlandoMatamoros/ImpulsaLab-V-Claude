@@ -2,10 +2,12 @@
 // Aquí puedes cambiar fácilmente textos, links e imágenes
 
 export const IMAGES = {
-  logo: '/images/isotipo.jpg',
-  orlandoPhoto: '/images/orlando-matamoros.jpg',
-  novaAvatar: '/images/nova-avatar.png',
-  teamBackground: '/images/team-background.jpg',
+  logo: '/images/logo negativo.jpg',  // Para el header sobre fondo blanco
+  orlandoPhoto: '/images/FotoWebImpulsalab.png',  // Ya está correcta
+  novaAvatar: '/images/nova-avatar.png',  // Esta no la tienes aún
+  teamBackground: '/images/team-background.jpg',  // Esta tampoco
+  logoBlanco: '/images/logo blanco.jpg',  // Para usar sobre fondo oscuro
+  isotipo: '/images/isotipo.jpg',
 }
 
 export const LINKS = {

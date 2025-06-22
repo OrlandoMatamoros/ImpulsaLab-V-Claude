@@ -3,14 +3,24 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { COMPANY_INFO } from '@/lib/constants'
-
+import Image from 'next/image'
+import { COMPANY_INFO, IMAGES } from '@/lib/constants'
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   return (
     <header className="bg-white shadow-sm fixed w-full top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <div className="text-2xl font-bold text-gray-800">{COMPANY_INFO.name}</div>
+        <div className="flex items-center">
+          <Image
+            src={IMAGES.isotipo}
+            alt={COMPANY_INFO.name}
+            width={40}
+            height={40}
+            className="mr-2"
+          />
+  <span className="text-2xl font-bold text-gray-800">{COMPANY_INFO.name}</span>
+</div>
         
         <nav className="hidden md:flex space-x-6">
           <Link href="#diagnostico" className="text-gray-600 hover:text-gray-900">

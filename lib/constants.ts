@@ -4,6 +4,7 @@
 export const IMAGES = {
   logo: '/images/logo negativo.jpg',  // Para el header sobre fondo blanco
   orlandoPhoto: '/images/FotoWebImpulsalab.png',  // Ya está correcta
+  orlandoTeamPhoto: '/images/Fotoweb4.jpg',
   novaAvatar: '/images/nova-avatar.png',  // Esta no la tienes aún
   teamBackground: '/images/team-background.jpg',  // Esta tampoco
   logoBlanco: '/images/logo blanco.jpg',  // Para usar sobre fondo oscuro

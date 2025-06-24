@@ -26,7 +26,7 @@ export default function TeamSection() {
             <div className="mb-6">
               <div className="w-48 h-48 mx-auto rounded-full overflow-hidden border-4 border-white/20">
                 <Image
-                  src={IMAGES.orlandoPhoto}
+                  src={IMAGES.orlandoTeamPhoto}
                   alt="Orlando Matamoros"
                   width={200}
                   height={200}

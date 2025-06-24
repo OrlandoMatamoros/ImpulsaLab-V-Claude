@@ -14,9 +14,9 @@ export default function Header() {
           <Image
             src={IMAGES.isotipo}
             alt={COMPANY_INFO.name}
-            width={40}
-            height={40}
-            className="mr-2"
+            width={50}
+            height={50}
+            className="mr-3"
           />
   <span className="text-2xl font-bold text-gray-800">{COMPANY_INFO.name}</span>
 </div>

@@ -141,66 +141,62 @@ export default function OperacionesPage() {
         </div>
       </section>
 
-      {/* Sección 4: Nuestro Proceso - Tema Claro */}
-      <section className="bg-white py-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 text-gray-900">
-              Nuestra Metodología en 4 Pasos
-            </h2>
-            
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="bg-gray-50 p-8 rounded-lg relative">
-                <div className="absolute -top-4 left-8 bg-green-900 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
-                  1
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4 mt-4">
-                  Diagnóstico y Recolección
-                </h3>
-                <p className="text-gray-600">
-                  Entendemos tu negocio y recolectamos tus datos de todas las fuentes disponibles.
-                </p>
+      {/* Sección 4: Nuestro Proceso - Tema Gris */}
+    <section className="py-20 bg-gray-50">
+  <div className="container mx-auto px-4">
+    <div className="max-w-6xl mx-auto">
+      <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-900">
+        De la Tarea Manual a la Operación Inteligente
+      </h2>
+      <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
+        {[
+          {
+            numero: "1",
+            titulo: "Diagnóstico Operativo",
+            descripcion: "Analizamos tu flujo de trabajo actual para identificar los cuellos de botella y las tareas repetitivas que más tiempo te consumen."
+          },
+          {
+            numero: "2",
+            titulo: "Diseño del Agente de IA",
+            descripcion: "Definimos la \"personalidad\" de tu agente, las tareas que ejecutará y las plataformas con las que se integrará (web, email, etc.)."
+          },
+          {
+            numero: "3",
+            titulo: "Desarrollo y Entrenamiento",
+            descripcion: "Construimos el cerebro de tu agente y lo entrenamos con la información específica de tu negocio: tus servicios, precios, y respuestas a preguntas frecuentes."
+          },
+          {
+            numero: "4",
+            titulo: "Implementación e Integración",
+            descripcion: "Conectamos el agente a tus sistemas y lo ponemos en marcha. Realizamos pruebas exhaustivas para asegurar un funcionamiento impecable."
+          },
+          {
+            numero: "5",
+            titulo: "Monitoreo y Optimización",
+            descripcion: "No te dejamos solo. Monitoreamos el rendimiento de tu agente y hacemos ajustes continuos para maximizar su eficiencia y resultados."
+          }
+        ].map((paso, index) => (
+          <div key={index} className="relative">
+            <div className="bg-white rounded-lg p-6 shadow-lg h-full">
+              <div className="w-12 h-12 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-xl mb-4">
+                {paso.numero}
               </div>
-              
-              <div className="bg-gray-50 p-8 rounded-lg relative">
-                <div className="absolute -top-4 left-8 bg-green-900 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
-                  2
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4 mt-4">
-                  Ingeniería de Datos
-                </h3>
-                <p className="text-gray-600">
-                  Limpiamos, estructuramos y modelamos tus datos para obtener insights valiosos.
-                </p>
-              </div>
-              
-              <div className="bg-gray-50 p-8 rounded-lg relative">
-                <div className="absolute -top-4 left-8 bg-green-900 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
-                  3
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4 mt-4">
-                  Diseño y Entrega
-                </h3>
-                <p className="text-gray-600">
-                  Construimos tu dashboard 100% a medida, adaptado a tus necesidades específicas.
-                </p>
-              </div>
-              
-              <div className="bg-gray-50 p-8 rounded-lg relative">
-                <div className="absolute -top-4 left-8 bg-green-900 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
-                  4
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4 mt-4">
-                  Capacitación y Soporte
-                </h3>
-                <p className="text-gray-600">
-                  Te enseñamos a usarlo y te acompañamos en el proceso de implementación.
-                </p>
-              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">{paso.titulo}</h3>
+              <p className="text-gray-600 text-sm">{paso.descripcion}</p>
             </div>
+            {index < 4 && (
+              <div className="hidden lg:block absolute top-1/2 -right-3 transform -translate-y-1/2 text-gray-300">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            )}
           </div>
-        </div>
-      </section>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
 
       {/* Sección 5: Planes y Precios - Tema Claro */}
       <section className="bg-gray-50 py-20">

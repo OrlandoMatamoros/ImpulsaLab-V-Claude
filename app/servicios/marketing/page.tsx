@@ -141,67 +141,62 @@ export default function MarketingPage() {
         </div>
       </section>
 
-      {/* Sección 4: Nuestro Proceso - Tema Claro */}
-      <section className="bg-white py-20">
-        <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 text-gray-900">
-              Nuestra Metodología en 4 Pasos
-            </h2>
-            
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="bg-gray-50 p-8 rounded-lg relative">
-                <div className="absolute -top-4 left-8 bg-purple-900 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
-                  1
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4 mt-4">
-                  Diagnóstico y Recolección
-                </h3>
-                <p className="text-gray-600">
-                  Entendemos tu negocio y recolectamos tus datos de todas las fuentes disponibles.
-                </p>
+      {/* Sección 4: Nuestro Proceso - Tema Gris */}
+<section className="py-20 bg-gray-50">
+  <div className="container mx-auto px-4">
+    <div className="max-w-6xl mx-auto">
+      <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-900">
+        El Camino para Construir una Marca que Enamora
+      </h2>
+      <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
+        {[
+          {
+            numero: "1",
+            titulo: "Taller de Inmersión y Estrategia",
+            descripcion: "Realizamos un taller contigo para definir la esencia, los valores, la voz y el público objetivo de tu marca. Esta es la base de todo."
+          },
+          {
+            numero: "2",
+            titulo: "Creación de la Identidad Visual con IA",
+            descripcion: "Usamos herramientas de IA para generar y refinar conceptos de logo, paletas de colores y tipografías que representen la personalidad de tu marca."
+          },
+          {
+            numero: "3",
+            titulo: "Diseño del Plan de Contenidos",
+            descripcion: "Creamos una estrategia de contenidos y una parrilla de publicación para tus redes sociales, definiendo los temas y formatos que más conectan con tu audiencia."
+          },
+          {
+            numero: "4",
+            titulo: "Producción de Contenido Asistida por IA",
+            descripcion: "Generamos los textos, imágenes y conceptos visuales para tus publicaciones, optimizando el tiempo y manteniendo una alta calidad y coherencia."
+          },
+          {
+            numero: "5",
+            titulo: "Análisis y Optimización",
+            descripcion: "Medimos el rendimiento de tus contenidos y campañas, y usamos esos datos para refinar la estrategia y asegurar un crecimiento constante de tu comunidad."
+          }
+        ].map((paso, index) => (
+          <div key={index} className="relative">
+            <div className="bg-white rounded-lg p-6 shadow-lg h-full">
+              <div className="w-12 h-12 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-xl mb-4">
+                {paso.numero}
               </div>
-              
-              <div className="bg-gray-50 p-8 rounded-lg relative">
-                <div className="absolute -top-4 left-8 bg-purple-900 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
-                  2
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4 mt-4">
-                  Ingeniería de Datos
-                </h3>
-                <p className="text-gray-600">
-                  Limpiamos, estructuramos y modelamos tus datos para obtener insights valiosos.
-                </p>
-              </div>
-              
-              <div className="bg-gray-50 p-8 rounded-lg relative">
-                <div className="absolute -top-4 left-8 bg-purple-900 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
-                  3
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4 mt-4">
-                  Diseño y Entrega
-                </h3>
-                <p className="text-gray-600">
-                  Construimos tu dashboard 100% a medida, adaptado a tus necesidades específicas.
-                </p>
-              </div>
-              
-              <div className="bg-gray-50 p-8 rounded-lg relative">
-                <div className="absolute -top-4 left-8 bg-purple-900 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold">
-                  4
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4 mt-4">
-                  Capacitación y Soporte
-                </h3>
-                <p className="text-gray-600">
-                  Te enseñamos a usarlo y te acompañamos en el proceso de implementación.
-                </p>
-              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">{paso.titulo}</h3>
+              <p className="text-gray-600 text-sm">{paso.descripcion}</p>
             </div>
+            {index < 4 && (
+              <div className="hidden lg:block absolute top-1/2 -right-3 transform -translate-y-1/2 text-gray-300">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </div>
+            )}
           </div>
-        </div>
-      </section>
-
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
       {/* Sección 5: Planes y Precios - Tema Claro */}
       <section className="bg-gray-50 py-20">
         <div className="container mx-auto px-4">

@@ -25,6 +25,9 @@ export default function Header() {
           <Link href="#diagnostico" className="text-gray-600 hover:text-gray-900">
             Diagnóstico 3D
           </Link>
+          <Link href="/servicios/finanzas" className="text-gray-600 hover:text-gray-900">
+            Finanzas
+          </Link>
           <Link href="#equipo" className="text-gray-600 hover:text-gray-900">
             Quiénes Somos
           </Link>
@@ -52,6 +55,11 @@ export default function Header() {
                   className="block text-gray-600 hover:text-gray-900 py-2"
                   onClick={() => setIsMenuOpen(false)}>
               Diagnóstico 3D
+            </Link>
+            <Link href="/servicios/finanzas" 
+                  className="block text-gray-600 hover:text-gray-900 py-2"
+                  onClick={() => setIsMenuOpen(false)}>
+              Finanzas
             </Link>
             <Link href="#equipo" 
                   className="block text-gray-600 hover:text-gray-900 py-2"

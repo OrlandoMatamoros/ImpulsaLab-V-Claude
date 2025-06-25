@@ -60,20 +60,21 @@ export default function FinanzasPage() {
               Nuestra Solución: Un Centro de Mando para tu Negocio
             </h2>
             
-            {/* Video Placeholder */}
-            <div className="relative bg-gray-900 rounded-lg overflow-hidden mb-12 aspect-video">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <button className="bg-white/20 backdrop-blur-sm rounded-full p-6 hover:bg-white/30 transition-all transform hover:scale-110">
-                  <svg className="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z"/>
-                  </svg>
-                </button>
-              </div>
-              <div className="absolute bottom-4 left-4 text-white">
-                <p className="text-sm opacity-75">Video Demo</p>
-                <p className="text-lg font-semibold">Mira tu Dashboard en Acción</p>
-              </div>
-            </div>
+            {/* Video Demo */}
+            <div className="relative rounded-lg overflow-hidden mb-12 aspect-video">
+            <iframe 
+                className="w-full h-full"
+                src="https://player.vimeo.com/video/368095306?background=1&autoplay=1&loop=1&muted=1"
+                frameBorder="0"
+                allow="autoplay; fullscreen"
+                allowFullScreen
+            />
+  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
+  <div className="absolute bottom-4 left-4 text-white pointer-events-none">
+    <p className="text-sm opacity-75">Demo del Sistema</p>
+    <p className="text-lg font-semibold">Mira cómo transformamos tu negocio</p>
+  </div>
+</div>
 
             {/* Características */}
             <div className="grid md:grid-cols-2 gap-6">

@@ -11,16 +11,16 @@ export default function Header() {
   return (
     <header className="bg-white shadow-sm fixed w-full top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-        <div className="flex items-center">
-          <Image
-            src={IMAGES.isotipo}
-            alt={COMPANY_INFO.name}
-            width={50}
-            height={50}
-            className="mr-3"
-          />
-          <span className="text-2xl font-bold text-gray-800">{COMPANY_INFO.name}</span>
-        </div>
+        <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
+        <Image
+          src={IMAGES.isotipo}
+          alt={COMPANY_INFO.name}
+          width={50}
+          height={50}
+          className="mr-3"
+        />
+        <span className="text-2xl font-bold text-gray-800">{COMPANY_INFO.name}</span>
+      </Link>
         
         <nav className="hidden md:flex space-x-6">
           <Link href="#diagnostico" className="text-gray-600 hover:text-gray-900">

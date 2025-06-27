@@ -62,16 +62,14 @@ export default function FinanzasPage() {
             
             {/* Video Demo */}
             <div className="relative bg-gray-900 rounded-lg overflow-hidden mb-12 aspect-video">
-              <video 
-                className="w-full h-full object-cover"
-                controls
-                autoPlay
-                muted
-                loop
-              >
-                <source src="/videos/Servico Finanzas.mp4" type="video/mp4" />
-                Tu navegador no soporta el elemento de video.
-              </video>
+              <iframe 
+                className="w-full h-full"
+                src="https://www.youtube.com/embed/TswtaMkROcU?autoplay=1&mute=1&loop=1&playlist=TswtaMkROcU"
+                title="Dashboard Demo - Impulsa Lab"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
             </div>
 
             {/* Características */}

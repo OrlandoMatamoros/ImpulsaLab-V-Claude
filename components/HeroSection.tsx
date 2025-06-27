@@ -27,15 +27,17 @@ export default function HeroSection() {
             </Link>
           </div>
           <div className="flex justify-center">
-            <div className="bg-white/10 p-8 rounded-lg backdrop-blur-sm">
+            <div className="bg-white/10 p-8 rounded-lg backdrop-blur-sm text-center">
               <Image
                 src={IMAGES.orlandoPhoto}
                 alt="Orlando Matamoros"
                 width={400}
                 height={400}
-                className="rounded-lg w-full max-w-md"
+                className="rounded-lg w-full max-w-md mb-4"
                 priority
               />
+              <h3 className="text-xl font-semibold text-white">Orlando Matamoros</h3>
+              <p className="text-blue-200">Director de Estrategia</p>
             </div>
           </div>
         </div>

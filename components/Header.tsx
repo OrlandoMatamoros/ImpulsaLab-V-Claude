@@ -12,18 +12,18 @@ export default function Header() {
     <header className="bg-white shadow-sm fixed w-full top-0 z-50">
       <div className="container mx-auto px-4 py-4 flex justify-between items-center">
         <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
-        <Image
-          src={IMAGES.isotipo}
-          alt={COMPANY_INFO.name}
-          width={50}
-          height={50}
-          className="mr-3"
-        />
-        <span className="text-2xl font-bold text-gray-800">{COMPANY_INFO.name}</span>
-      </Link>
+          <Image
+            src={IMAGES.isotipo}
+            alt={COMPANY_INFO.name}
+            width={50}
+            height={50}
+            className="mr-3"
+          />
+          <span className="text-2xl font-bold text-gray-800">{COMPANY_INFO.name}</span>
+        </Link>
         
         <nav className="hidden md:flex space-x-6">
-          <Link href="#diagnostico" className="text-gray-600 hover:text-gray-900">
+          <Link href="/#diagnostico" className="text-gray-600 hover:text-gray-900">
             Diagnóstico 3D
           </Link>
           <Link href="/servicios/finanzas" className="text-gray-600 hover:text-gray-900">
@@ -35,10 +35,10 @@ export default function Header() {
           <Link href="/servicios/marketing" className="text-gray-600 hover:text-gray-900">
             Marketing
           </Link>
-          <Link href="#equipo" className="text-gray-600 hover:text-gray-900">
+          <Link href="/#equipo" className="text-gray-600 hover:text-gray-900">
             Quiénes Somos
           </Link>
-          <Link href="#contacto" className="text-gray-600 hover:text-gray-900">
+          <Link href="/#contacto" className="text-gray-600 hover:text-gray-900">
             Contacto
           </Link>
         </nav>
@@ -58,7 +58,7 @@ export default function Header() {
       {isMenuOpen && (
         <div className="md:hidden bg-white border-t">
           <nav className="px-4 py-2 space-y-2">
-            <Link href="#diagnostico" 
+            <Link href="/#diagnostico" 
                   className="block text-gray-600 hover:text-gray-900 py-2"
                   onClick={() => setIsMenuOpen(false)}>
               Diagnóstico 3D
@@ -78,12 +78,12 @@ export default function Header() {
                   onClick={() => setIsMenuOpen(false)}>
               Marketing
             </Link>
-            <Link href="#equipo" 
+            <Link href="/#equipo" 
                   className="block text-gray-600 hover:text-gray-900 py-2"
                   onClick={() => setIsMenuOpen(false)}>
               Quiénes Somos
             </Link>
-            <Link href="#contacto" 
+            <Link href="/#contacto" 
                   className="block text-gray-600 hover:text-gray-900 py-2"
                   onClick={() => setIsMenuOpen(false)}>
               Contacto

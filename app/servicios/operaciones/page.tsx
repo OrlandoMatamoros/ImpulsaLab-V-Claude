@@ -1,6 +1,5 @@
 import Link from 'next/link'
 import { LINKS } from '@/lib/constants'
-import { Play, Zap, Clock, Bot, Users, CheckCircle, ArrowRight } from 'lucide-react'
 
 export default function OperacionesPage() {
   return (
@@ -20,283 +19,248 @@ export default function OperacionesPage() {
               Automatiza tu Negocio. Recupera tu Tiempo. Enfócate en Crecer.
             </h1>
             <p className="text-xl md:text-2xl text-gray-200">
-              Implementamos agentes de IA que se encargan de las tareas repetitivas 
-              mientras tú te dedicas a lo que realmente importa: hacer crecer tu negocio.
+              Implementamos agentes de IA que se encargan de las tareas repetitivas mientras 
+              tú te dedicas a lo que realmente importa: hacer crecer tu negocio.
             </p>
           </div>
         </div>
       </section>
 
       {/* Sección 2: El Problema - Tema Claro */}
-      <section className="bg-white py-20">
+      <section className="py-20 bg-slate-50">
         <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 text-gray-900">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-900">
               ¿Te Suena Familiar?
             </h2>
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="bg-gray-50 p-8 rounded-lg border-l-4 border-red-500">
-                <div className="flex items-center mb-4">
-                  <div className="w-3 h-3 bg-red-500 rounded-full mr-3"></div>
-                  <h3 className="text-lg font-semibold text-gray-900">Tiempo Perdido</h3>
+            <div className="space-y-6">
+              {[
+                "¿Pasas horas en tareas administrativas que no agregan valor?",
+                "¿Tu equipo pierde tiempo en procesos manuales y repetitivos?",
+                "¿Los errores humanos en tareas rutinarias te cuestan dinero?",
+                "¿Sientes que trabajas EN tu negocio en lugar de PARA tu negocio?"
+              ].map((problema, index) => (
+                <div key={index} className="flex items-start">
+                  <div className="flex-shrink-0 w-8 h-8 bg-red-100 rounded-full flex items-center justify-center mr-4 mt-1">
+                    <span className="text-red-600 font-bold">?</span>
+                  </div>
+                  <p className="text-lg text-gray-700">{problema}</p>
                 </div>
-                <p className="text-gray-700">
-                  ¿Pasas horas en tareas administrativas que no agregan valor?
-                </p>
-              </div>
-              
-              <div className="bg-gray-50 p-8 rounded-lg border-l-4 border-orange-500">
-                <div className="flex items-center mb-4">
-                  <div className="w-3 h-3 bg-orange-500 rounded-full mr-3"></div>
-                  <h3 className="text-lg font-semibold text-gray-900">Procesos Manuales</h3>
-                </div>
-                <p className="text-gray-700">
-                  ¿Tu equipo pierde tiempo en procesos manuales y repetitivos?
-                </p>
-              </div>
-              
-              <div className="bg-gray-50 p-8 rounded-lg border-l-4 border-yellow-500">
-                <div className="flex items-center mb-4">
-                  <div className="w-3 h-3 bg-yellow-500 rounded-full mr-3"></div>
-                  <h3 className="text-lg font-semibold text-gray-900">Errores Costosos</h3>
-                </div>
-                <p className="text-gray-700">
-                  ¿Los errores humanos en tareas rutinarias te cuestan dinero?
-                </p>
-              </div>
-              
-              <div className="bg-gray-50 p-8 rounded-lg border-l-4 border-red-600">
-                <div className="flex items-center mb-4">
-                  <div className="w-3 h-3 bg-red-600 rounded-full mr-3"></div>
-                  <h3 className="text-lg font-semibold text-gray-900">Falta de Enfoque</h3>
-                </div>
-                <p className="text-gray-700">
-                  ¿Sientes que trabajas EN tu negocio en lugar de PARA tu negocio?
-                </p>
-              </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
       {/* Sección 3: La Solución - Tema Claro */}
-      <section className="bg-gray-50 py-20">
+      <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 text-gray-900">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-900">
               Agentes de IA: Tu Equipo Digital 24/7
             </h2>
             
             {/* Video Demo */}
-            <div className="relative rounded-lg overflow-hidden mb-12 aspect-video">
+            <div className="relative bg-gray-900 rounded-lg overflow-hidden mb-12 aspect-video">
               <iframe 
                 className="w-full h-full"
-                src="https://player.vimeo.com/video/452859061?background=1&autoplay=1&loop=1&muted=1"
+                src="https://www.youtube.com/embed/lMFV5mq_IXo?autoplay=1&mute=1&loop=1&playlist=lMFV5mq_IXo"
+                title="Automatización Demo - Impulsa Lab"
                 frameBorder="0"
-                allow="autoplay; fullscreen"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
-              <div className="absolute bottom-4 left-4 text-white pointer-events-none">
-                <p className="text-sm opacity-75">Demo del Sistema</p>
-                <p className="text-lg font-semibold">Mira cómo transformamos tu negocio</p>
-              </div>
             </div>
-            
-            {/* Características principales */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              <div className="text-center">
-                <div className="bg-green-100 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                  <Zap className="w-8 h-8 text-green-600" />
+
+            {/* Características */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {[
+                {
+                  title: "Automatización de emails y seguimientos",
+                  description: "Responde consultas y programa citas automáticamente"
+                },
+                {
+                  title: "Gestión inteligente de agenda",
+                  description: "Optimiza tu calendario y evita conflictos de horario"
+                },
+                {
+                  title: "Procesamiento automático de documentos",
+                  description: "Extrae datos y genera reportes sin intervención manual"
+                },
+                {
+                  title: "Chatbots de atención al cliente",
+                  description: "Atiende a tus clientes 24/7 con respuestas personalizadas"
+                }
+              ].map((feature, index) => (
+                <div key={index} className="flex items-start">
+                  <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
+                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 mb-1">{feature.title}</h3>
+                    <p className="text-gray-600">{feature.description}</p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-semibold mb-2 text-gray-900">Automatización de Emails</h3>
-                <p className="text-gray-600">Seguimientos automáticos y personalizados</p>
-              </div>
-              
-              <div className="text-center">
-                <div className="bg-green-100 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                  <Clock className="w-8 h-8 text-green-600" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2 text-gray-900">Gestión de Agenda</h3>
-                <p className="text-gray-600">Programación inteligente de citas y reuniones</p>
-              </div>
-              
-              <div className="text-center">
-                <div className="bg-green-100 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                  <Bot className="w-8 h-8 text-green-600" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2 text-gray-900">Procesamiento de Documentos</h3>
-                <p className="text-gray-600">Extracción y análisis automático de datos</p>
-              </div>
-              
-              <div className="text-center">
-                <div className="bg-green-100 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                  <Users className="w-8 h-8 text-green-600" />
-                </div>
-                <h3 className="text-xl font-semibold mb-2 text-gray-900">Chatbots de Atención</h3>
-                <p className="text-gray-600">Atención al cliente 24/7 automatizada</p>
-              </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
       {/* Sección 4: Nuestro Proceso - Tema Gris */}
-    <section className="py-20 bg-gray-50">
-  <div className="container mx-auto px-4">
-    <div className="max-w-6xl mx-auto">
-      <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-900">
-        De la Tarea Manual a la Operación Inteligente
-      </h2>
-      <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
-        {[
-          {
-            numero: "1",
-            titulo: "Diagnóstico Operativo",
-            descripcion: "Analizamos tu flujo de trabajo actual para identificar los cuellos de botella y las tareas repetitivas que más tiempo te consumen."
-          },
-          {
-            numero: "2",
-            titulo: "Diseño del Agente de IA",
-            descripcion: "Definimos la \"personalidad\" de tu agente, las tareas que ejecutará y las plataformas con las que se integrará (web, email, etc.)."
-          },
-          {
-            numero: "3",
-            titulo: "Desarrollo y Entrenamiento",
-            descripcion: "Construimos el cerebro de tu agente y lo entrenamos con la información específica de tu negocio: tus servicios, precios, y respuestas a preguntas frecuentes."
-          },
-          {
-            numero: "4",
-            titulo: "Implementación e Integración",
-            descripcion: "Conectamos el agente a tus sistemas y lo ponemos en marcha. Realizamos pruebas exhaustivas para asegurar un funcionamiento impecable."
-          },
-          {
-            numero: "5",
-            titulo: "Monitoreo y Optimización",
-            descripcion: "No te dejamos solo. Monitoreamos el rendimiento de tu agente y hacemos ajustes continuos para maximizar su eficiencia y resultados."
-          }
-        ].map((paso, index) => (
-          <div key={index} className="relative">
-            <div className="bg-white rounded-lg p-6 shadow-lg h-full">
-              <div className="w-12 h-12 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-xl mb-4">
-                {paso.numero}
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2">{paso.titulo}</h3>
-              <p className="text-gray-600 text-sm">{paso.descripcion}</p>
-            </div>
-            {index < 4 && (
-              <div className="hidden lg:block absolute top-1/2 -right-3 transform -translate-y-1/2 text-gray-300">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
-</section>
-
-      {/* Sección 5: Planes y Precios - Tema Claro */}
-      <section className="bg-gray-50 py-20">
+      <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-16 text-gray-900">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-900">
+              De la Tarea Manual a la Operación Inteligente
+            </h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
+              {[
+                {
+                  numero: "1",
+                  titulo: "Diagnóstico Operativo",
+                  descripcion: "Analizamos tu flujo de trabajo actual para identificar los cuellos de botella y las tareas repetitivas que más tiempo te consumen."
+                },
+                {
+                  numero: "2",
+                  titulo: "Diseño del Agente de IA",
+                  descripcion: "Definimos la \"personalidad\" de tu agente, las tareas que ejecutará y las plataformas con las que se integrará (web, email, etc.)."
+                },
+                {
+                  numero: "3",
+                  titulo: "Desarrollo y Entrenamiento",
+                  descripcion: "Construimos el cerebro de tu agente y lo entrenamos con la información específica de tu negocio: tus servicios, precios, y respuestas a preguntas frecuentes."
+                },
+                {
+                  numero: "4",
+                  titulo: "Implementación e Integración",
+                  descripcion: "Conectamos el agente a tus sistemas y lo ponemos en marcha. Realizamos pruebas exhaustivas para asegurar un funcionamiento impecable."
+                },
+                {
+                  numero: "5",
+                  titulo: "Monitoreo y Optimización",
+                  descripcion: "No te dejamos solo. Monitoreamos el rendimiento de tu agente y hacemos ajustes continuos para maximizar su eficiencia y resultados."
+                }
+              ].map((paso, index) => (
+                <div key={index} className="relative">
+                  <div className="bg-white rounded-lg p-6 shadow-lg h-full">
+                    <div className="w-12 h-12 bg-green-600 text-white rounded-full flex items-center justify-center font-bold text-xl mb-4">
+                      {paso.numero}
+                    </div>
+                    <h3 className="font-semibold text-gray-900 mb-2">{paso.titulo}</h3>
+                    <p className="text-gray-600 text-sm">{paso.descripcion}</p>
+                  </div>
+                  {index < 4 && (
+                    <div className="hidden lg:block absolute top-1/2 -right-3 transform -translate-y-1/2 text-gray-300">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Sección 5: Planes y Precios - Tema Claro */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-900">
               Planes Diseñados para tu Etapa de Crecimiento
             </h2>
-            
-            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-8">
               {/* Plan Asistente Digital */}
-              <div className="bg-white p-8 rounded-lg shadow-lg border-2 border-green-200 relative">
-                <div className="absolute -top-3 left-6 bg-green-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                  Popular
+              <div className="bg-gray-50 rounded-lg p-8 border-2 border-gray-200">
+                <h3 className="text-2xl font-bold mb-2 text-gray-900">Asistente Digital</h3>
+                <p className="text-gray-600 mb-6">Ideal para: Emprendedores que necesitan su primer asistente virtual.</p>
+                
+                <div className="mb-6">
+                  <p className="text-3xl font-bold text-green-600">Desde $500</p>
+                  <p className="text-gray-500">Pago único</p>
                 </div>
-                
-                <h3 className="text-2xl font-bold text-gray-900 mb-2 mt-4">
-                  Asistente Digital
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Ideal para: <span className="font-semibold">Emprendedores que necesitan su primer asistente virtual</span>
-                </p>
-                
+
                 <div className="mb-8">
-                  <h4 className="font-semibold text-gray-900 mb-4">Entregables:</h4>
-                  <ul className="space-y-3">
+                  <p className="font-semibold mb-3 text-gray-900">Entregables:</p>
+                  <ul className="space-y-2">
                     <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">Automatización básica de procesos</span>
+                      <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-gray-700">1 Agente de IA personalizado</span>
                     </li>
                     <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">1 agente de IA personalizado</span>
+                      <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-gray-700">Automatización de tareas básicas</span>
                     </li>
                     <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
+                      <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
                       <span className="text-gray-700">Soporte inicial y capacitación</span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">Integración con herramientas existentes</span>
                     </li>
                   </ul>
                 </div>
-                
-                <div className="mb-6">
-                  <div className="text-3xl font-bold text-gray-900">
-                    Desde $500
-                  </div>
-                  <p className="text-gray-600 text-sm">Pago único</p>
-                </div>
-                
-                <Link href={LINKS.calendly} className="block w-full bg-green-600 text-white text-center py-3 px-6 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+
+                <Link href={LINKS.calendly}
+                      target="_blank"
+                      className="block w-full bg-green-600 text-white text-center py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
                   Agendar Diagnóstico
                 </Link>
               </div>
-              
+
               {/* Plan Equipo Completo */}
-              <div className="bg-white p-8 rounded-lg shadow-lg border-2 border-green-600 relative">
-                <div className="absolute -top-3 left-6 bg-green-900 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                  Recomendado
+              <div className="bg-green-50 rounded-lg p-8 border-2 border-green-200 relative">
+                <div className="absolute -top-3 right-8 bg-green-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                  Más Popular
                 </div>
+                <h3 className="text-2xl font-bold mb-2 text-gray-900">Equipo Completo</h3>
+                <p className="text-gray-600 mb-6">Ideal para: Negocios listos para escalar sus operaciones.</p>
                 
-                <h3 className="text-2xl font-bold text-gray-900 mb-2 mt-4">
-                  Equipo Completo
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Ideal para: <span className="font-semibold">Negocios listos para escalar sus operaciones</span>
-                </p>
-                
+                <div className="mb-6">
+                  <p className="text-3xl font-bold text-green-600">Desde $1,000</p>
+                  <p className="text-gray-500">+ Suscripción mensual</p>
+                </div>
+
                 <div className="mb-8">
-                  <h4 className="font-semibold text-gray-900 mb-4">Entregables:</h4>
-                  <ul className="space-y-3">
+                  <p className="font-semibold mb-3 text-gray-900">Entregables:</p>
+                  <ul className="space-y-2">
                     <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">Todo del plan anterior</span>
+                      <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-gray-700">Todo lo del plan Asistente Digital</span>
                     </li>
                     <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">Múltiples agentes de IA especializados</span>
+                      <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-gray-700">Múltiples agentes especializados</span>
                     </li>
                     <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">Integración completa de sistemas</span>
+                      <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-gray-700">Integración completa con tus sistemas</span>
                     </li>
                     <li className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                      <span className="text-gray-700">Soporte continuo y actualizaciones</span>
+                      <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-gray-700">Soporte continuo y optimización</span>
                     </li>
                   </ul>
                 </div>
-                
-                <div className="mb-6">
-                  <div className="text-3xl font-bold text-gray-900">
-                    Desde $1,000
-                  </div>
-                  <p className="text-gray-600 text-sm">+ Suscripción Mensual</p>
-                </div>
-                
-                <Link href={LINKS.calendly} className="block w-full bg-green-900 text-white text-center py-3 px-6 rounded-lg font-semibold hover:bg-green-800 transition-colors">
+
+                <Link href={LINKS.calendly}
+                      target="_blank"
+                      className="block w-full bg-green-600 text-white text-center py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
                   Agendar Diagnóstico
                 </Link>
               </div>
@@ -306,18 +270,22 @@ export default function OperacionesPage() {
       </section>
 
       {/* Sección 6: CTA Final - Tema Oscuro */}
-      <section className="bg-green-900 text-white py-20">
+      <section className="py-20 bg-green-900 text-white">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
+          <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              ¿Listo para Automatizar tu Negocio?
+              ¿Listo para Recuperar tu Tiempo y Enfocarte en Crecer?
             </h2>
-            <p className="text-xl text-gray-200 mb-8">
-              Deja que la IA trabaje por ti mientras tú te enfocas en hacer crecer tu empresa.
+            <p className="text-xl mb-8 text-gray-200">
+              Agenda tu diagnóstico gratuito y descubre cómo la automatización inteligente 
+              puede transformar la forma en que operas tu negocio.
             </p>
-            <Link href={LINKS.calendly} className="inline-flex items-center bg-white text-green-900 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-colors">
-              Comenzar Ahora
-              <ArrowRight className="ml-2 w-5 h-5" />
+            <Link href={LINKS.calendly}
+                  target="_blank"
+                  className="inline-block bg-white text-green-900 px-8 py-4 rounded-lg 
+                           font-semibold text-lg transition-all duration-300 
+                           hover:scale-105 hover:bg-gray-100">
+              Obtén tu Diagnóstico 3D Gratis
             </Link>
           </div>
         </div>

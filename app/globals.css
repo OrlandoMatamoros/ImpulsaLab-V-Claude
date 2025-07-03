@@ -27,24 +27,34 @@ body {
 /* Animaciones para VerticalTechTicker */
 @keyframes slideUp {
   0% {
-    transform: translateY(100%);
+    transform: translateY(0);
   }
   100% {
-    transform: translateY(-100%);
+    transform: translateY(-50%);
   }
 }
 
 @keyframes slideDown {
   0% {
-    transform: translateY(-100%);
+    transform: translateY(-50%);
   }
   100% {
-    transform: translateY(100%);
+    transform: translateY(0);
   }
 }
 
-/* Transiciones suaves para los elementos del ticker */
-.animate-\[slideUp_25s_linear_infinite\] > *,
-.animate-\[slideDown_25s_linear_infinite\] > * {
-  transition: all 0.3s ease;
+.animate-slide-up {
+  animation: slideUp 40s linear infinite;
+}
+
+.animate-slide-down {
+  animation: slideDown 40s linear infinite;
+}
+
+.animate-slide-up {
+  animation: slideUp 40s linear infinite;
+}
+
+.animate-slide-down {
+  animation: slideDown 40s linear infinite;
 }

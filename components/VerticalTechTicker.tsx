@@ -5,9 +5,10 @@ import React from 'react';
 interface TechTool {
   name: string;
   logo: React.ComponentType<{ className?: string }>;
+  url: string;
 }
 
-// Componentes de iconos SVG simplificados
+// Componentes de iconos SVG
 const GoogleAIIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
@@ -81,20 +82,34 @@ const FigmaIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-// Array de herramientas tecnológicas
+const MakeIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+  </svg>
+);
+
+const StripeIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.594-7.305h.003z"/>
+  </svg>
+);
+
+// Array de herramientas tecnológicas con URLs
 const techTools: TechTool[] = [
-  { name: 'Google AI (Gemini)', logo: GoogleAIIcon },
-  { name: 'OpenAI (ChatGPT)', logo: OpenAIIcon },
-  { name: 'Claude (Anthropic)', logo: ClaudeIcon },
-  { name: 'Microsoft Excel', logo: ExcelIcon },
-  { name: 'Microsoft Power BI', logo: PowerBIIcon },
-  { name: 'Next.js', logo: NextJSIcon },
-  { name: 'Vercel', logo: VercelIcon },
-  { name: 'GitHub', logo: GitHubIcon },
-  { name: 'Firebase', logo: FirebaseIcon },
-  { name: 'Zapier', logo: ZapierIcon },
-  { name: 'Tailwind CSS', logo: TailwindIcon },
-  { name: 'Figma', logo: FigmaIcon },
+  { name: 'Google AI (Gemini)', logo: GoogleAIIcon, url: 'https://gemini.google.com' },
+  { name: 'OpenAI (ChatGPT)', logo: OpenAIIcon, url: 'https://openai.com' },
+  { name: 'Claude (Anthropic)', logo: ClaudeIcon, url: 'https://claude.ai' },
+  { name: 'Microsoft Excel', logo: ExcelIcon, url: 'https://www.microsoft.com/excel' },
+  { name: 'Microsoft Power BI', logo: PowerBIIcon, url: 'https://powerbi.microsoft.com' },
+  { name: 'Next.js', logo: NextJSIcon, url: 'https://nextjs.org' },
+  { name: 'Vercel', logo: VercelIcon, url: 'https://vercel.com' },
+  { name: 'GitHub', logo: GitHubIcon, url: 'https://github.com' },
+  { name: 'Firebase', logo: FirebaseIcon, url: 'https://firebase.google.com' },
+  { name: 'Make.com', logo: MakeIcon, url: 'https://make.com' },
+  { name: 'Zapier', logo: ZapierIcon, url: 'https://zapier.com' },
+  { name: 'Tailwind CSS', logo: TailwindIcon, url: 'https://tailwindcss.com' },
+  { name: 'Figma', logo: FigmaIcon, url: 'https://figma.com' },
+  { name: 'Stripe', logo: StripeIcon, url: 'https://stripe.com' },
 ];
 
 // Componente principal
@@ -106,29 +121,35 @@ const VerticalTechTicker: React.FC = () => {
     <div className="relative h-96 w-full overflow-hidden">
       {/* Máscaras de degradado */}
       <div className="absolute inset-0 z-10 pointer-events-none">
-        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-white to-transparent"></div>
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent"></div>
+        <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-[#002D62] to-transparent"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#002D62] to-transparent"></div>
       </div>
 
-      {/* Contenedor de las columnas */}
-      <div className="flex h-full gap-8 justify-center">
+      {/* Zona de spotlight en el centro */}
+      <div className="absolute top-1/2 left-0 right-0 h-32 -translate-y-1/2 bg-white/5 border-y border-white/20 z-5"></div>
+
+      {/* Contenedor de las columnas - MÁS ANCHO */}
+      <div className="flex h-full gap-12 justify-center items-center">
         {/* Primera columna - Animación hacia arriba */}
         <div className="flex flex-col">
-          <div className="flex flex-col gap-6 animate-[moveUp_30s_linear_infinite]">
+          <div className="flex flex-col gap-8 animate-[moveUp_25s_linear_infinite]">
             {duplicatedTools.map((tool, index) => {
               const LogoComponent = tool.logo;
               return (
-                <div
+                
                   key={`up-${index}`}
-                  className="group relative flex items-center justify-center w-16 h-16 rounded-lg bg-gray-50 hover:bg-gray-100 transition-all duration-300 cursor-pointer"
+                  href={tool.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative flex flex-col items-center justify-center w-24 h-24 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-500 cursor-pointer border border-white/20 hover:border-white/40"
                 >
-                  <LogoComponent className="w-8 h-8 text-gray-400 group-hover:text-blue-500 transition-colors duration-300" />
+                  <LogoComponent className="w-10 h-10 text-white/70 group-hover:text-white transition-all duration-500 group-hover:scale-110" />
                   
-                  {/* Tooltip */}
-                  <div className="absolute left-full ml-2 px-3 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-20">
+                  {/* Nombre siempre visible pero destacado en el centro */}
+                  <div className="mt-2 text-xs text-white/60 group-hover:text-white/90 transition-all duration-500 text-center px-2 leading-tight spotlight-text">
                     {tool.name}
                   </div>
-                </div>
+                </a>
               );
             })}
           </div>
@@ -136,21 +157,24 @@ const VerticalTechTicker: React.FC = () => {
 
         {/* Segunda columna - Animación hacia abajo */}
         <div className="flex flex-col">
-          <div className="flex flex-col gap-6 animate-[moveDown_30s_linear_infinite]">
+          <div className="flex flex-col gap-8 animate-[moveDown_25s_linear_infinite]">
             {duplicatedTools.map((tool, index) => {
               const LogoComponent = tool.logo;
               return (
-                <div
+                
                   key={`down-${index}`}
-                  className="group relative flex items-center justify-center w-16 h-16 rounded-lg bg-gray-50 hover:bg-gray-100 transition-all duration-300 cursor-pointer"
+                  href={tool.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative flex flex-col items-center justify-center w-24 h-24 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-500 cursor-pointer border border-white/20 hover:border-white/40"
                 >
-                  <LogoComponent className="w-8 h-8 text-gray-400 group-hover:text-blue-500 transition-colors duration-300" />
+                  <LogoComponent className="w-10 h-10 text-white/70 group-hover:text-white transition-all duration-500 group-hover:scale-110" />
                   
-                  {/* Tooltip */}
-                  <div className="absolute right-full mr-2 px-3 py-1 bg-gray-800 text-white text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap z-20">
+                  {/* Nombre siempre visible pero destacado en el centro */}
+                  <div className="mt-2 text-xs text-white/60 group-hover:text-white/90 transition-all duration-500 text-center px-2 leading-tight spotlight-text">
                     {tool.name}
                   </div>
-                </div>
+                </a>
               );
             })}
           </div>

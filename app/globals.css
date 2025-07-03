@@ -42,3 +42,37 @@ body {
     transform: translateY(100%);
   }
 }
+
+/* Efecto spotlight - elementos se resaltan automáticamente en el centro */
+.spotlight-text {
+  transition: all 0.3s ease;
+}
+
+/* Cuando el elemento está en el centro de la pantalla */
+@media (min-width: 768px) {
+  .animate-\[moveUp_25s_linear_infinite\] > *:nth-child(6),
+  .animate-\[moveUp_25s_linear_infinite\] > *:nth-child(7),
+  .animate-\[moveDown_25s_linear_infinite\] > *:nth-child(6),
+  .animate-\[moveDown_25s_linear_infinite\] > *:nth-child(7) {
+    transform: scale(1.2);
+    background: rgba(255, 255, 255, 0.25) !important;
+    border-color: rgba(255, 255, 255, 0.6) !important;
+    box-shadow: 0 8px 32px rgba(255, 255, 255, 0.1);
+  }
+  
+  .animate-\[moveUp_25s_linear_infinite\] > *:nth-child(6) .spotlight-text,
+  .animate-\[moveUp_25s_linear_infinite\] > *:nth-child(7) .spotlight-text,
+  .animate-\[moveDown_25s_linear_infinite\] > *:nth-child(6) .spotlight-text,
+  .animate-\[moveDown_25s_linear_infinite\] > *:nth-child(7) .spotlight-text {
+    color: white !important;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+}
+
+/* Efectos adicionales para mejorar la visibilidad */
+.animate-\[moveUp_25s_linear_infinite\] > *,
+.animate-\[moveDown_25s_linear_infinite\] > * {
+  transition: all 0.5s ease;
+}

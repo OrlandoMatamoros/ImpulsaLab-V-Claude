@@ -1,14 +1,12 @@
 "use client";
 import React from 'react';
 
-// Definición de tipos
 interface TechTool {
   name: string;
   logo: React.ComponentType<{ className?: string }>;
   url: string;
 }
 
-// Componentes de iconos SVG
 const GoogleAIIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
@@ -94,45 +92,36 @@ const StripeIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-// Array de herramientas tecnológicas con URLs
 const techTools: TechTool[] = [
-  { name: 'Google AI (Gemini)', logo: GoogleAIIcon, url: 'https://gemini.google.com' },
-  { name: 'OpenAI (ChatGPT)', logo: OpenAIIcon, url: 'https://openai.com' },
-  { name: 'Claude (Anthropic)', logo: ClaudeIcon, url: 'https://claude.ai' },
-  { name: 'Microsoft Excel', logo: ExcelIcon, url: 'https://www.microsoft.com/excel' },
-  { name: 'Microsoft Power BI', logo: PowerBIIcon, url: 'https://powerbi.microsoft.com' },
+  { name: 'Google AI', logo: GoogleAIIcon, url: 'https://gemini.google.com' },
+  { name: 'OpenAI', logo: OpenAIIcon, url: 'https://openai.com' },
+  { name: 'Claude', logo: ClaudeIcon, url: 'https://claude.ai' },
+  { name: 'Excel', logo: ExcelIcon, url: 'https://www.microsoft.com/excel' },
+  { name: 'Power BI', logo: PowerBIIcon, url: 'https://powerbi.microsoft.com' },
   { name: 'Next.js', logo: NextJSIcon, url: 'https://nextjs.org' },
   { name: 'Vercel', logo: VercelIcon, url: 'https://vercel.com' },
   { name: 'GitHub', logo: GitHubIcon, url: 'https://github.com' },
   { name: 'Firebase', logo: FirebaseIcon, url: 'https://firebase.google.com' },
   { name: 'Make.com', logo: MakeIcon, url: 'https://make.com' },
   { name: 'Zapier', logo: ZapierIcon, url: 'https://zapier.com' },
-  { name: 'Tailwind CSS', logo: TailwindIcon, url: 'https://tailwindcss.com' },
+  { name: 'Tailwind', logo: TailwindIcon, url: 'https://tailwindcss.com' },
   { name: 'Figma', logo: FigmaIcon, url: 'https://figma.com' },
   { name: 'Stripe', logo: StripeIcon, url: 'https://stripe.com' },
 ];
 
-// Componente principal
 const VerticalTechTicker: React.FC = () => {
-  // Duplicamos el array para crear un efecto de loop continuo
   const duplicatedTools = [...techTools, ...techTools];
 
   return (
     <div className="relative h-96 w-full overflow-hidden">
-      {/* Máscaras de degradado */}
       <div className="absolute inset-0 z-10 pointer-events-none">
-        <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-[#002D62] to-transparent"></div>
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#002D62] to-transparent"></div>
+        <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-blue-900 to-transparent"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-blue-900 to-transparent"></div>
       </div>
 
-      {/* Zona de spotlight en el centro */}
-      <div className="absolute top-1/2 left-0 right-0 h-32 -translate-y-1/2 bg-white/5 border-y border-white/20 z-5"></div>
-
-      {/* Contenedor de las columnas - MÁS ANCHO */}
       <div className="flex h-full gap-12 justify-center items-center">
-        {/* Primera columna - Animación hacia arriba */}
         <div className="flex flex-col">
-          <div className="flex flex-col gap-8 animate-[moveUp_25s_linear_infinite]">
+          <div className="flex flex-col gap-8 animate-[slideUp_25s_linear_infinite]">
             {duplicatedTools.map((tool, index) => {
               const LogoComponent = tool.logo;
               return (
@@ -144,9 +133,7 @@ const VerticalTechTicker: React.FC = () => {
                   className="group relative flex flex-col items-center justify-center w-24 h-24 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-500 cursor-pointer border border-white/20 hover:border-white/40"
                 >
                   <LogoComponent className="w-10 h-10 text-white/70 group-hover:text-white transition-all duration-500 group-hover:scale-110" />
-                  
-                  {/* Nombre siempre visible pero destacado en el centro */}
-                  <div className="mt-2 text-xs text-white/60 group-hover:text-white/90 transition-all duration-500 text-center px-2 leading-tight spotlight-text">
+                  <div className="mt-2 text-xs text-white/60 group-hover:text-white/90 transition-all duration-500 text-center px-2 leading-tight">
                     {tool.name}
                   </div>
                 </a>
@@ -155,9 +142,8 @@ const VerticalTechTicker: React.FC = () => {
           </div>
         </div>
 
-        {/* Segunda columna - Animación hacia abajo */}
         <div className="flex flex-col">
-          <div className="flex flex-col gap-8 animate-[moveDown_25s_linear_infinite]">
+          <div className="flex flex-col gap-8 animate-[slideDown_25s_linear_infinite]">
             {duplicatedTools.map((tool, index) => {
               const LogoComponent = tool.logo;
               return (
@@ -169,9 +155,7 @@ const VerticalTechTicker: React.FC = () => {
                   className="group relative flex flex-col items-center justify-center w-24 h-24 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-500 cursor-pointer border border-white/20 hover:border-white/40"
                 >
                   <LogoComponent className="w-10 h-10 text-white/70 group-hover:text-white transition-all duration-500 group-hover:scale-110" />
-                  
-                  {/* Nombre siempre visible pero destacado en el centro */}
-                  <div className="mt-2 text-xs text-white/60 group-hover:text-white/90 transition-all duration-500 text-center px-2 leading-tight spotlight-text">
+                  <div className="mt-2 text-xs text-white/60 group-hover:text-white/90 transition-all duration-500 text-center px-2 leading-tight">
                     {tool.name}
                   </div>
                 </a>

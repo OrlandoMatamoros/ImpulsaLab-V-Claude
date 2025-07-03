@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import * as React from 'react';
 
 interface TechTool {
   name: string;
@@ -124,14 +124,14 @@ const VerticalTechTicker: React.FC = () => {
           <div className="flex flex-col gap-8 animate-[slideUp_25s_linear_infinite]">
             {duplicatedTools.map((tool, index) => {
               const LogoComponent = tool.logo;
-              return (
-                
-                  key={`up-${index}`}
+              return (<a>
+  
+                key={"up-" + index.toString()}
                   href={tool.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group relative flex flex-col items-center justify-center w-24 h-24 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-500 cursor-pointer border border-white/20 hover:border-white/40"
-                >
+            
                   <LogoComponent className="w-10 h-10 text-white/70 group-hover:text-white transition-all duration-500 group-hover:scale-110" />
                   <div className="mt-2 text-xs text-white/60 group-hover:text-white/90 transition-all duration-500 text-center px-2 leading-tight">
                     {tool.name}
@@ -146,14 +146,14 @@ const VerticalTechTicker: React.FC = () => {
           <div className="flex flex-col gap-8 animate-[slideDown_25s_linear_infinite]">
             {duplicatedTools.map((tool, index) => {
               const LogoComponent = tool.logo;
-              return (
+              return (<a>
                 
                   key={`down-${index}`}
                   href={tool.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group relative flex flex-col items-center justify-center w-24 h-24 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-500 cursor-pointer border border-white/20 hover:border-white/40"
-                >
+                
                   <LogoComponent className="w-10 h-10 text-white/70 group-hover:text-white transition-all duration-500 group-hover:scale-110" />
                   <div className="mt-2 text-xs text-white/60 group-hover:text-white/90 transition-all duration-500 text-center px-2 leading-tight">
                     {tool.name}

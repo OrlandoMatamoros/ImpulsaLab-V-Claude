@@ -68,6 +68,12 @@ const ZapierIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
+const MakeIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+  </svg>
+);
+
 const TailwindIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
     <path d="M12 6c-2.67 0-4.33 1.33-5 4 1-1.33 2.17-1.83 3.5-1.5.76.19 1.31.74 1.91 1.35.98 1 2.12 2.15 4.59 2.15 2.67 0 4.33-1.33 5-4-1 1.33-2.17 1.83-3.5 1.5-.76-.19-1.31-.74-1.91-1.35C15.61 7.15 14.47 6 12 6zm-5 6c-2.67 0-4.33 1.33-5 4 1-1.33 2.17-1.83 3.5-1.5.76.19 1.31.74 1.91 1.35.98 1 2.12 2.15 4.59 2.15 2.67 0 4.33-1.33 5-4-1 1.33-2.17 1.83-3.5 1.5-.76-.19-1.31-.74-1.91-1.35C10.61 13.15 9.47 12 7 12z"/>
@@ -77,12 +83,6 @@ const TailwindIcon: React.FC<{ className?: string }> = ({ className }) => (
 const FigmaIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
     <path d="M15.5 7.5a3.5 3.5 0 110-7h-7a3.5 3.5 0 000 7 3.5 3.5 0 000 7 3.5 3.5 0 000 7h3.5a3.5 3.5 0 000-7 3.5 3.5 0 000-7z"/>
-  </svg>
-);
-
-const MakeIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
   </svg>
 );
 
@@ -113,27 +113,57 @@ const VerticalTechTicker: React.FC = () => {
   const duplicatedTools = [...techTools, ...techTools];
 
   return (
-    <div className="relative h-96 w-full overflow-hidden">
+    <div className="relative h-96 w-full overflow-hidden bg-transparent">
+      <style jsx>{`
+        @keyframes slideUp {
+          0% {
+            transform: translateY(0);
+          }
+          100% {
+            transform: translateY(-50%);
+          }
+        }
+        
+        @keyframes slideDown {
+          0% {
+            transform: translateY(-50%);
+          }
+          100% {
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-slideUp {
+          animation: slideUp 40s linear infinite;
+        }
+        
+        .animate-slideDown {
+          animation: slideDown 40s linear infinite;
+        }
+      `}</style>
+
+      {/* Gradientes superiores e inferiores */}
       <div className="absolute inset-0 z-10 pointer-events-none">
-        <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-blue-900 to-transparent"></div>
-        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-blue-900 to-transparent"></div>
+        <div className="absolute top-0 left-0 right-0 h-20 bg-gradient-to-b from-[#002D62] to-transparent"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#002D62] to-transparent"></div>
       </div>
 
-      <div className="flex h-full gap-12 justify-center items-center">
-        <div className="flex flex-col">
-          <div className="flex flex-col gap-8 animate-[slideUp_25s_linear_infinite]">
+      <div className="flex h-full gap-8 justify-center items-center">
+        {/* Columna que sube */}
+        <div className="relative h-full overflow-hidden">
+          <div className="absolute flex flex-col gap-6 animate-slideUp">
             {duplicatedTools.map((tool, index) => {
               const LogoComponent = tool.logo;
               return (<a>
-  
-                key={"up-" + index.toString()}
+                
+                  key={`up-${index}`}
                   href={tool.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group relative flex flex-col items-center justify-center w-24 h-24 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-500 cursor-pointer border border-white/20 hover:border-white/40"
-            
-                  <LogoComponent className="w-10 h-10 text-white/70 group-hover:text-white transition-all duration-500 group-hover:scale-110" />
-                  <div className="mt-2 text-xs text-white/60 group-hover:text-white/90 transition-all duration-500 text-center px-2 leading-tight">
+                  className="group relative flex flex-col items-center justify-center w-20 h-20 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-300 cursor-pointer border border-white/20 hover:border-white/40"
+                
+                  <LogoComponent className="w-8 h-8 text-white/70 group-hover:text-white transition-all duration-300 group-hover:scale-110" />
+                  <div className="mt-1 text-[10px] text-white/60 group-hover:text-white/90 transition-all duration-300 text-center px-1 leading-tight">
                     {tool.name}
                   </div>
                 </a>
@@ -142,8 +172,9 @@ const VerticalTechTicker: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex flex-col">
-          <div className="flex flex-col gap-8 animate-[slideDown_25s_linear_infinite]">
+        {/* Columna que baja */}
+        <div className="relative h-full overflow-hidden">
+          <div className="absolute flex flex-col gap-6 animate-slideDown">
             {duplicatedTools.map((tool, index) => {
               const LogoComponent = tool.logo;
               return (<a>
@@ -152,10 +183,10 @@ const VerticalTechTicker: React.FC = () => {
                   href={tool.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group relative flex flex-col items-center justify-center w-24 h-24 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-500 cursor-pointer border border-white/20 hover:border-white/40"
+                  className="group relative flex flex-col items-center justify-center w-20 h-20 rounded-xl bg-white/10 hover:bg-white/20 transition-all duration-300 cursor-pointer border border-white/20 hover:border-white/40"
                 
-                  <LogoComponent className="w-10 h-10 text-white/70 group-hover:text-white transition-all duration-500 group-hover:scale-110" />
-                  <div className="mt-2 text-xs text-white/60 group-hover:text-white/90 transition-all duration-500 text-center px-2 leading-tight">
+                  <LogoComponent className="w-8 h-8 text-white/70 group-hover:text-white transition-all duration-300 group-hover:scale-110" />
+                  <div className="mt-1 text-[10px] text-white/60 group-hover:text-white/90 transition-all duration-300 text-center px-1 leading-tight">
                     {tool.name}
                   </div>
                 </a>

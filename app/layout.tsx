@@ -5,6 +5,7 @@ import { COMPANY_INFO } from '@/lib/constants'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import WhatsAppWidget from '@/components/WhatsAppWidget'
+import AdminShortcut from '@/components/AdminShortcut'
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,6 +26,7 @@ export default function RootLayout({
         <main>{children}</main>
         <Footer />
         <WhatsAppWidget />
+        <AdminShortcut />
       </body>
     </html>
   );

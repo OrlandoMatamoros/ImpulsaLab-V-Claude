@@ -47,7 +47,7 @@ export default function AdminDashboard() {
   // Autenticación simple
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    if (password === 'impulsa2025') { // Cambiar por variable de entorno en producción
+    if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) { // Cambiar por variable de entorno en producción
       setIsAuthenticated(true)
     } else {
       alert('Contraseña incorrecta')

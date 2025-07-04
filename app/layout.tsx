@@ -4,6 +4,7 @@ import "./globals.css";
 import { COMPANY_INFO } from '@/lib/constants'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import WhatsAppWidget from '@/components/WhatsAppWidget'
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,26 +24,8 @@ export default function RootLayout({
         <Header />
         <main>{children}</main>
         <Footer />
-      </body>
-    </html>
-  );
-}
-import WhatsAppWidget from '@/components/WhatsAppWidget'
-
-// En el return del layout, antes del cierre del body:
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  return (
-    <html lang="es">
-      <body className={inter.className}>
-        <Header />
-        <main>{children}</main>
-        <Footer />
         <WhatsAppWidget />
       </body>
     </html>
-  )
+  );
 }

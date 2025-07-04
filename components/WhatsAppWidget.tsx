@@ -31,6 +31,7 @@ export default function WhatsAppWidget() {
   const [isTyping, setIsTyping] = useState(false)
   const [sessionId, setSessionId] = useState<string>('')
   const [mounted, setMounted] = useState(false)
+  const [businessOpen, setBusinessOpen] = useState(true) // Estado por defecto
 
   const phoneNumber = '+13479043196'
   const businessHours = {
@@ -59,9 +60,33 @@ export default function WhatsAppWidget() {
     'Tengo otra consulta': 'Entendido. Por favor, escribe tu pregunta a continuación y te responderemos a la brevedad posible durante nuestro horario de atención. 📝'
   }
 
+  // Función para verificar horario de negocio
+  const checkBusinessOpen = () => {
+    const now = new Date()
+    // Convertir a EST/EDT
+    const estOffset = -5 // EST es UTC-5
+    const utc = now.getTime() + (now.getTimezoneOffset() * 60000)
+    const estTime = new Date(utc + (3600000 * estOffset))
+    
+    const day = estTime.getDay() // 0 = Sunday, 6 = Saturday
+    const hour = estTime.getHours()
+    
+    if (day === 0) return false // Sunday
+    if (day === 6) return hour >= 9 && hour < 14 // Saturday
+    return hour >= 9 && hour < 20 // Weekdays
+  }
+
   // Para evitar errores de hidratación
   useEffect(() => {
     setMounted(true)
+    setBusinessOpen(checkBusinessOpen())
+    
+    // Actualizar el estado cada minuto
+    const interval = setInterval(() => {
+      setBusinessOpen(checkBusinessOpen())
+    }, 60000)
+    
+    return () => clearInterval(interval)
   }, [])
 
   // Guardar sesión en Firebase
@@ -82,7 +107,7 @@ export default function WhatsAppWidget() {
           url: typeof window !== 'undefined' ? window.location.href : ''
         },
         status: 'active',
-        isBusinessOpen: isBusinessOpen()
+        isBusinessOpen: businessOpen
       }
 
       if (sessionId) {
@@ -200,16 +225,6 @@ export default function WhatsAppWidget() {
     window.open(`https://wa.me/${phoneNumber}?text=${encodedText}`, '_blank')
   }
 
-  const isBusinessOpen = () => {
-    const now = new Date()
-    const day = now.getDay() // 0 = Sunday, 6 = Saturday
-    const hour = now.getHours()
-    
-    if (day === 0) return false // Sunday
-    if (day === 6) return hour >= 9 && hour < 14 // Saturday
-    return hour >= 9 && hour < 20 // Weekdays
-  }
-
   // Marcar cuando se cierra el chat
   const handleCloseChat = () => {
     if (sessionId && messages.length > 1) {
@@ -233,7 +248,7 @@ export default function WhatsAppWidget() {
         aria-label="Abrir chat de WhatsApp"
       >
         <MessageCircle className="w-6 h-6" />
-        {mounted && !isBusinessOpen() && (
+        {mounted && !businessOpen && (
           <span className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></span>
         )}
       </button>
@@ -252,10 +267,12 @@ export default function WhatsAppWidget() {
                 </div>
                 <div>
                   <h3 className="font-semibold">Nova - Impulsa Lab</h3>
-                  <p className="text-xs opacity-90 flex items-center gap-1">
-                    <span className={`w-2 h-2 rounded-full ${isBusinessOpen() ? 'bg-green-400' : 'bg-yellow-400'}`}></span>
-                    {isBusinessOpen() ? 'En línea' : 'Fuera de horario'}
-                  </p>
+                  {mounted && (
+                    <p className="text-xs opacity-90 flex items-center gap-1">
+                      <span className={`w-2 h-2 rounded-full ${businessOpen ? 'bg-green-400' : 'bg-yellow-400'}`}></span>
+                      {businessOpen ? 'En línea' : 'Fuera de horario'}
+                    </p>
+                  )}
                 </div>
               </div>
               <button

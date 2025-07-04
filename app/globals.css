@@ -135,6 +135,3 @@ textarea::-ms-input-placeholder {
   outline: 1px solid red !important;
 } */
  /* Debug: para encontrar elementos que causan overflow */
-* {
-  outline: 1px solid red !important;
-}

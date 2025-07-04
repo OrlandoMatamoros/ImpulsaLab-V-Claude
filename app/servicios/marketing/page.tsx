@@ -71,7 +71,7 @@ export default function MarketingPage() {
             <div className="relative rounded-xl overflow-hidden shadow-2xl">
               <div className="aspect-video">
                 <iframe
-                  src="https://youtu.be/lWWmMPlpFls"
+                  src="https://www.youtube.com/embed/lWWmMPlpFls"
                   title="Marketing e Identidad de Marca - Impulsa Lab"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen

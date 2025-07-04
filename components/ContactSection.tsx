@@ -77,13 +77,13 @@ export default function ContactSection() {
               </button>
             </form>
             
-            <p className="mt-6 text-gray-600">
-              O si lo prefieres, escríbenos a: 
+            <div className="mt-6 text-gray-600">
+              <p className="mb-2">O si lo prefieres, escríbenos a:</p>
               <a href={`mailto:${LINKS.email}`} 
-                 className="text-blue-600 hover:underline ml-1 break-all">
+                 className="text-blue-600 hover:underline block">
                 {LINKS.email}
               </a>
-            </p>
+            </div>
 
             {/* Mensaje de éxito */}
             {formStatus === 'success' && (

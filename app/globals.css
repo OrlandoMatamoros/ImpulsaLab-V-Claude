@@ -135,3 +135,24 @@ textarea::-ms-input-placeholder {
   outline: 1px solid red !important;
 } */
  /* Debug: para encontrar elementos que causan overflow */
+/* Animaciones para WhatsApp Widget */
+@keyframes bounce {
+  0%, 60%, 100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 1.4s infinite;
+}
+
+.delay-100 {
+  animation-delay: 0.1s;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}

@@ -27,3 +27,22 @@ export default function RootLayout({
     </html>
   );
 }
+import WhatsAppWidget from '@/components/WhatsAppWidget'
+
+// En el return del layout, antes del cierre del body:
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="es">
+      <body className={inter.className}>
+        <Header />
+        <main>{children}</main>
+        <Footer />
+        <WhatsAppWidget />
+      </body>
+    </html>
+  )
+}

@@ -35,7 +35,7 @@ export default function TeamSection() {
               </div>
             </div>
             <h3 className="text-2xl font-semibold mb-2">Orlando Matamoros</h3>
-            <p className="text-blue-200">Fundador y Director de estrategia</p>
+            <p className="text-blue-200">Fundador y Director de Estrategia</p>
             <a href="https://linkedin.com/in/orlando-matamoros" 
                target="_blank"
                rel="noopener noreferrer"

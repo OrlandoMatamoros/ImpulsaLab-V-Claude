@@ -19,11 +19,76 @@
   }
 }
 
+/* Reset y prevención de overflow */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+  max-width: 100vw;
+  position: relative;
+  margin: 0;
+  padding: 0;
 }
+
+/* Prevenir desbordamiento en elementos principales */
+main, section, div {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Fix específico para móviles */
+@media (max-width: 768px) {
+  body {
+    width: 100%;
+    overflow-x: hidden;
+  }
+  
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Asegurar que los placeholders sean visibles EN TODOS LOS NAVEGADORES */
+input::placeholder,
+textarea::placeholder {
+  color: #6b7280 !important; /* gray-500 */
+  opacity: 1 !important;
+}
+
+/* Para navegadores webkit (Safari, Chrome en iOS) */
+input::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder {
+  color: #6b7280 !important;
+  opacity: 1 !important;
+}
+
+/* Para Firefox */
+input::-moz-placeholder,
+textarea::-moz-placeholder {
+  color: #6b7280 !important;
+  opacity: 1 !important;
+}
+
+/* Para Edge e Internet Explorer */
+input::-ms-input-placeholder,
+textarea::-ms-input-placeholder {
+  color: #6b7280 !important;
+  opacity: 1 !important;
+}
+
 /* Animaciones para VerticalTechTicker */
 @keyframes slideUp {
   0% {
@@ -51,10 +116,25 @@ body {
   animation: slideDown 40s linear infinite;
 }
 
-.animate-slide-up {
-  animation: slideUp 40s linear infinite;
+/* Ajuste de velocidad para móviles */
+@media (max-width: 768px) {
+  .animate-slide-up,
+  .animate-slide-down {
+    animation-duration: 60s; /* Más lento en móviles */
+  }
 }
 
-.animate-slide-down {
-  animation: slideDown 40s linear infinite;
+/* Fix adicional para prevenir scroll horizontal */
+#__next {
+  overflow-x: hidden;
+}
+
+/* Debug: para encontrar elementos que causan overflow */
+/* Descomenta esto temporalmente para ver qué elemento causa el problema */
+/* * {
+  outline: 1px solid red !important;
+} */
+ /* Debug: para encontrar elementos que causan overflow */
+* {
+  outline: 1px solid red !important;
 }

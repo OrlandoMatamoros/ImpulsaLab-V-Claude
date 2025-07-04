@@ -15,8 +15,8 @@ export default function ContactSection() {
   }
 
   return (
-    <section id="contacto" className="py-20 bg-white">
-      <div className="container mx-auto px-4">
+    <section id="contacto" className="py-20 bg-white overflow-hidden">
+      <div className="container mx-auto px-4 max-w-7xl">
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
             ¿Listo para Encontrar la 'Coordenada' de tu Negocio?
@@ -46,6 +46,7 @@ export default function ContactSection() {
                        placeholder="Nombre" 
                        required
                        className="w-full px-4 py-3 rounded-lg border border-gray-300 
+                                bg-white text-gray-900 placeholder-gray-500
                                 focus:border-blue-500 focus:outline-none focus:ring-2 
                                 focus:ring-blue-200 transition-all" />
               </div>
@@ -55,6 +56,7 @@ export default function ContactSection() {
                        placeholder="Correo Electrónico" 
                        required
                        className="w-full px-4 py-3 rounded-lg border border-gray-300 
+                                bg-white text-gray-900 placeholder-gray-500
                                 focus:border-blue-500 focus:outline-none focus:ring-2 
                                 focus:ring-blue-200 transition-all" />
               </div>
@@ -64,6 +66,7 @@ export default function ContactSection() {
                           rows={4}
                           required
                           className="w-full px-4 py-3 rounded-lg border border-gray-300 
+                                   bg-white text-gray-900 placeholder-gray-500
                                    focus:border-blue-500 focus:outline-none focus:ring-2 
                                    focus:ring-blue-200 transition-all resize-none" />
               </div>
@@ -77,7 +80,7 @@ export default function ContactSection() {
             <p className="mt-6 text-gray-600">
               O si lo prefieres, escríbenos a: 
               <a href={`mailto:${LINKS.email}`} 
-                 className="text-blue-600 hover:underline ml-1">
+                 className="text-blue-600 hover:underline ml-1 break-all">
                 {LINKS.email}
               </a>
             </p>

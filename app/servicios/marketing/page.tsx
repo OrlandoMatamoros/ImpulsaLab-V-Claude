@@ -68,7 +68,7 @@ export default function MarketingPage() {
             </h2>
             
             {/* Video de YouTube */}
-            <div className="relative rounded-xl overflow-hidden shadow-2xl">
+            <div className="relative rounded-xl overflow-hidden shadow-2xl max-w-3xl mx-auto">
               <div className="aspect-video">
                 <iframe
                   src="https://www.youtube.com/embed/lWWmMPlpFls"

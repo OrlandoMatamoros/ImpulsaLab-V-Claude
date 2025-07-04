@@ -30,6 +30,7 @@ export default function WhatsAppWidget() {
   const [showInitialButtons, setShowInitialButtons] = useState(true)
   const [isTyping, setIsTyping] = useState(false)
   const [sessionId, setSessionId] = useState<string>('')
+  const [mounted, setMounted] = useState(false)
 
   const phoneNumber = '+13479043196'
   const businessHours = {
@@ -57,6 +58,11 @@ export default function WhatsAppWidget() {
     
     'Tengo otra consulta': 'Entendido. Por favor, escribe tu pregunta a continuación y te responderemos a la brevedad posible durante nuestro horario de atención. 📝'
   }
+
+  // Para evitar errores de hidratación
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Guardar sesión en Firebase
   const saveToFirebase = async (newMessages: Message[]) => {
@@ -227,7 +233,7 @@ export default function WhatsAppWidget() {
         aria-label="Abrir chat de WhatsApp"
       >
         <MessageCircle className="w-6 h-6" />
-        {!isBusinessOpen() && (
+        {mounted && !isBusinessOpen() && (
           <span className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></span>
         )}
       </button>

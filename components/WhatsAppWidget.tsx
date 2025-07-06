@@ -77,16 +77,14 @@ export default function WhatsAppWidget() {
   }, [])
 
   // Crear nueva sesión en Firebase
-  const createSession = async (firstMessage: Message) => {
+  const createSession = async () => {
     try {
+      console.log('Creando nueva sesión...')
+      
       const sessionData = {
         startedAt: serverTimestamp(),
         lastActivity: serverTimestamp(),
-        messages: [{
-          text: firstMessage.text,
-          isUser: firstMessage.isUser,
-          timestamp: serverTimestamp()
-        }],
+        messages: [],
         userInfo: {
           userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : '',
           referrer: typeof document !== 'undefined' ? document.referrer : '',
@@ -98,46 +96,73 @@ export default function WhatsAppWidget() {
 
       const docRef = await addDoc(collection(db, 'chat-sessions'), sessionData)
       setSessionId(docRef.id)
-      console.log('Sesión creada:', docRef.id)
+      console.log('✅ Sesión creada con ID:', docRef.id)
+      return docRef.id
     } catch (error) {
-      console.error('Error creando sesión:', error)
+      console.error('❌ Error creando sesión:', error)
+      return null
     }
   }
 
   // Agregar mensaje a sesión existente
-  const addMessageToSession = async (message: Message) => {
-    if (!sessionId) return
+  const addMessageToSession = async (message: Message, currentSessionId?: string) => {
+    const sessionToUse = currentSessionId || sessionId
+    
+    if (!sessionToUse) {
+      console.error('❌ No hay ID de sesión para guardar el mensaje')
+      return
+    }
 
     try {
-      const sessionRef = doc(db, 'chat-sessions', sessionId)
+      console.log(`📝 Guardando mensaje (isUser: ${message.isUser}):`, message.text.substring(0, 50))
+      
+      const messageData = {
+        text: message.text,
+        isUser: message.isUser,
+        timestamp: new Date().toISOString() // Usar ISO string en lugar de serverTimestamp para debugging
+      }
+      
+      const sessionRef = doc(db, 'chat-sessions', sessionToUse)
       await updateDoc(sessionRef, {
-        messages: arrayUnion({
-          text: message.text,
-          isUser: message.isUser,
-          timestamp: serverTimestamp()
-        }),
+        messages: arrayUnion(messageData),
         lastActivity: serverTimestamp()
       })
-      console.log('Mensaje agregado a sesión:', sessionId)
+      
+      console.log(`✅ Mensaje guardado en sesión ${sessionToUse}`)
     } catch (error) {
-      console.error('Error agregando mensaje:', error)
+      console.error('❌ Error guardando mensaje:', error)
     }
   }
 
+  // Inicializar chat
   useEffect(() => {
-    if (isOpen && messages.length === 0) {
-      const welcomeMessage: Message = {
-        id: '1',
-        text: '¡Hola! 👋 Soy Nova, la asistente virtual de Impulsa Lab. Gracias por visitarnos. ¿En qué podemos ayudarte hoy?',
-        isUser: false,
-        timestamp: new Date()
+    if (isOpen && messages.length === 0 && !sessionId) {
+      const initChat = async () => {
+        // Primero crear la sesión
+        const newSessionId = await createSession()
+        
+        if (newSessionId) {
+          // Luego agregar el mensaje de bienvenida
+          const welcomeMessage: Message = {
+            id: '1',
+            text: '¡Hola! 👋 Soy Nova, la asistente virtual de Impulsa Lab. Gracias por visitarnos. ¿En qué podemos ayudarte hoy?',
+            isUser: false,
+            timestamp: new Date()
+          }
+          
+          setMessages([welcomeMessage])
+          await addMessageToSession(welcomeMessage, newSessionId)
+        }
       }
-      setMessages([welcomeMessage])
-      createSession(welcomeMessage)
+      
+      initChat()
     }
-  }, [isOpen])
+  }, [isOpen, sessionId])
 
-  const handleButtonClick = (buttonText: string) => {
+  const handleButtonClick = async (buttonText: string) => {
+    console.log('🔘 Botón clickeado:', buttonText)
+    
+    // Crear mensaje del usuario
     const userMessage: Message = {
       id: Date.now().toString(),
       text: buttonText,
@@ -145,14 +170,16 @@ export default function WhatsAppWidget() {
       timestamp: new Date()
     }
     
+    // Actualizar UI
     setMessages(prev => [...prev, userMessage])
     setShowInitialButtons(false)
     setIsTyping(true)
     
-    // Guardar mensaje del usuario
-    addMessageToSession(userMessage)
+    // Guardar en Firebase INMEDIATAMENTE
+    await addMessageToSession(userMessage)
 
-    setTimeout(() => {
+    // Simular respuesta del bot
+    setTimeout(async () => {
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
         text: responses[buttonText] || 'Gracias por tu mensaje. Te responderemos pronto.',
@@ -164,12 +191,14 @@ export default function WhatsAppWidget() {
       setIsTyping(false)
       
       // Guardar respuesta del bot
-      addMessageToSession(botResponse)
+      await addMessageToSession(botResponse)
     }, 1500)
   }
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputValue.trim()) return
+
+    console.log('💬 Enviando mensaje personalizado:', inputValue)
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -182,10 +211,10 @@ export default function WhatsAppWidget() {
     setInputValue('')
     setIsTyping(true)
     
-    // Guardar mensaje del usuario
-    addMessageToSession(userMessage)
+    // Guardar mensaje del usuario INMEDIATAMENTE
+    await addMessageToSession(userMessage)
 
-    setTimeout(() => {
+    setTimeout(async () => {
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
         text: 'Gracias por tu mensaje. Un especialista de Impulsa Lab te responderá dentro de nuestro horario de atención. Si necesitas una respuesta inmediata, puedes agendar una llamada en: https://calendly.com/orlando-tuimpulsalab/30min',
@@ -197,12 +226,13 @@ export default function WhatsAppWidget() {
       setIsTyping(false)
       
       // Guardar respuesta del bot
-      addMessageToSession(botResponse)
+      await addMessageToSession(botResponse)
     }, 1500)
   }
 
   const handleWhatsAppRedirect = () => {
     if (sessionId) {
+      console.log('📱 Redirigiendo a WhatsApp, sesión:', sessionId)
       updateDoc(doc(db, 'chat-sessions', sessionId), {
         status: 'moved_to_whatsapp',
         movedToWhatsAppAt: serverTimestamp()
@@ -219,13 +249,19 @@ export default function WhatsAppWidget() {
 
   const handleCloseChat = () => {
     if (sessionId && messages.length > 1) {
+      console.log('🔒 Cerrando chat, sesión:', sessionId)
       updateDoc(doc(db, 'chat-sessions', sessionId), {
         status: 'closed',
         closedAt: serverTimestamp(),
         totalMessages: messages.length
       })
     }
+    
+    // Resetear todo
     setIsOpen(false)
+    setMessages([])
+    setSessionId('')
+    setShowInitialButtons(true)
   }
 
   return (

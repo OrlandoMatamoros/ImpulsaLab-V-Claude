@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { X, MessageCircle, Send, Clock, ChevronDown } from 'lucide-react'
 import { db } from '@/lib/firebase'
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { collection, addDoc, serverTimestamp, doc, updateDoc, arrayUnion } from 'firebase/firestore'
 
 interface Message {
   id: string
@@ -11,16 +11,6 @@ interface Message {
   isUser: boolean
   timestamp: Date
   buttons?: string[]
-}
-
-interface ChatSession {
-  startedAt: Date
-  messages: Message[]
-  userInfo?: {
-    ip?: string
-    userAgent?: string
-    referrer?: string
-  }
 }
 
 export default function WhatsAppWidget() {
@@ -31,7 +21,7 @@ export default function WhatsAppWidget() {
   const [isTyping, setIsTyping] = useState(false)
   const [sessionId, setSessionId] = useState<string>('')
   const [mounted, setMounted] = useState(false)
-  const [businessOpen, setBusinessOpen] = useState(true) // Estado por defecto
+  const [businessOpen, setBusinessOpen] = useState(true)
 
   const phoneNumber = '+13479043196'
   const businessHours = {
@@ -63,25 +53,22 @@ export default function WhatsAppWidget() {
   // Función para verificar horario de negocio
   const checkBusinessOpen = () => {
     const now = new Date()
-    // Convertir a EST/EDT
-    const estOffset = -5 // EST es UTC-5
+    const estOffset = -5
     const utc = now.getTime() + (now.getTimezoneOffset() * 60000)
     const estTime = new Date(utc + (3600000 * estOffset))
     
-    const day = estTime.getDay() // 0 = Sunday, 6 = Saturday
+    const day = estTime.getDay()
     const hour = estTime.getHours()
     
-    if (day === 0) return false // Sunday
-    if (day === 6) return hour >= 9 && hour < 14 // Saturday
-    return hour >= 9 && hour < 20 // Weekdays
+    if (day === 0) return false
+    if (day === 6) return hour >= 9 && hour < 14
+    return hour >= 9 && hour < 20
   }
 
-  // Para evitar errores de hidratación
   useEffect(() => {
     setMounted(true)
     setBusinessOpen(checkBusinessOpen())
     
-    // Actualizar el estado cada minuto
     const interval = setInterval(() => {
       setBusinessOpen(checkBusinessOpen())
     }, 60000)
@@ -89,18 +76,17 @@ export default function WhatsAppWidget() {
     return () => clearInterval(interval)
   }, [])
 
-  // Guardar sesión en Firebase
-  const saveToFirebase = async (newMessages: Message[]) => {
+  // Crear nueva sesión en Firebase
+  const createSession = async (firstMessage: Message) => {
     try {
       const sessionData = {
-        sessionId: sessionId,
         startedAt: serverTimestamp(),
         lastActivity: serverTimestamp(),
-        messages: newMessages.map(msg => ({
-          text: msg.text,
-          isUser: msg.isUser,
-          timestamp: msg.timestamp
-        })),
+        messages: [{
+          text: firstMessage.text,
+          isUser: firstMessage.isUser,
+          timestamp: serverTimestamp()
+        }],
         userInfo: {
           userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : '',
           referrer: typeof document !== 'undefined' ? document.referrer : '',
@@ -110,20 +96,31 @@ export default function WhatsAppWidget() {
         isBusinessOpen: businessOpen
       }
 
-      if (sessionId) {
-        // Actualizar sesión existente
-        await addDoc(collection(db, 'chat-sessions', sessionId, 'messages'), {
-          text: newMessages[newMessages.length - 1].text,
-          isUser: newMessages[newMessages.length - 1].isUser,
-          timestamp: serverTimestamp()
-        })
-      } else {
-        // Nueva sesión
-        const docRef = await addDoc(collection(db, 'chat-sessions'), sessionData)
-        setSessionId(docRef.id)
-      }
+      const docRef = await addDoc(collection(db, 'chat-sessions'), sessionData)
+      setSessionId(docRef.id)
+      console.log('Sesión creada:', docRef.id)
     } catch (error) {
-      console.error('Error guardando en Firebase:', error)
+      console.error('Error creando sesión:', error)
+    }
+  }
+
+  // Agregar mensaje a sesión existente
+  const addMessageToSession = async (message: Message) => {
+    if (!sessionId) return
+
+    try {
+      const sessionRef = doc(db, 'chat-sessions', sessionId)
+      await updateDoc(sessionRef, {
+        messages: arrayUnion({
+          text: message.text,
+          isUser: message.isUser,
+          timestamp: serverTimestamp()
+        }),
+        lastActivity: serverTimestamp()
+      })
+      console.log('Mensaje agregado a sesión:', sessionId)
+    } catch (error) {
+      console.error('Error agregando mensaje:', error)
     }
   }
 
@@ -136,27 +133,25 @@ export default function WhatsAppWidget() {
         timestamp: new Date()
       }
       setMessages([welcomeMessage])
-      saveToFirebase([welcomeMessage])
+      createSession(welcomeMessage)
     }
-  }, [isOpen, messages.length])
+  }, [isOpen])
 
   const handleButtonClick = (buttonText: string) => {
-    // Agregar mensaje del usuario
     const userMessage: Message = {
       id: Date.now().toString(),
       text: buttonText,
       isUser: true,
       timestamp: new Date()
     }
-    const newMessages = [...messages, userMessage]
-    setMessages(newMessages)
+    
+    setMessages(prev => [...prev, userMessage])
     setShowInitialButtons(false)
     setIsTyping(true)
     
-    // Guardar en Firebase
-    saveToFirebase(newMessages)
+    // Guardar mensaje del usuario
+    addMessageToSession(userMessage)
 
-    // Simular tiempo de respuesta
     setTimeout(() => {
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
@@ -164,34 +159,32 @@ export default function WhatsAppWidget() {
         isUser: false,
         timestamp: new Date()
       }
-      const updatedMessages = [...newMessages, botResponse]
-      setMessages(updatedMessages)
+      
+      setMessages(prev => [...prev, botResponse])
       setIsTyping(false)
       
-      // Guardar respuesta en Firebase
-      saveToFirebase(updatedMessages)
+      // Guardar respuesta del bot
+      addMessageToSession(botResponse)
     }, 1500)
   }
 
   const handleSendMessage = () => {
     if (!inputValue.trim()) return
 
-    // Agregar mensaje del usuario
     const userMessage: Message = {
       id: Date.now().toString(),
       text: inputValue,
       isUser: true,
       timestamp: new Date()
     }
-    const newMessages = [...messages, userMessage]
-    setMessages(newMessages)
+    
+    setMessages(prev => [...prev, userMessage])
     setInputValue('')
     setIsTyping(true)
     
-    // Guardar en Firebase
-    saveToFirebase(newMessages)
+    // Guardar mensaje del usuario
+    addMessageToSession(userMessage)
 
-    // Respuesta automática para mensajes personalizados
     setTimeout(() => {
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
@@ -199,21 +192,20 @@ export default function WhatsAppWidget() {
         isUser: false,
         timestamp: new Date()
       }
-      const updatedMessages = [...newMessages, botResponse]
-      setMessages(updatedMessages)
+      
+      setMessages(prev => [...prev, botResponse])
       setIsTyping(false)
       
-      // Guardar respuesta en Firebase
-      saveToFirebase(updatedMessages)
+      // Guardar respuesta del bot
+      addMessageToSession(botResponse)
     }, 1500)
   }
 
   const handleWhatsAppRedirect = () => {
-    // Marcar sesión como movida a WhatsApp
     if (sessionId) {
-      addDoc(collection(db, 'chat-sessions', sessionId, 'events'), {
-        type: 'moved_to_whatsapp',
-        timestamp: serverTimestamp()
+      updateDoc(doc(db, 'chat-sessions', sessionId), {
+        status: 'moved_to_whatsapp',
+        movedToWhatsAppAt: serverTimestamp()
       })
     }
 
@@ -225,12 +217,11 @@ export default function WhatsAppWidget() {
     window.open(`https://wa.me/${phoneNumber}?text=${encodedText}`, '_blank')
   }
 
-  // Marcar cuando se cierra el chat
   const handleCloseChat = () => {
     if (sessionId && messages.length > 1) {
-      addDoc(collection(db, 'chat-sessions', sessionId, 'events'), {
-        type: 'chat_closed',
-        timestamp: serverTimestamp(),
+      updateDoc(doc(db, 'chat-sessions', sessionId), {
+        status: 'closed',
+        closedAt: serverTimestamp(),
         totalMessages: messages.length
       })
     }

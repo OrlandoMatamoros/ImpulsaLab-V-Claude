@@ -79,8 +79,6 @@ export default function WhatsAppWidget() {
   // Crear nueva sesión en Firebase
   const createSession = async () => {
     try {
-      console.log('Creando nueva sesión...')
-      
       const sessionData = {
         startedAt: serverTimestamp(),
         lastActivity: serverTimestamp(),
@@ -96,10 +94,13 @@ export default function WhatsAppWidget() {
 
       const docRef = await addDoc(collection(db, 'chat-sessions'), sessionData)
       setSessionId(docRef.id)
-      console.log('✅ Sesión creada con ID:', docRef.id)
+      
+      // Enviar notificación (próximo paso)
+      await sendNotification('Nueva conversación iniciada', 'Un usuario ha iniciado una conversación en el chat.')
+      
       return docRef.id
     } catch (error) {
-      console.error('❌ Error creando sesión:', error)
+      console.error('Error creando sesión:', error)
       return null
     }
   }
@@ -108,18 +109,13 @@ export default function WhatsAppWidget() {
   const addMessageToSession = async (message: Message, currentSessionId?: string) => {
     const sessionToUse = currentSessionId || sessionId
     
-    if (!sessionToUse) {
-      console.error('❌ No hay ID de sesión para guardar el mensaje')
-      return
-    }
+    if (!sessionToUse) return
 
     try {
-      console.log(`📝 Guardando mensaje (isUser: ${message.isUser}):`, message.text.substring(0, 50))
-      
       const messageData = {
         text: message.text,
         isUser: message.isUser,
-        timestamp: new Date().toISOString() // Usar ISO string en lugar de serverTimestamp para debugging
+        timestamp: new Date().toISOString()
       }
       
       const sessionRef = doc(db, 'chat-sessions', sessionToUse)
@@ -128,21 +124,31 @@ export default function WhatsAppWidget() {
         lastActivity: serverTimestamp()
       })
       
-      console.log(`✅ Mensaje guardado en sesión ${sessionToUse}`)
+      // Si es mensaje del usuario, enviar notificación
+      if (message.isUser) {
+        await sendNotification(
+          'Nuevo mensaje de cliente',
+          `Mensaje: "${message.text.substring(0, 100)}${message.text.length > 100 ? '...' : ''}"`
+        )
+      }
     } catch (error) {
-      console.error('❌ Error guardando mensaje:', error)
+      console.error('Error guardando mensaje:', error)
     }
+  }
+
+  // Función para enviar notificaciones (placeholder para implementar)
+  const sendNotification = async (title: string, body: string) => {
+    // Implementaremos esto después con Firebase Functions o servicio de email
+    console.log(`Notificación: ${title} - ${body}`)
   }
 
   // Inicializar chat
   useEffect(() => {
     if (isOpen && messages.length === 0 && !sessionId) {
       const initChat = async () => {
-        // Primero crear la sesión
         const newSessionId = await createSession()
         
         if (newSessionId) {
-          // Luego agregar el mensaje de bienvenida
           const welcomeMessage: Message = {
             id: '1',
             text: '¡Hola! 👋 Soy Nova, la asistente virtual de Impulsa Lab. Gracias por visitarnos. ¿En qué podemos ayudarte hoy?',
@@ -160,9 +166,6 @@ export default function WhatsAppWidget() {
   }, [isOpen, sessionId])
 
   const handleButtonClick = async (buttonText: string) => {
-    console.log('🔘 Botón clickeado:', buttonText)
-    
-    // Crear mensaje del usuario
     const userMessage: Message = {
       id: Date.now().toString(),
       text: buttonText,
@@ -170,15 +173,12 @@ export default function WhatsAppWidget() {
       timestamp: new Date()
     }
     
-    // Actualizar UI
     setMessages(prev => [...prev, userMessage])
     setShowInitialButtons(false)
     setIsTyping(true)
     
-    // Guardar en Firebase INMEDIATAMENTE
     await addMessageToSession(userMessage)
 
-    // Simular respuesta del bot
     setTimeout(async () => {
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
@@ -190,15 +190,12 @@ export default function WhatsAppWidget() {
       setMessages(prev => [...prev, botResponse])
       setIsTyping(false)
       
-      // Guardar respuesta del bot
       await addMessageToSession(botResponse)
     }, 1500)
   }
 
   const handleSendMessage = async () => {
     if (!inputValue.trim()) return
-
-    console.log('💬 Enviando mensaje personalizado:', inputValue)
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -211,7 +208,6 @@ export default function WhatsAppWidget() {
     setInputValue('')
     setIsTyping(true)
     
-    // Guardar mensaje del usuario INMEDIATAMENTE
     await addMessageToSession(userMessage)
 
     setTimeout(async () => {
@@ -225,14 +221,12 @@ export default function WhatsAppWidget() {
       setMessages(prev => [...prev, botResponse])
       setIsTyping(false)
       
-      // Guardar respuesta del bot
       await addMessageToSession(botResponse)
     }, 1500)
   }
 
   const handleWhatsAppRedirect = () => {
     if (sessionId) {
-      console.log('📱 Redirigiendo a WhatsApp, sesión:', sessionId)
       updateDoc(doc(db, 'chat-sessions', sessionId), {
         status: 'moved_to_whatsapp',
         movedToWhatsAppAt: serverTimestamp()
@@ -249,7 +243,6 @@ export default function WhatsAppWidget() {
 
   const handleCloseChat = () => {
     if (sessionId && messages.length > 1) {
-      console.log('🔒 Cerrando chat, sesión:', sessionId)
       updateDoc(doc(db, 'chat-sessions', sessionId), {
         status: 'closed',
         closedAt: serverTimestamp(),
@@ -257,7 +250,6 @@ export default function WhatsAppWidget() {
       })
     }
     
-    // Resetear todo
     setIsOpen(false)
     setMessages([])
     setSessionId('')
@@ -284,7 +276,7 @@ export default function WhatsAppWidget() {
       <div className={`fixed bottom-6 right-6 z-50 transition-all duration-300 ${
         isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
       }`}>
-        <div className="bg-white rounded-2xl shadow-2xl w-[370px] h-[600px] flex flex-col overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-2xl w-[370px] max-w-[calc(100vw-3rem)] h-[600px] max-h-[calc(100vh-6rem)] flex flex-col overflow-hidden">
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4 text-white">
             <div className="flex items-center justify-between mb-2">
@@ -381,7 +373,7 @@ export default function WhatsAppWidget() {
             )}
           </div>
 
-          {/* Input */}
+          {/* Input - FIX PARA CONTRASTE EN MÓVILES */}
           <div className="p-4 bg-white border-t border-gray-100">
             <div className="flex gap-2">
               <input
@@ -391,12 +383,19 @@ export default function WhatsAppWidget() {
                 onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                 placeholder="Escribe tu mensaje..."
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-full 
-                         focus:outline-none focus:border-blue-500 text-sm"
+                         bg-white text-gray-900 placeholder-gray-500
+                         focus:outline-none focus:border-blue-500 focus:ring-2 
+                         focus:ring-blue-200 text-sm"
+                style={{
+                  WebkitTextFillColor: '#111827',
+                  opacity: 1
+                }}
               />
               <button
                 onClick={handleSendMessage}
                 className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 
-                         transition-colors"
+                         transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!inputValue.trim()}
               >
                 <Send className="w-4 h-4" />
               </button>

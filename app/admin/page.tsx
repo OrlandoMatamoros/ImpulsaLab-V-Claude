@@ -47,7 +47,7 @@ export default function AdminDashboard() {
   // Autenticación simple
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault()
-    if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) { // Cambiar por variable de entorno en producción
+    if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
       setIsAuthenticated(true)
     } else {
       alert('Contraseña incorrecta')
@@ -311,6 +311,107 @@ export default function AdminDashboard() {
             >
               30 días
             </button>
+          </div>
+        </div>
+
+        {/* Insights Avanzados */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 mb-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            Insights de Conversaciones
+          </h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Preguntas más frecuentes */}
+            <div>
+              <h4 className="text-sm font-medium text-gray-700 mb-2">
+                Consultas Más Frecuentes
+              </h4>
+              <div className="space-y-2">
+                {(() => {
+                  const buttonTexts = [
+                    'Quiero mi Diagnóstico 3D Gratis',
+                    'Información sobre servicios',
+                    'Ver planes y precios',
+                    'Hablar con un especialista',
+                    'Tengo otra consulta'
+                  ];
+                  
+                  return Object.entries(
+                    sessions.reduce((acc, session) => {
+                      session.messages?.forEach(msg => {
+                        if (msg.isUser && buttonTexts.includes(msg.text)) {
+                          acc[msg.text] = (acc[msg.text] || 0) + 1
+                        }
+                      })
+                      return acc
+                    }, {} as Record<string, number>)
+                  )
+                    .sort(([, a], [, b]) => b - a)
+                    .slice(0, 5)
+                    .map(([text, count]) => (
+                      <div key={text} className="flex justify-between items-center">
+                        <span className="text-sm text-gray-600 truncate pr-2">{text}</span>
+                        <span className="text-sm font-semibold text-gray-900">{count}</span>
+                      </div>
+                    ))
+                })()}
+              </div>
+            </div>
+
+            {/* Horarios pico */}
+            <div>
+              <h4 className="text-sm font-medium text-gray-700 mb-2">
+                Horarios de Mayor Actividad
+              </h4>
+              <div className="space-y-2">
+                {Object.entries(
+                  sessions.reduce((acc, session) => {
+                    if (session.startedAt?.toDate) {
+                      const hour = session.startedAt.toDate().getHours()
+                      const timeSlot = `${hour}:00 - ${hour + 1}:00`
+                      acc[timeSlot] = (acc[timeSlot] || 0) + 1
+                    }
+                    return acc
+                  }, {} as Record<string, number>)
+                )
+                  .sort(([, a], [, b]) => b - a)
+                  .slice(0, 5)
+                  .map(([time, count]) => (
+                    <div key={time} className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">{time}</span>
+                      <span className="text-sm font-semibold text-gray-900">{count}</span>
+                    </div>
+                  ))
+                }
+              </div>
+            </div>
+
+            {/* Tasa de conversión */}
+            <div>
+              <h4 className="text-sm font-medium text-gray-700 mb-2">
+                Métricas de Conversión
+              </h4>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Movidos a WhatsApp</span>
+                  <span className="text-sm font-semibold text-green-600">
+                    {sessions.filter(s => s.status === 'moved_to_whatsapp').length}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Completados</span>
+                  <span className="text-sm font-semibold text-blue-600">
+                    {sessions.filter(s => s.status === 'closed').length}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Abandonados</span>
+                  <span className="text-sm font-semibold text-gray-600">
+                    {sessions.filter(s => s.status === 'active').length}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

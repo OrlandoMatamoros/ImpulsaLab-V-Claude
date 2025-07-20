@@ -7,16 +7,16 @@ import { COMPANY_INFO, IMAGES } from '@/lib/constants'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [showToolsCascade, setShowToolsCascade] = useState(false)
-  const [showMobileToolsCascade, setShowMobileToolsCascade] = useState(false)
+  const [showTools, setShowTools] = useState(false)
+  const [showMobileTools, setShowMobileTools] = useState(false)
   const toolsRef = useRef<HTMLDivElement>(null)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Cerrar cascada cuando se hace clic fuera
+  // Cerrar cuando se hace clic fuera
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (toolsRef.current && !toolsRef.current.contains(event.target as Node)) {
-        setShowToolsCascade(false)
+        setShowTools(false)
       }
     }
 
@@ -29,56 +29,58 @@ export default function Header() {
     }
   }, [])
 
-  // Manejo del hover con delay
+  // Manejo del hover
   const handleMouseEnter = () => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current)
     }
-    setShowToolsCascade(true)
+    setShowTools(true)
   }
 
   const handleMouseLeave = () => {
     timeoutRef.current = setTimeout(() => {
-      setShowToolsCascade(false)
-    }, 300)
+      setShowTools(false)
+    }, 200)
   }
 
-  // Herramientas individuales
+  // Herramientas
   const toolsItems = [
-    { 
-      name: 'Arsenal Tecnológico', 
-      href: '/arsenal-tecnologico',
-      delay: '0ms'
-    },
-    { 
-      name: 'Agentes Impulsa Lab', 
-      href: '/agentes-ia',
-      delay: '100ms'
-    },
-    { 
-      name: 'Noticias IA Aplicada', 
-      href: '/noticias-ia',
-      delay: '200ms'
-    }
+    { name: 'Arsenal Tecnológico', href: '/arsenal-tecnologico' },
+    { name: 'Agentes IA', href: '/agentes-ia' },
+    { name: 'Noticias IA', href: '/noticias-ia' }
   ]
 
   return (
     <>
-      {/* Estilos para la animación cascada */}
       <style jsx global>{`
-        @keyframes slideDown {
+        @keyframes fadeInScale {
           from {
             opacity: 0;
-            transform: translateY(-10px);
+            transform: scale(0.95);
           }
           to {
             opacity: 1;
-            transform: translateY(0);
+            transform: scale(1);
           }
         }
         
-        .cascade-item {
-          animation: slideDown 0.3s ease-out forwards;
+        @keyframes slideIn {
+          from {
+            opacity: 0;
+            transform: translateX(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        
+        .tools-container {
+          animation: fadeInScale 0.3s ease-out forwards;
+        }
+        
+        .tool-item {
+          animation: slideIn 0.3s ease-out forwards;
         }
       `}</style>
 
@@ -101,32 +103,27 @@ export default function Header() {
               Diagnóstico 3D
             </Link>
             
-            {/* Herramientas con Cascada */}
+            {/* Herramientas - Diseño Estilizado */}
             <div
               ref={toolsRef}
               className="relative"
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
             >
-              <Link 
-                href="/herramientas" 
-                className="text-gray-600 hover:text-gray-900 transition-colors"
-              >
+              <span className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer">
                 Herramientas
-              </Link>
+              </span>
               
-              {/* Efecto Cascada Desktop */}
-              {showToolsCascade && (
-                <div className="absolute top-full left-0 mt-2 w-56">
+              {/* Herramientas desplegadas horizontalmente */}
+              {showTools && (
+                <div className="absolute top-0 left-full ml-2 flex items-center space-x-2 tools-container">
+                  <span className="text-gray-400 mx-2">→</span>
                   {toolsItems.map((item, index) => (
                     <Link
                       key={item.name}
                       href={item.href}
-                      className="block bg-white border border-gray-200 px-4 py-3 text-gray-700 hover:bg-[#002D62] hover:text-white transition-all cascade-item shadow-md mb-1 rounded"
-                      style={{ 
-                        animationDelay: item.delay,
-                        opacity: 0
-                      }}
+                      className="bg-gradient-to-r from-[#002D62] to-blue-600 text-white px-4 py-2 rounded-full text-sm hover:shadow-lg transition-all hover:scale-105 whitespace-nowrap tool-item"
+                      style={{ animationDelay: `${index * 100}ms` }}
                     >
                       {item.name}
                     </Link>
@@ -183,36 +180,29 @@ export default function Header() {
               Diagnóstico 3D
             </Link>
             
-            {/* Herramientas móvil con cascada */}
+            {/* Herramientas móvil */}
             <div>
               <div 
-                className="text-gray-600 hover:text-gray-900 py-2 transition-colors flex items-center justify-between"
-                onClick={() => setShowMobileToolsCascade(!showMobileToolsCascade)}
+                className="text-gray-600 hover:text-gray-900 py-2 transition-colors"
+                onClick={() => setShowMobileTools(!showMobileTools)}
               >
-                <span>Herramientas</span>
-                <span className={`transition-transform duration-300 ${showMobileToolsCascade ? 'rotate-180' : ''}`}>
-                  ▼
-                </span>
+                Herramientas
               </div>
               
-              {/* Cascada móvil */}
-              {showMobileToolsCascade && (
-                <div className="pl-4 space-y-1 mt-2">
-                  {toolsItems.map((item, index) => (
+              {/* Herramientas móvil expandidas */}
+              {showMobileTools && (
+                <div className="pl-4 space-y-2 mt-2">
+                  {toolsItems.map((item) => (
                     <Link
                       key={item.name}
                       href={item.href}
-                      className="block text-gray-500 hover:text-[#002D62] py-2 transition-all cascade-item"
-                      style={{ 
-                        animationDelay: item.delay,
-                        opacity: 0
-                      }}
+                      className="block bg-gradient-to-r from-[#002D62] to-blue-600 text-white px-4 py-2 rounded-lg text-sm"
                       onClick={() => {
                         setIsMenuOpen(false)
-                        setShowMobileToolsCascade(false)
+                        setShowMobileTools(false)
                       }}
                     >
-                      → {item.name}
+                      {item.name}
                     </Link>
                   ))}
                 </div>

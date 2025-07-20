@@ -45,42 +45,31 @@ export default function Header() {
 
   // Herramientas
   const toolsItems = [
-    { name: 'Arsenal Tecnológico', href: '/arsenal-tecnologico' },
-    { name: 'Agentes IA', href: '/agentes-ia' },
-    { name: 'Noticias IA', href: '/noticias-ia' }
+    { name: 'Arsenal Tecnológico', href: '/herramientas#arsenal' },
+    { name: 'Agentes IA', href: '/herramientas#agentes' },
+    { name: 'Noticias IA', href: '/herramientas#noticias' }
   ]
 
   return (
     <>
       <style jsx global>{`
-        @keyframes fadeInScale {
+        @keyframes fadeInUp {
           from {
             opacity: 0;
-            transform: scale(0.95);
+            transform: translateY(10px);
           }
           to {
             opacity: 1;
-            transform: scale(1);
+            transform: translateY(0);
           }
         }
         
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateX(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
+        .tools-popup {
+          animation: fadeInUp 0.3s ease-out forwards;
         }
         
-        .tools-container {
-          animation: fadeInScale 0.3s ease-out forwards;
-        }
-        
-        .tool-item {
-          animation: slideIn 0.3s ease-out forwards;
+        .tool-link {
+          animation: fadeInUp 0.3s ease-out forwards;
         }
       `}</style>
 
@@ -103,31 +92,37 @@ export default function Header() {
               Diagnóstico 3D
             </Link>
             
-            {/* Herramientas - Diseño Estilizado */}
+            {/* Herramientas - Sin flecha, con popup estilizado */}
             <div
               ref={toolsRef}
               className="relative"
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
             >
-              <span className="text-gray-600 hover:text-gray-900 transition-colors cursor-pointer">
+              <Link 
+                href="/herramientas" 
+                className="text-gray-600 hover:text-gray-900 transition-colors"
+              >
                 Herramientas
-              </span>
+              </Link>
               
-              {/* Herramientas desplegadas horizontalmente */}
+              {/* Popup estilizado que aparece debajo */}
               {showTools && (
-                <div className="absolute top-0 left-full ml-2 flex items-center space-x-2 tools-container">
-                  <span className="text-gray-400 mx-2">→</span>
-                  {toolsItems.map((item, index) => (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      className="bg-gradient-to-r from-[#002D62] to-blue-600 text-white px-4 py-2 rounded-full text-sm hover:shadow-lg transition-all hover:scale-105 whitespace-nowrap tool-item"
-                      style={{ animationDelay: `${index * 100}ms` }}
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-3 tools-popup">
+                  <div className="bg-white rounded-lg shadow-xl border border-gray-100 p-1 min-w-[200px]">
+                    {toolsItems.map((item, index) => (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        className="block px-4 py-3 text-gray-700 hover:bg-gradient-to-r hover:from-[#002D62] hover:to-blue-600 hover:text-white rounded-md transition-all tool-link"
+                        style={{ animationDelay: `${index * 50}ms` }}
+                      >
+                        {item.name}
+                      </Link>
+                    ))}
+                  </div>
+                  {/* Pequeño triángulo que apunta hacia arriba */}
+                  <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[6px] border-b-white"></div>
                 </div>
               )}
             </div>
@@ -180,33 +175,29 @@ export default function Header() {
               Diagnóstico 3D
             </Link>
             
-            {/* Herramientas móvil */}
-            <div>
-              <div 
-                className="text-gray-600 hover:text-gray-900 py-2 transition-colors"
-                onClick={() => setShowMobileTools(!showMobileTools)}
+            {/* Herramientas móvil - primero el link principal */}
+            <div className="border-b border-gray-100 pb-2">
+              <Link 
+                href="/herramientas"
+                className="block text-gray-600 hover:text-gray-900 py-2 transition-colors font-medium"
+                onClick={() => setIsMenuOpen(false)}
               >
                 Herramientas
-              </div>
+              </Link>
               
-              {/* Herramientas móvil expandidas */}
-              {showMobileTools && (
-                <div className="pl-4 space-y-2 mt-2">
-                  {toolsItems.map((item) => (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      className="block bg-gradient-to-r from-[#002D62] to-blue-600 text-white px-4 py-2 rounded-lg text-sm"
-                      onClick={() => {
-                        setIsMenuOpen(false)
-                        setShowMobileTools(false)
-                      }}
-                    >
-                      {item.name}
-                    </Link>
-                  ))}
-                </div>
-              )}
+              {/* Sub-herramientas siempre visibles en móvil */}
+              <div className="pl-4 space-y-1 mt-1">
+                {toolsItems.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className="block text-sm text-gray-500 hover:text-[#002D62] py-1 transition-colors"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    → {item.name}
+                  </Link>
+                ))}
+              </div>
             </div>
 
             <Link href="/servicios/finanzas" 

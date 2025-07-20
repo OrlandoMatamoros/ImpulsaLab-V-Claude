@@ -4,51 +4,62 @@ import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { COMPANY_INFO, IMAGES } from '@/lib/constants'
-import { ChevronDown } from 'lucide-react'
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const [isMobileDropdownOpen, setIsMobileDropdownOpen] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
-  const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const [showToolsPreview, setShowToolsPreview] = useState(false)
+  const [showMobileToolsPreview, setShowMobileToolsPreview] = useState(false)
+  const toolsRef = useRef<HTMLDivElement>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Cerrar dropdown cuando se hace clic fuera
+  // Cerrar preview cuando se hace clic fuera
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false)
+      if (toolsRef.current && !toolsRef.current.contains(event.target as Node)) {
+        setShowToolsPreview(false)
       }
     }
 
     document.addEventListener('mousedown', handleClickOutside)
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
-      if (dropdownTimeoutRef.current) {
-        clearTimeout(dropdownTimeoutRef.current)
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
       }
     }
   }, [])
 
-  // Manejo del hover con delay para mejor UX
+  // Manejo del hover con delay
   const handleMouseEnter = () => {
-    if (dropdownTimeoutRef.current) {
-      clearTimeout(dropdownTimeoutRef.current)
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current)
     }
-    setIsDropdownOpen(true)
+    setShowToolsPreview(true)
   }
 
   const handleMouseLeave = () => {
-    dropdownTimeoutRef.current = setTimeout(() => {
-      setIsDropdownOpen(false)
+    timeoutRef.current = setTimeout(() => {
+      setShowToolsPreview(false)
     }, 300)
   }
 
-  // Opciones del dropdown de Herramientas
-  const toolsDropdownItems = [
-    { name: 'Arsenal Tecnológico', href: '/arsenal-tecnologico', icon: '🚀' },
-    { name: 'Agentes Impulsa Lab', href: '/agentes-ia', icon: '🤖' },
-    { name: 'Noticias IA Aplicada', href: '/noticias-ia', icon: '📰' }
+  // Secciones de la página de herramientas
+  const toolsSections = [
+    { 
+      name: 'Arsenal Tecnológico', 
+      href: '/herramientas#arsenal-tecnologico',
+      description: '24+ herramientas IA de élite'
+    },
+    { 
+      name: 'Agentes Impulsa Lab', 
+      href: '/herramientas#agentes-ia',
+      description: 'Automatización inteligente 24/7'
+    },
+    { 
+      name: 'Noticias IA Aplicada', 
+      href: '/herramientas#noticias-ia',
+      description: 'Últimas tendencias en IA'
+    }
   ]
 
   return (
@@ -71,49 +82,52 @@ export default function Header() {
             Diagnóstico 3D
           </Link>
           
-          {/* Herramientas con Dropdown */}
+          {/* Herramientas con Preview */}
           <div
-            ref={dropdownRef}
+            ref={toolsRef}
             className="relative"
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
           >
             <Link 
               href="/herramientas" 
-              className="flex items-center space-x-1 text-gray-600 hover:text-gray-900 transition-colors group"
+              className="text-gray-600 hover:text-gray-900 transition-colors"
             >
-              <span>Herramientas</span>
-              <ChevronDown 
-                className={`w-4 h-4 transition-transform duration-300 ${
-                  isDropdownOpen ? 'rotate-180' : ''
-                } group-hover:text-[#002D62]`}
-              />
+              Herramientas
             </Link>
             
-            {/* Dropdown Menu Desktop */}
-            <div 
-              className={`absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-100 overflow-hidden transition-all duration-300 ${
-                isDropdownOpen 
-                  ? 'opacity-100 translate-y-0 visible' 
-                  : 'opacity-0 -translate-y-2 invisible'
-              }`}
-              aria-label="Herramientas submenu"
-              role="menu"
-            >
-              {toolsDropdownItems.map((item, index) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`flex items-center space-x-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-[#002D62] transition-all group ${
-                    index !== 0 ? 'border-t border-gray-100' : ''
-                  }`}
-                  role="menuitem"
-                >
-                  <span className="text-2xl group-hover:scale-110 transition-transform">{item.icon}</span>
-                  <span className="font-medium">{item.name}</span>
-                </Link>
-              ))}
-            </div>
+            {/* Preview de secciones */}
+            {showToolsPreview && (
+              <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-4 w-80 bg-white rounded-lg shadow-2xl border border-gray-100 p-4 before:content-[''] before:absolute before:top-[-8px] before:left-1/2 before:transform before:-translate-x-1/2 before:w-0 before:h-0 before:border-l-[8px] before:border-l-transparent before:border-r-[8px] before:border-r-transparent before:border-b-[8px] before:border-b-white">
+                <div className="text-sm text-gray-500 mb-3">Explorar secciones:</div>
+                <div className="space-y-3">
+                  {toolsSections.map((section, index) => (
+                    <Link
+                      key={section.name}
+                      href={section.href}
+                      className="block group"
+                    >
+                      <div className="p-3 rounded-lg hover:bg-blue-50 transition-colors">
+                        <div className="font-medium text-gray-800 group-hover:text-[#002D62]">
+                          {section.name}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-1">
+                          {section.description}
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+                <div className="mt-3 pt-3 border-t border-gray-100">
+                  <Link 
+                    href="/herramientas" 
+                    className="text-xs text-[#002D62] hover:underline"
+                  >
+                    Ver todas las herramientas →
+                  </Link>
+                </div>
+              </div>
+            )}
           </div>
 
           <Link href="/servicios/finanzas" className="text-gray-600 hover:text-gray-900 transition-colors">
@@ -164,52 +178,48 @@ export default function Header() {
             Diagnóstico 3D
           </Link>
           
-          {/* Herramientas móvil con dropdown */}
+          {/* Herramientas móvil */}
           <div>
-            <button
-              onClick={() => setIsMobileDropdownOpen(!isMobileDropdownOpen)}
-              className="flex items-center justify-between w-full text-gray-600 hover:text-gray-900 py-2 transition-colors"
+            <div 
+              className="text-gray-600 hover:text-gray-900 py-2 transition-colors"
+              onClick={() => setShowMobileToolsPreview(!showMobileToolsPreview)}
             >
-              <Link 
-                href="/herramientas"
-                onClick={(e) => {
-                  if (isMobileDropdownOpen) {
-                    e.preventDefault()
-                    setIsMobileDropdownOpen(false)
-                  } else {
-                    setIsMenuOpen(false)
-                  }
-                }}
-                className="flex-1 text-left"
-              >
-                Herramientas
-              </Link>
-              <ChevronDown 
-                className={`w-4 h-4 transition-transform duration-300 ${
-                  isMobileDropdownOpen ? 'rotate-180' : ''
-                }`}
-              />
-            </button>
+              <div className="flex items-center justify-between">
+                <span>Herramientas</span>
+                <span className="text-xs text-gray-400">
+                  {showMobileToolsPreview ? '−' : '+'}
+                </span>
+              </div>
+            </div>
             
-            {/* Dropdown móvil */}
-            <div className={`pl-4 space-y-1 transition-all duration-300 ${
-              isMobileDropdownOpen ? 'max-h-48 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'
-            }`}>
-              {toolsDropdownItems.map((item) => (
+            {/* Preview móvil */}
+            {showMobileToolsPreview && (
+              <div className="ml-4 mt-2 space-y-2 pb-2">
+                {toolsSections.map((section) => (
+                  <Link
+                    key={section.name}
+                    href={section.href}
+                    className="block text-sm text-gray-500 hover:text-[#002D62] py-1"
+                    onClick={() => {
+                      setIsMenuOpen(false)
+                      setShowMobileToolsPreview(false)
+                    }}
+                  >
+                    {section.name}
+                  </Link>
+                ))}
                 <Link
-                  key={item.name}
-                  href={item.href}
-                  className="flex items-center space-x-2 text-gray-500 hover:text-[#002D62] py-2 transition-colors"
+                  href="/herramientas"
+                  className="block text-sm font-medium text-[#002D62] hover:underline py-1 mt-2"
                   onClick={() => {
                     setIsMenuOpen(false)
-                    setIsMobileDropdownOpen(false)
+                    setShowMobileToolsPreview(false)
                   }}
                 >
-                  <span>{item.icon}</span>
-                  <span className="text-sm">{item.name}</span>
+                  Ver todas →
                 </Link>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
 
           <Link href="/servicios/finanzas" 

@@ -180,3 +180,28 @@ textarea {
   color: #111827 !important;
   -webkit-text-fill-color: #111827 !important;
 }
+/* Animación horizontal para HorizontalTechTicker */
+@keyframes scroll-horizontal {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll-horizontal {
+  animation: scroll-horizontal 90s linear infinite;
+}
+
+/* Pausa la animación al hacer hover */
+.animate-scroll-horizontal:hover {
+  animation-play-state: paused;
+}
+
+/* Responsivo: más lento en móviles */
+@media (max-width: 768px) {
+  .animate-scroll-horizontal {
+    animation-duration: 90s;
+  }
+}

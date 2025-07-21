@@ -11,31 +11,6 @@ interface TechTool {
   color?: string;
 }
 
-// ICONOS ESPECIALES IMPULSA LAB
-const HerramientasIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>
-  </svg>
-);
-
-const AgentesIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-  </svg>
-);
-
-const DiagnosticoIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
-  </svg>
-);
-
-const NoticiasIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
-  </svg>
-);
-
 // ICONOS DE HERRAMIENTAS
 const ChatGPTIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
@@ -141,12 +116,6 @@ const CopilotIcon: React.FC<{ className?: string }> = ({ className }) => (
 
 // ARRAY DE HERRAMIENTAS
 const techTools: TechTool[] = [
-  // ACCESOS ESPECIALES IMPULSA LAB (PRIMEROS)
-  { name: 'Herramientas', logo: HerramientasIcon, url: '/herramientas', category: 'Impulsa Lab', color: '#FF6B6B' },
-  { name: 'Agentes IA', logo: AgentesIcon, url: '/agentes', category: 'Impulsa Lab', color: '#4ECDC4' },
-  { name: 'Diagnóstico 3D', logo: DiagnosticoIcon, url: '/diagnostico', category: 'Impulsa Lab', color: '#45B7D1' },
-  { name: 'Noticias IA', logo: NoticiasIcon, url: '/noticias-ia', category: 'Impulsa Lab', color: '#96CEB4' },
-
   // Chat & Asistentes IA
   { name: 'ChatGPT', logo: ChatGPTIcon, url: 'https://chatgpt.com', category: 'Chat IA', color: '#00A67E' },
   { name: 'Claude', logo: ClaudeIcon, url: 'https://claude.ai', category: 'Chat IA', color: '#D97757' },
@@ -315,9 +284,9 @@ export default function HorizontalTechTicker() {
   useEffect(() => {
     if (momentum !== 0 && !isDragging) {
       const applyMomentum = () => {
-        if (scrollRef.current && Math.abs(momentum) > 0.5) {
+        if (scrollRef.current && Math.abs(momentum) > 0.1) {
           scrollRef.current.scrollLeft += momentum;
-          setMomentum(m => m * 0.95); // Fricción
+          setMomentum(m => m * 0.92); // Ajustado para desaceleración más natural
           animationRef.current = requestAnimationFrame(applyMomentum);
         } else {
           setMomentum(0);
@@ -347,8 +316,8 @@ export default function HorizontalTechTicker() {
   const handleMouseUp = () => {
     if (!isDragging) return;
     setIsDragging(false);
-    if (Math.abs(velocityRef.current) > 2) {
-      setMomentum(velocityRef.current * 0.5);
+    if (Math.abs(velocityRef.current) > 1) {
+      setMomentum(velocityRef.current * 0.6); // Ajustado para mejor control
     } else {
       setTimeout(() => setIsPaused(false), 100);
     }
@@ -358,7 +327,7 @@ export default function HorizontalTechTicker() {
     if (!isDragging || !scrollRef.current) return;
     e.preventDefault();
     const x = e.pageX - scrollRef.current.offsetLeft;
-    const walk = (x - startX) * 1.5;
+    const walk = (x - startX) * 1; // Reducido de 1.5 a 1
     scrollRef.current.scrollLeft = scrollLeft - walk;
     velocityRef.current = e.pageX - lastMouseX.current;
     lastMouseX.current = e.pageX;
@@ -376,10 +345,14 @@ export default function HorizontalTechTicker() {
 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!isDragging || !scrollRef.current) return;
-    e.preventDefault();
     const x = e.touches[0].pageX - scrollRef.current.offsetLeft;
-    const walk = (x - startX) * 1.5;
-    scrollRef.current.scrollLeft = scrollLeft - walk;
+    const walk = Math.abs(x - startX);
+    // Solo prevenir scroll vertical si el movimiento horizontal es significativo
+    if (walk > 10) {
+      e.preventDefault();
+    }
+    const actualWalk = (x - startX) * 1;
+    scrollRef.current.scrollLeft = scrollLeft - actualWalk;
     velocityRef.current = e.touches[0].pageX - lastMouseX.current;
     lastMouseX.current = e.touches[0].pageX;
   };
@@ -387,32 +360,31 @@ export default function HorizontalTechTicker() {
   const handleTouchEnd = () => {
     if (!isDragging) return;
     setIsDragging(false);
-    if (Math.abs(velocityRef.current) > 2) {
-      setMomentum(velocityRef.current * 0.5);
+    if (Math.abs(velocityRef.current) > 1) {
+      setMomentum(velocityRef.current * 0.6); // Ajustado para mejor control
     } else {
       setTimeout(() => setIsPaused(false), 100);
     }
   };
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (Math.abs(velocityRef.current) > 5) {
+    // Prevenir navegación si estamos arrastrando
+    if (isDragging || Math.abs(velocityRef.current) > 3) {
       e.preventDefault();
     }
   };
 
   return (
     <div 
-      className="relative w-full overflow-hidden bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 py-8 rounded-2xl"
-      onMouseEnter={() => !isDragging && setIsPaused(true)}
-      onMouseLeave={() => !isDragging && setIsPaused(false)}
+      className="relative w-full overflow-hidden bg-gradient-to-r from-blue-950 via-blue-900 to-blue-950 py-6 rounded-2xl"
     >
       {/* Gradientes laterales */}
-      <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-slate-900 to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-slate-900 to-transparent z-10 pointer-events-none" />
+      <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-blue-950 to-transparent z-10 pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-blue-950 to-transparent z-10 pointer-events-none" />
       
       <div 
         ref={scrollRef}
-        className="ticker-wrapper overflow-x-auto touch-pan-x"
+        className="ticker-wrapper overflow-x-auto py-2"
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseMove={handleMouseMove}
@@ -423,9 +395,12 @@ export default function HorizontalTechTicker() {
       >
         <div 
           ref={contentRef}
-          className={`ticker-content ${isPaused ? 'paused' : ''}`}
+          className="ticker-content"
+          style={{
+            animationPlayState: isPaused ? 'paused' : 'running'
+          }}
         >
-          {/* Triplicamos los items para asegurar el loop infinito */}
+          {/* Duplicamos los items 3 veces para asegurar loop infinito sin huecos */}
           {[...techTools, ...techTools, ...techTools].map((tool, index) => (
             <a
               key={`${tool.name}-${index}`}
@@ -441,7 +416,7 @@ export default function HorizontalTechTicker() {
               title={tool.name}
             >
               <div className="logo-wrapper">
-                <tool.logo className="w-8 h-8 text-slate-400 group-hover:text-white transition-colors duration-300" />
+                <tool.logo className="w-8 h-8 text-blue-300 group-hover:text-white transition-colors duration-300" />
               </div>
               <div className="item-details">
                 <p className="item-name">{tool.name}</p>
@@ -462,7 +437,7 @@ export default function HorizontalTechTicker() {
           -webkit-overflow-scrolling: touch;
           scrollbar-width: none;
           -ms-overflow-style: none;
-          touch-action: pan-x;
+          touch-action: pan-y; /* Solo permite scroll vertical, el horizontal lo manejamos nosotros */
         }
 
         .ticker-wrapper::-webkit-scrollbar {
@@ -475,23 +450,20 @@ export default function HorizontalTechTicker() {
 
         .ticker-content {
           display: inline-flex;
-          animation: scroll 60s linear infinite;
+          animation: scroll 45s linear infinite; /* Velocidad final optimizada */
           will-change: transform;
-        }
-
-        .ticker-content.paused {
-          animation-play-state: paused;
+          gap: 0;
         }
 
         .ticker-item {
           display: inline-flex;
           align-items: center;
           gap: 12px;
-          margin: 0 12px;
-          padding: 12px 20px;
-          background: linear-gradient(to bottom right, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.8));
+          margin: 0 8px; /* Reducido de 12px */
+          padding: 14px 24px; /* Aumentado para mejor área táctil */
+          background: linear-gradient(to bottom right, rgba(219, 234, 254, 0.08), rgba(147, 197, 253, 0.12));
           border-radius: 12px;
-          border: 1px solid rgba(100, 116, 139, 0.3);
+          border: 1px solid rgba(147, 197, 253, 0.4);
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           text-decoration: none;
           color: inherit;
@@ -500,6 +472,8 @@ export default function HorizontalTechTicker() {
           flex-shrink: 0;
           position: relative;
           overflow: hidden;
+          backdrop-filter: blur(8px) saturate(1.5);
+          -webkit-backdrop-filter: blur(8px) saturate(1.5);
         }
 
         .ticker-item::before {
@@ -515,10 +489,11 @@ export default function HorizontalTechTicker() {
         }
 
         .ticker-item:hover {
-          box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.5), 
-                      0 0 20px -5px var(--brand-color);
+          box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4), 
+                      0 0 40px -10px var(--brand-color);
           transform: scale(1.05) translateY(-2px);
-          border-color: var(--brand-color);
+          border-color: rgba(147, 197, 253, 0.7);
+          background: linear-gradient(to bottom right, rgba(219, 234, 254, 0.15), rgba(147, 197, 253, 0.2));
         }
 
         .ticker-item:hover::before {
@@ -531,11 +506,12 @@ export default function HorizontalTechTicker() {
 
         .ticker-item:hover .item-name {
           color: white;
+          text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
         }
 
         .logo-wrapper {
-          width: 32px;
-          height: 32px;
+          width: 36px;
+          height: 36px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -555,14 +531,14 @@ export default function HorizontalTechTicker() {
           font-size: 14px;
           line-height: 1.2;
           transition: color 0.3s ease;
-          color: #e2e8f0;
+          color: #dbeafe; /* Azul muy claro */
         }
 
         .item-category {
           font-size: 11px;
-          opacity: 0.6;
+          opacity: 0.7;
           margin-top: 2px;
-          color: #94a3b8;
+          color: #93c5fd; /* Azul claro */
         }
 
         @keyframes scroll {
@@ -570,23 +546,23 @@ export default function HorizontalTechTicker() {
             transform: translateX(0);
           }
           100% {
-            transform: translateX(-33.333%);
+            transform: translateX(-33.333%); /* Para 3 copias */
           }
         }
 
         @media (max-width: 640px) {
           .ticker-content {
-            animation-duration: 30s;
+            animation-duration: 30s; /* Más rápido en móvil */
           }
 
           .ticker-item {
-            padding: 10px 16px;
-            margin: 0 8px;
+            padding: 12px 20px; /* Aumentado para mejor área táctil */
+            margin: 0 6px; /* Reducido de 8px */
           }
           
           .logo-wrapper {
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
           }
           
           .logo-wrapper svg {
@@ -606,7 +582,7 @@ export default function HorizontalTechTicker() {
         /* Indicador visual de arrastre */
         @media (hover: hover) {
           .ticker-wrapper:hover {
-            box-shadow: inset 0 0 0 2px rgba(99, 102, 241, 0.1);
+            box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.3);
             border-radius: 1rem;
           }
         }

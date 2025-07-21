@@ -1,29 +1,88 @@
+'use client'
+
 import Link from 'next/link'
 import { LINKS } from '@/lib/constants'
-import VerticalTechTicker from './VerticalTechTicker'
 
-// Iconos para los agentes
+// Iconos mejorados con mayor detalle
+const HubIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none">
+    {/* Nodo central */}
+    <circle cx="12" cy="12" r="3" fill="currentColor" />
+    
+    {/* Conexiones lado izquierdo - azul oscuro */}
+    <g className="text-[#002D62]">
+      <circle cx="4" cy="12" r="2" fill="currentColor" />
+      <path d="M7 12h2" stroke="currentColor" strokeWidth="2" />
+      
+      <circle cx="6" cy="6" r="2" fill="currentColor" />
+      <path d="M9 9l-1.5-1.5" stroke="currentColor" strokeWidth="2" />
+      
+      <circle cx="6" cy="18" r="2" fill="currentColor" />
+      <path d="M9 15l-1.5 1.5" stroke="currentColor" strokeWidth="2" />
+      
+      <circle cx="12" cy="4" r="2" fill="currentColor" />
+      <path d="M12 7v2" stroke="currentColor" strokeWidth="2" />
+      
+      <circle cx="12" cy="20" r="2" fill="currentColor" />
+      <path d="M12 17v-2" stroke="currentColor" strokeWidth="2" />
+    </g>
+    
+    {/* Conexiones lado derecho - azul eléctrico */}
+    <g className="text-blue-500">
+      <path d="M15 12h3l1 1v2" stroke="currentColor" strokeWidth="1.5" fill="none" />
+      <circle cx="19" cy="15" r="1" fill="currentColor" />
+      
+      <path d="M15 10h2l1-1v-2l1-1" stroke="currentColor" strokeWidth="1.5" fill="none" />
+      <circle cx="19" cy="6" r="1" fill="currentColor" />
+      
+      <path d="M15 14h2v3l1 1" stroke="currentColor" strokeWidth="1.5" fill="none" />
+      <circle cx="18" cy="18" r="1" fill="currentColor" />
+      
+      <path d="M14 9l2-2h2" stroke="currentColor" strokeWidth="1.5" fill="none" />
+      <circle cx="18" cy="7" r="0.5" fill="currentColor" />
+      
+      <path d="M14 15l1 2h2l1 1" stroke="currentColor" strokeWidth="1.5" fill="none" />
+      <circle cx="18" cy="16" r="0.5" fill="currentColor" />
+    </g>
+  </svg>
+);
+
 const ToolsIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
   </svg>
 );
 
 const AIIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+    <line x1="9" y1="9" x2="15" y2="15"/>
+    <line x1="15" y1="9" x2="9" y2="15"/>
+    <circle cx="12" cy="12" r="2"/>
   </svg>
 );
 
 const NewsIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/>
+    <path d="M11 6h6M11 10h6M11 14h6M11 18h6"/>
   </svg>
 );
 
 const PromptIcon = ({ className }: { className?: string }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2L2 7v10l10 5 10-5V7l-10-5zM12 4.3L19.5 8 12 11.7 4.5 8 12 4.3zM4 9.5l7 3.5v7l-7-3.5v-7zm16 0v7l-7 3.5v-7l7-3.5z"/>
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <polyline points="4 7 4 4 20 4 20 7"/>
+    <line x1="9" y1="20" x2="15" y2="20"/>
+    <line x1="12" y1="4" x2="12" y2="20"/>
+    <path d="M5 12l7-7 7 7"/>
+  </svg>
+);
+
+const ResearchIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <circle cx="11" cy="11" r="8"/>
+    <path d="m21 21-4.35-4.35"/>
+    <path d="M11 8v6M8 11h6"/>
   </svg>
 );
 
@@ -46,108 +105,189 @@ export default function HeroSection() {
               href={LINKS.calendly}
               target="_blank"
               className="inline-block bg-white text-blue-900 px-8 py-4 rounded-lg 
-                       font-semibold text-lg transition-transform duration-300 
-                       hover:scale-105 hover:bg-gray-100"
+                       font-semibold text-lg transition-all duration-300 
+                       hover:scale-105 hover:bg-gray-100 hover:shadow-xl"
             >
               Obtén tu Diagnóstico 3D Gratis
             </Link>
           </div>
 
-          {/* COLUMNA DERECHA - REDISEÑADA */}
+          {/* COLUMNA DERECHA - MEJORADA */}
           <div className="flex justify-center">
-            <div className="w-full max-w-lg space-y-6">
+            <div className="w-full max-w-lg md:max-w-xl lg:max-w-2xl space-y-6">
               
+              {/* HUB DE HERRAMIENTAS IA - MEJORADO */}
+              <div className="relative bg-white p-6 md:p-8 lg:p-10 rounded-2xl shadow-2xl">
+                {/* Efecto de brillo de fondo sutil */}
+                <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-white rounded-2xl"></div>
+                
+                <div className="relative">
+                  {/* HEADER MEJORADO */}
+                  <div className="text-center mb-8">
+                    <div className="flex justify-center mb-4">
+                      <HubIcon className="w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24" />
+                    </div>
+                    <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 text-[#002D62]">
+                      Hub de Herramientas IA
+                    </h3>
+                    <p className="text-gray-600 text-sm md:text-base lg:text-lg">
+                      Tu arsenal completo para dominar la IA en tu negocio
+                    </p>
+                  </div>
 
+                  {/* GRID DE AGENTES - MEJORADO */}
+                  <div className="grid grid-cols-2 gap-3 md:gap-4 lg:gap-5">
+                    
+                    {/* ARSENAL TECNOLÓGICO */}
+                    <Link 
+                      href="/herramientas"
+                      className="group relative bg-gradient-to-br from-blue-600 to-blue-700 p-4 md:p-5 lg:p-6 rounded-xl border-2 border-blue-500 hover:border-blue-300 transition-all duration-500 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/50 overflow-hidden"
+                    >
+                      {/* Badge animado */}
+                      <div className="absolute top-2 right-2 bg-white text-blue-700 text-xs px-2 py-1 rounded-full animate-pulse font-bold">
+                        Gratis
+                      </div>
+                      
+                      {/* Efecto de brillo en hover */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform"></div>
+                      
+                      <div className="relative">
+                        <div className="flex items-center space-x-2 md:space-x-3 mb-3">
+                          <div className="p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
+                            <ToolsIcon className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 text-white" />
+                          </div>
+                          <span className="font-bold text-sm md:text-base lg:text-lg text-white">Arsenal</span>
+                        </div>
+                        <p className="text-xs md:text-sm lg:text-base text-white/90 font-medium mb-2">
+                          <span className="font-bold text-white">100+ herramientas</span> con buscador inteligente
+                        </p>
+                        <p className="text-xs md:text-sm text-white/80">
+                          Ahorra 20+ horas semanales
+                        </p>
+                      </div>
+                    </Link>
 
-              {/* HUB DE HERRAMIENTAS IA */}
-              <div className="bg-gradient-to-br from-blue-600/20 to-purple-600/20 p-6 rounded-xl backdrop-blur-sm border border-white/20">
-                <div className="text-center mb-6">
-                  <h3 className="text-2xl font-bold mb-2 bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">
-                    🚀 Hub de Herramientas IA
-                  </h3>
-                  <p className="text-gray-300 text-sm">
-                    Accede a nuestro arsenal completo y agentes especializados
+                    {/* AGENTE UNIFICADOR */}
+                    <Link 
+                      href="/agente-unificador"
+                      className="group relative bg-gradient-to-br from-purple-600 to-purple-700 p-4 md:p-5 lg:p-6 rounded-xl border-2 border-purple-500 hover:border-purple-300 transition-all duration-500 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/50 overflow-hidden"
+                    >
+                      {/* Badge animado */}
+                      <div className="absolute top-2 right-2 bg-white text-purple-700 text-xs px-2 py-1 rounded-full animate-pulse font-bold">
+                        Popular
+                      </div>
+                      
+                      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform"></div>
+                      
+                      <div className="relative">
+                        <div className="flex items-center space-x-2 md:space-x-3 mb-3">
+                          <div className="p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
+                            <AIIcon className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 text-white" />
+                          </div>
+                          <span className="font-bold text-sm md:text-base lg:text-lg text-white">4 IAs</span>
+                        </div>
+                        <p className="text-xs md:text-sm lg:text-base text-white/90 font-medium mb-2">
+                          ChatGPT + Claude + Gemini + Grok
+                        </p>
+                        <p className="text-xs md:text-sm text-white/80">
+                          Una respuesta, 4 perspectivas
+                        </p>
+                      </div>
+                    </Link>
+
+                    {/* NOTICIAS IA */}
+                    <Link 
+                      href="/noticias-ia"
+                      className="group relative bg-gradient-to-br from-emerald-600 to-emerald-700 p-4 md:p-5 lg:p-6 rounded-xl border-2 border-emerald-500 hover:border-emerald-300 transition-all duration-500 hover:scale-105 hover:shadow-xl hover:shadow-emerald-500/50 overflow-hidden"
+                    >
+                      {/* Badge animado */}
+                      <div className="absolute top-2 right-2 bg-white text-emerald-700 text-xs px-2 py-1 rounded-full animate-pulse font-bold">
+                        Actualizado
+                      </div>
+                      
+                      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform"></div>
+                      
+                      <div className="relative">
+                        <div className="flex items-center space-x-2 md:space-x-3 mb-3">
+                          <div className="p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
+                            <NewsIcon className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 text-white" />
+                          </div>
+                          <span className="font-bold text-sm md:text-base lg:text-lg text-white">Noticias</span>
+                        </div>
+                        <p className="text-xs md:text-sm lg:text-base text-white/90 font-medium mb-2">
+                          IA aplicada a negocios reales
+                        </p>
+                        <p className="text-xs md:text-sm text-white/80">
+                          Mantente a la vanguardia
+                        </p>
+                      </div>
+                    </Link>
+
+                    {/* ESTRUCTURADOR PROMPTS */}
+                    <Link 
+                      href="/estructurador-prompts"
+                      className="group relative bg-gradient-to-br from-orange-600 to-red-600 p-4 md:p-5 lg:p-6 rounded-xl border-2 border-orange-500 hover:border-orange-300 transition-all duration-500 hover:scale-105 hover:shadow-xl hover:shadow-orange-500/50 overflow-hidden"
+                    >
+                      {/* Badge animado */}
+                      <div className="absolute top-2 right-2 bg-white text-orange-700 text-xs px-2 py-1 rounded-full animate-pulse font-bold">
+                        Pro
+                      </div>
+                      
+                      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 -skew-x-12 translate-x-[-200%] group-hover:translate-x-[200%] transition-transform"></div>
+                      
+                      <div className="relative">
+                        <div className="flex items-center space-x-2 md:space-x-3 mb-3">
+                          <div className="p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
+                            <PromptIcon className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 text-white" />
+                          </div>
+                          <span className="font-bold text-sm md:text-base lg:text-lg text-white">Prompts</span>
+                        </div>
+                        <p className="text-xs md:text-sm lg:text-base text-white/90 font-medium mb-2">
+                          Resultados 10x mejores
+                        </p>
+                        <p className="text-xs md:text-sm text-white/80">
+                          Domina el arte del prompting
+                        </p>
+                      </div>
+                    </Link>
+
+                  </div>
+
+                  {/* CTA PRINCIPAL - MEJORADO */}
+                  <div className="mt-8 text-center">
+                    <Link 
+                      href="/herramientas"
+                      className="inline-flex items-center px-6 md:px-8 py-3 md:py-4 bg-gradient-to-r from-blue-500 via-purple-600 to-blue-500 rounded-xl font-bold text-sm md:text-base lg:text-lg transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/50 animate-gradient bg-[length:200%_auto] group"
+                    >
+                      <ToolsIcon className="w-4 h-4 md:w-5 md:h-5 mr-2 group-hover:rotate-12 transition-transform" />
+                      Explorar Todas las Herramientas
+                      <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+                    </Link>
+                  </div>
+
+                  {/* TEXTO DE CIERRE */}
+                  <p className="text-center text-xs md:text-sm text-gray-500 mt-4">
+                    Sin tarjeta de crédito • Acceso inmediato • Soporte en español
                   </p>
                 </div>
-
-                {/* GRID DE AGENTES */}
-                <div className="grid grid-cols-2 gap-3">
-                  
-                  {/* ARSENAL TECNOLÓGICO */}
-                  <Link 
-                    href="/herramientas"
-                    className="group bg-white/10 p-4 rounded-lg border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:border-blue-300"
-                  >
-                    <div className="flex items-center space-x-2 mb-2">
-                      <ToolsIcon className="w-5 h-5 text-blue-300" />
-                      <span className="font-semibold text-sm">Arsenal</span>
-                    </div>
-                    <p className="text-xs text-gray-300 group-hover:text-white">
-                      30+ herramientas con buscador inteligente
-                    </p>
-                  </Link>
-
-                  {/* AGENTE UNIFICADOR */}
-                  <Link 
-                    href="/agente-unificador"
-                    className="group bg-white/10 p-4 rounded-lg border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:border-purple-300"
-                  >
-                    <div className="flex items-center space-x-2 mb-2">
-                      <AIIcon className="w-5 h-5 text-purple-300" />
-                      <span className="font-semibold text-sm">4 IAs</span>
-                    </div>
-                    <p className="text-xs text-gray-300 group-hover:text-white">
-                      ChatGPT + Claude + Gemini + Grok
-                    </p>
-                  </Link>
-
-                  {/* NOTICIAS IA */}
-                  <Link 
-                    href="/noticias-ia"
-                    className="group bg-white/10 p-4 rounded-lg border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:border-green-300"
-                  >
-                    <div className="flex items-center space-x-2 mb-2">
-                      <NewsIcon className="w-5 h-5 text-green-300" />
-                      <span className="font-semibold text-sm">Noticias</span>
-                    </div>
-                    <p className="text-xs text-gray-300 group-hover:text-white">
-                      IA aplicada a negocios
-                    </p>
-                  </Link>
-
-                  {/* ESTRUCTURADOR PROMPTS */}
-                  <Link 
-                    href="/estructurador-prompts"
-                    className="group bg-white/10 p-4 rounded-lg border border-white/20 hover:bg-white/20 transition-all duration-300 hover:scale-105 hover:border-yellow-300"
-                  >
-                    <div className="flex items-center space-x-2 mb-2">
-                      <PromptIcon className="w-5 h-5 text-yellow-300" />
-                      <span className="font-semibold text-sm">Prompts</span>
-                    </div>
-                    <p className="text-xs text-gray-300 group-hover:text-white">
-                      Optimiza tus consultas
-                    </p>
-                  </Link>
-
-                </div>
-
-                {/* CTA PRINCIPAL */}
-                <div className="mt-6 text-center">
-                  <Link 
-                    href="/herramientas"
-                    className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg font-semibold text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25"
-                  >
-                    <ToolsIcon className="w-4 h-4 mr-2" />
-                    Explorar Todas las Herramientas
-                  </Link>
-                </div>
-
               </div>
 
             </div>
           </div>
         </div>
       </div>
+
+      {/* ESTILOS PARA ANIMACIONES */}
+      <style jsx>{`
+        @keyframes gradient {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .animate-gradient {
+          animation: gradient 3s ease infinite;
+        }
+      `}</style>
     </section>
   )
 }

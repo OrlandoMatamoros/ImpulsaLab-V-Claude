@@ -180,7 +180,10 @@ textarea {
   color: #111827 !important;
   -webkit-text-fill-color: #111827 !important;
 }
-/* Animación horizontal para HorizontalTechTicker */
+
+/* =============================================== */
+/* ANIMACIÓN HORIZONTAL PARA HorizontalTechTicker */
+/* =============================================== */
 @keyframes scroll-horizontal {
   0% {
     transform: translateX(0);
@@ -190,18 +193,70 @@ textarea {
   }
 }
 
+/* Optimización con aceleración por hardware */
+@-webkit-keyframes scroll-horizontal {
+  0% { 
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+  100% { 
+    -webkit-transform: translate3d(-50%, 0, 0);
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@-moz-keyframes scroll-horizontal {
+  0% { 
+    -moz-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+  }
+  100% { 
+    -moz-transform: translate3d(-50%, 0, 0);
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* Clase principal de animación */
 .animate-scroll-horizontal {
-  animation: scroll-horizontal 90s linear infinite;
+  animation: scroll-horizontal 30s linear infinite;
+  -webkit-animation: scroll-horizontal 30s linear infinite;
+  -moz-animation: scroll-horizontal 30s linear infinite;
 }
 
 /* Pausa la animación al hacer hover */
 .animate-scroll-horizontal:hover {
   animation-play-state: paused;
+  -webkit-animation-play-state: paused;
+  -moz-animation-play-state: paused;
 }
 
 /* Responsivo: más lento en móviles */
 @media (max-width: 768px) {
   .animate-scroll-horizontal {
-    animation-duration: 90s;
+    animation-duration: 45s;
+    -webkit-animation-duration: 45s;
+    -moz-animation-duration: 45s;
   }
+}
+
+/* Forzar aceleración por hardware para el ticker */
+.ticker-content {
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  -o-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-perspective: 1000;
+  -moz-perspective: 1000;
+  perspective: 1000;
+  will-change: transform;
+}
+
+/* Asegurar que la animación funcione correctamente */
+.ticker-container * {
+  animation-play-state: running !important;
+  -webkit-animation-play-state: running !important;
 }

@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
 import * as React from 'react';
+import { useState, useEffect } from 'react';
 
 interface TechTool {
   name: string;
+  category: string;
   logo: React.ComponentType<{ className?: string }>;
   url: string;
-  category: string;
   color?: string;
 }
 
@@ -20,25 +20,7 @@ const ChatGPTIcon: React.FC<{ className?: string }> = ({ className }) => (
 
 const ClaudeIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M14.769 2.769A1 1 0 0 1 16.415 4L12.97 7.445a1 1 0 0 1-1.414 0L8.11 4a1 1 0 0 1 1.647-1.231L12 5.011l2.243-2.242ZM8.586 6.586a1 1 0 0 1 1.414 0L12 8.586l2-2a1 1 0 1 1 1.414 1.414l-2.707 2.707a1 1 0 0 1-1.414 0L8.586 8a1 1 0 0 1 0-1.414ZM12 12l4.243 4.243a1 1 0 0 1-1.414 1.414L12 14.828l-2.829 2.829a1 1 0 0 1-1.414-1.414L12 12Z"/>
-  </svg>
-);
-
-const GeminiIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2L13.09 5.26L16 4L14.74 7.26L18 8L14.74 8.74L16 12L13.09 10.74L12 14L10.91 10.74L8 12L9.26 8.74L6 8L9.26 7.26L8 4L10.91 5.26L12 2ZM12 18L10.91 21.26L8 20L9.26 16.74L6 16L9.26 15.26L8 12L10.91 13.26L12 10L13.09 13.26L16 12L14.74 15.26L18 16L14.74 16.74L16 20L13.09 21.26L12 18Z"/>
-  </svg>
-);
-
-const PerplexityIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2L2 7v10l10 5 10-5V7l-10-5zM12 4.3L19.5 8 12 11.7 4.5 8 12 4.3zM4 9.5l7 3.5v7l-7-3.5v-7zm16 0v7l-7 3.5v-7l7-3.5z"/>
-  </svg>
-);
-
-const MidjourneyIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm3.5 6L12 10.5 8.5 8 12 5.5 15.5 8zM8 12l2.5 2.5L8 17l-2.5-2.5L8 12zm8 0l2.5 2.5L16 17l-2.5-2.5L16 12zm-4 2.5L8.5 16 12 18.5 15.5 16 12 14.5z"/>
+    <path d="M17.707 2.293a1 1 0 0 1 0 1.414l-6 6a1 1 0 0 1-1.414 0l-6-6a1 1 0 1 1 1.414-1.414L11 7.586l5.293-5.293a1 1 0 0 1 1.414 0zM17.707 21.707a1 1 0 0 0 0-1.414l-6-6a1 1 0 0 0-1.414 0l-6 6a1 1 0 0 0 1.414 1.414L11 16.414l5.293 5.293a1 1 0 0 0 1.414 0z"/>
   </svg>
 );
 
@@ -75,13 +57,7 @@ const GitHubIcon: React.FC<{ className?: string }> = ({ className }) => (
 
 const ZoomIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M14.5 7h-9C4.67 7 4 7.67 4 8.5v7c0 .83.67 1.5 1.5 1.5h9c.83 0 1.5-.67 1.5-1.5v-2l4 2.5v-9L16 9.5v-2c0-.83-.67-1.5-1.5-1.5z"/>
-  </svg>
-);
-
-const DiscordIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+    <path d="M4.585 13.607l-.27-.012H1.886c-.432 0-.853-.173-1.16-.476A1.635 1.635 0 0 1 .25 11.968V7.641c0-.427.17-.843.476-1.146.306-.309.728-.478 1.16-.478h8.447c.438 0 .854.17 1.16.478.306.303.479.72.479 1.146v4.315c0 .427-.173.843-.48 1.147a1.648 1.648 0 0 1-1.16.476H8.63v1.74c0 .305-.059.6-.195.854-.136.254-.336.46-.59.598-.25.135-.537.196-.83.178a1.544 1.544 0 0 1-.768-.303l-1.662-1.263zm8.426-6.165l3.54-2.823c.336-.27.761-.378 1.173-.298.413.08.779.32 1.01.66.23.342.316.75.238 1.142a1.428 1.428 0 0 1-.544.918L15.23 9.095l3.198 2.055c.27.176.466.432.544.722.078.29-.006.594-.238.835-.231.34-.598.58-1.01.66a1.434 1.434 0 0 1-1.173-.297l-3.54-2.824v-2.81z"/>
   </svg>
 );
 
@@ -97,7 +73,31 @@ const ShopifyIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-// COMPONENTE GENÉRICO
+const HubSpotIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M18.164 7.93V5.084a2.198 2.198 0 0 0 1.267-1.978v-.067A2.2 2.2 0 0 0 17.238.845h-.067a2.2 2.2 0 0 0-2.193 2.193v.067c0 .87.514 1.622 1.252 1.978V7.93c-2.069.273-3.799 1.695-4.638 3.666l-4.013-4.013a2.966 2.966 0 0 0 .702-1.903A2.97 2.97 0 0 0 5.31 2.708a2.97 2.97 0 0 0-2.971 2.971 2.97 2.97 0 0 0 2.97 2.971c.74 0 1.41-.273 1.932-.717l4.027 4.027a5.852 5.852 0 0 0-.096 1.039 5.876 5.876 0 0 0 5.877 5.877 5.876 5.876 0 0 0 5.877-5.877c0-2.75-1.893-5.053-4.447-5.691l-.315.022zM17.24 16.686a3.669 3.669 0 0 1-3.669-3.668 3.669 3.669 0 0 1 3.669-3.669 3.669 3.669 0 0 1 3.668 3.669 3.669 3.669 0 0 1-3.668 3.668z"/>
+  </svg>
+);
+
+const GoogleAnalyticsIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M22.84 2.998v17.999a2.983 2.983 0 0 1-.863 2.134 2.981 2.981 0 0 1-2.134.864 2.98 2.98 0 0 1-2.134-.864 2.98 2.98 0 0 1-.864-2.134V2.998A2.98 2.98 0 0 1 17.709.864 2.983 2.983 0 0 1 19.843 0a2.981 2.981 0 0 1 2.998 2.998zM14.27 9.696v11.301a2.991 2.991 0 0 1-2.997 2.998 2.981 2.981 0 0 1-2.134-.863 2.981 2.981 0 0 1-.863-2.135V9.696a2.98 2.98 0 0 1 .863-2.134 2.981 2.981 0 0 1 2.134-.863c.8 0 1.571.322 2.134.863a2.98 2.98 0 0 1 .863 2.134zm-8.568 6.695v4.606a2.98 2.98 0 0 1-.864 2.134 2.983 2.983 0 0 1-2.133.864 2.981 2.981 0 0 1-2.134-.864A2.98 2.98 0 0 1 0 20.997v-4.606a2.981 2.981 0 0 1 .863-2.133 2.981 2.981 0 0 1 2.134-.864c.8 0 1.571.322 2.134.864a2.98 2.98 0 0 1 .864 2.133z"/>
+  </svg>
+);
+
+const LinkedInIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+  </svg>
+);
+
+const InstagramIcon: React.FC<{ className?: string }> = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.405a1.44 1.44 0 1 1 2.881 0 1.44 1.44 0 0 1-2.881 0z"/>
+  </svg>
+);
+
+// Icono genérico para herramientas sin logo específico
 const DefaultIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
     <rect x="3" y="3" width="18" height="18" rx="4" stroke="currentColor" strokeWidth="2" fill="none"/>
@@ -105,485 +105,386 @@ const DefaultIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-// Crear componentes para cada herramienta adicional
-const CopilotIcon: React.FC<{ className?: string }> = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4 11h-3v3c0 .55-.45 1-1 1s-1-.45-1-1v-3H8c-.55 0-1-.45-1-1s.45-1 1-1h3V8c0-.55.45-1 1-1s1 .45 1 1v3h3c.55 0 1 .45 1 1s-.45 1-1 1z"/>
-  </svg>
-);
-
-// ... (añadir más iconos según necesites)
-
-// ARRAY DE HERRAMIENTAS
+// ARRAY COMPLETO DE HERRAMIENTAS CON CATEGORÍAS
 const techTools: TechTool[] = [
   // Chat & Asistentes IA
-  { name: 'ChatGPT', logo: ChatGPTIcon, url: 'https://chatgpt.com', category: 'Chat IA', color: '#00A67E' },
-  { name: 'Claude', logo: ClaudeIcon, url: 'https://claude.ai', category: 'Chat IA', color: '#D97757' },
-  { name: 'Gemini', logo: GeminiIcon, url: 'https://gemini.google.com', category: 'Chat IA', color: '#4285F4' },
-  { name: 'Perplexity', logo: PerplexityIcon, url: 'https://perplexity.ai', category: 'Chat IA', color: '#20B2AA' },
-  { name: 'Copilot', logo: CopilotIcon, url: 'https://copilot.microsoft.com', category: 'Chat IA', color: '#0078D4' },
+  { name: 'ChatGPT', category: 'Chat IA', logo: ChatGPTIcon, url: 'https://chatgpt.com', color: '#00A67E' },
+  { name: 'Claude', category: 'Chat IA', logo: ClaudeIcon, url: 'https://claude.ai', color: '#D97757' },
+  { name: 'Gemini', category: 'Chat IA', logo: DefaultIcon, url: 'https://gemini.google.com', color: '#4285F4' },
+  { name: 'Perplexity', category: 'Chat IA', logo: DefaultIcon, url: 'https://perplexity.ai', color: '#20B2AA' },
+  { name: 'Copilot', category: 'Chat IA', logo: DefaultIcon, url: 'https://copilot.microsoft.com', color: '#0078D4' },
+  { name: 'Poe', category: 'Chat IA', logo: DefaultIcon, url: 'https://poe.com', color: '#7B3FF2' },
+  { name: 'You.com', category: 'Chat IA', logo: DefaultIcon, url: 'https://you.com', color: '#FF6B6B' },
+  { name: 'Phind', category: 'Chat IA', logo: DefaultIcon, url: 'https://phind.com', color: '#00D9B1' },
   
   // Diseño & Creatividad
-  { name: 'Figma', logo: FigmaIcon, url: 'https://figma.com', category: 'Diseño', color: '#F24E1E' },
-  { name: 'Canva', logo: CanvaIcon, url: 'https://canva.com', category: 'Diseño', color: '#00C4CC' },
-  { name: 'Midjourney', logo: MidjourneyIcon, url: 'https://midjourney.com', category: 'Imágenes IA', color: '#5865F2' },
+  { name: 'Figma', category: 'Diseño', logo: FigmaIcon, url: 'https://figma.com', color: '#F24E1E' },
+  { name: 'Canva', category: 'Diseño', logo: CanvaIcon, url: 'https://canva.com', color: '#00C4CC' },
+  { name: 'Adobe Firefly', category: 'Diseño', logo: DefaultIcon, url: 'https://firefly.adobe.com', color: '#FF0000' },
+  { name: 'Framer', category: 'Diseño', logo: DefaultIcon, url: 'https://framer.com', color: '#0055FF' },
+  { name: 'Sketch', category: 'Diseño', logo: DefaultIcon, url: 'https://sketch.com', color: '#F7B500' },
+  { name: 'Adobe XD', category: 'Diseño', logo: DefaultIcon, url: 'https://adobe.com/products/xd', color: '#FF61F6' },
+  { name: 'InVision', category: 'Diseño', logo: DefaultIcon, url: 'https://invisionapp.com', color: '#FF3366' },
+  { name: 'Penpot', category: 'Diseño', logo: DefaultIcon, url: 'https://penpot.app', color: '#000000' },
+  { name: 'Lunacy', category: 'Diseño', logo: DefaultIcon, url: 'https://icons8.com/lunacy', color: '#179DE3' },
+  
+  // Imágenes IA
+  { name: 'Midjourney', category: 'Imágenes IA', logo: DefaultIcon, url: 'https://midjourney.com', color: '#5865F2' },
+  { name: 'DALL-E 3', category: 'Imágenes IA', logo: DefaultIcon, url: 'https://openai.com/dall-e-3', color: '#00A67E' },
+  { name: 'Stable Diffusion', category: 'Imágenes IA', logo: DefaultIcon, url: 'https://stability.ai', color: '#9333EA' },
+  { name: 'Leonardo AI', category: 'Imágenes IA', logo: DefaultIcon, url: 'https://leonardo.ai', color: '#5C16C5' },
+  { name: 'Ideogram', category: 'Imágenes IA', logo: DefaultIcon, url: 'https://ideogram.ai', color: '#6366F1' },
+  { name: 'Bing Image Creator', category: 'Imágenes IA', logo: DefaultIcon, url: 'https://bing.com/create', color: '#0078D4' },
+  { name: 'NightCafe', category: 'Imágenes IA', logo: DefaultIcon, url: 'https://nightcafe.studio', color: '#FF6B6B' },
+  { name: 'Artbreeder', category: 'Imágenes IA', logo: DefaultIcon, url: 'https://artbreeder.com', color: '#1A1A1A' },
+  
+  // Video IA
+  { name: 'Synthesia', category: 'Video IA', logo: DefaultIcon, url: 'https://synthesia.io', color: '#4353FF' },
+  { name: 'RunwayML', category: 'Video IA', logo: DefaultIcon, url: 'https://runwayml.com', color: '#000000' },
+  { name: 'Pika Labs', category: 'Video IA', logo: DefaultIcon, url: 'https://pika.art', color: '#FF4B4B' },
+  { name: 'HeyGen', category: 'Video IA', logo: DefaultIcon, url: 'https://heygen.com', color: '#5C3EE8' },
+  { name: 'D-ID', category: 'Video IA', logo: DefaultIcon, url: 'https://d-id.com', color: '#6C5CE7' },
+  { name: 'Fliki', category: 'Video IA', logo: DefaultIcon, url: 'https://fliki.ai', color: '#FF6B6B' },
+  { name: 'Pictory', category: 'Video IA', logo: DefaultIcon, url: 'https://pictory.ai', color: '#00D4FF' },
+  { name: 'Descript', category: 'Video IA', logo: DefaultIcon, url: 'https://descript.com', color: '#5E5ADB' },
+  { name: 'Lumen5', category: 'Video IA', logo: DefaultIcon, url: 'https://lumen5.com', color: '#5846F6' },
   
   // Productividad
-  { name: 'Notion', logo: NotionIcon, url: 'https://notion.so', category: 'Productividad', color: '#000000' },
-  { name: 'Slack', logo: SlackIcon, url: 'https://slack.com', category: 'Comunicación', color: '#4A154B' },
-  { name: 'Zoom', logo: ZoomIcon, url: 'https://zoom.us', category: 'Comunicación', color: '#2D8CFF' },
-  { name: 'Discord', logo: DiscordIcon, url: 'https://discord.com', category: 'Comunicación', color: '#5865F2' },
+  { name: 'Notion', category: 'Productividad', logo: NotionIcon, url: 'https://notion.so', color: '#000000' },
+  { name: 'Obsidian', category: 'Productividad', logo: DefaultIcon, url: 'https://obsidian.md', color: '#7C3AED' },
+  { name: 'Monday', category: 'Productividad', logo: DefaultIcon, url: 'https://monday.com', color: '#FF3D71' },
+  { name: 'ClickUp', category: 'Productividad', logo: DefaultIcon, url: 'https://clickup.com', color: '#7B68EE' },
+  { name: 'Asana', category: 'Productividad', logo: DefaultIcon, url: 'https://asana.com', color: '#F06A6A' },
+  { name: 'Trello', category: 'Productividad', logo: DefaultIcon, url: 'https://trello.com', color: '#0079BF' },
+  { name: 'Todoist', category: 'Productividad', logo: DefaultIcon, url: 'https://todoist.com', color: '#E44332' },
+  { name: 'Linear', category: 'Productividad', logo: DefaultIcon, url: 'https://linear.app', color: '#5E6AD2' },
+  { name: 'Coda', category: 'Productividad', logo: DefaultIcon, url: 'https://coda.io', color: '#F46A54' },
+  { name: 'Airtable', category: 'Productividad', logo: DefaultIcon, url: 'https://airtable.com', color: '#FCB400' },
   
-  // Desarrollo
-  { name: 'GitHub', logo: GitHubIcon, url: 'https://github.com', category: 'Código', color: '#24292E' },
+  // Escritura
+  { name: 'Jasper', category: 'Escritura', logo: DefaultIcon, url: 'https://jasper.ai', color: '#5C16C5' },
+  { name: 'Copy.ai', category: 'Escritura', logo: DefaultIcon, url: 'https://copy.ai', color: '#7C3AED' },
+  { name: 'Writesonic', category: 'Escritura', logo: DefaultIcon, url: 'https://writesonic.com', color: '#006AFF' },
+  { name: 'Grammarly', category: 'Escritura', logo: DefaultIcon, url: 'https://grammarly.com', color: '#15B67A' },
+  { name: 'Hemingway', category: 'Escritura', logo: DefaultIcon, url: 'https://hemingwayapp.com', color: '#F7BE16' },
+  { name: 'ProWritingAid', category: 'Escritura', logo: DefaultIcon, url: 'https://prowritingaid.com', color: '#00A8E1' },
+  { name: 'Rytr', category: 'Escritura', logo: DefaultIcon, url: 'https://rytr.me', color: '#FF5A5F' },
+  { name: 'Wordtune', category: 'Escritura', logo: DefaultIcon, url: 'https://wordtune.com', color: '#6B46C1' },
+  
+  // Código
+  { name: 'GitHub', category: 'Código', logo: GitHubIcon, url: 'https://github.com', color: '#24292E' },
+  { name: 'GitHub Copilot', category: 'Código', logo: DefaultIcon, url: 'https://github.com/features/copilot', color: '#24292E' },
+  { name: 'Cursor', category: 'Código', logo: DefaultIcon, url: 'https://cursor.sh', color: '#000000' },
+  { name: 'Tabnine', category: 'Código', logo: DefaultIcon, url: 'https://tabnine.com', color: '#FF6B6B' },
+  { name: 'Replit', category: 'Código', logo: DefaultIcon, url: 'https://replit.com', color: '#F26207' },
+  { name: 'CodePen', category: 'Código', logo: DefaultIcon, url: 'https://codepen.io', color: '#000000' },
+  { name: 'CodeSandbox', category: 'Código', logo: DefaultIcon, url: 'https://codesandbox.io', color: '#040404' },
+  { name: 'Vercel', category: 'Código', logo: DefaultIcon, url: 'https://vercel.com', color: '#000000' },
+  { name: 'Netlify', category: 'Código', logo: DefaultIcon, url: 'https://netlify.com', color: '#00C7B7' },
+  { name: 'Railway', category: 'Código', logo: DefaultIcon, url: 'https://railway.app', color: '#853BCE' },
+  { name: 'Supabase', category: 'Código', logo: DefaultIcon, url: 'https://supabase.com', color: '#3ECF8E' },
+  
+  // Audio
+  { name: 'ElevenLabs', category: 'Audio', logo: DefaultIcon, url: 'https://elevenlabs.io', color: '#000000' },
+  { name: 'Murf AI', category: 'Audio', logo: DefaultIcon, url: 'https://murf.ai', color: '#6C5CE7' },
+  { name: 'Suno AI', category: 'Audio', logo: DefaultIcon, url: 'https://suno.ai', color: '#FA5252' },
+  { name: 'Soundraw', category: 'Audio', logo: DefaultIcon, url: 'https://soundraw.io', color: '#6366F1' },
+  { name: 'Boomy', category: 'Audio', logo: DefaultIcon, url: 'https://boomy.com', color: '#FF006E' },
+  { name: 'AIVA', category: 'Audio', logo: DefaultIcon, url: 'https://aiva.ai', color: '#000000' },
+  { name: 'Splash Pro', category: 'Audio', logo: DefaultIcon, url: 'https://splashpro.com', color: '#7C3AED' },
+  { name: 'Voicemod', category: 'Audio', logo: DefaultIcon, url: 'https://voicemod.net', color: '#01E5C0' },
+  
+  // Marketing
+  { name: 'Buffer', category: 'Marketing', logo: DefaultIcon, url: 'https://buffer.com', color: '#168EEA' },
+  { name: 'Hootsuite', category: 'Marketing', logo: DefaultIcon, url: 'https://hootsuite.com', color: '#000000' },
+  { name: 'Mailchimp', category: 'Marketing', logo: DefaultIcon, url: 'https://mailchimp.com', color: '#FFE01B' },
+  { name: 'HubSpot', category: 'Marketing', logo: HubSpotIcon, url: 'https://hubspot.com', color: '#FF7A59' },
+  
+  // SEO
+  { name: 'Semrush', category: 'SEO', logo: DefaultIcon, url: 'https://semrush.com', color: '#FF642D' },
+  { name: 'Ahrefs', category: 'SEO', logo: DefaultIcon, url: 'https://ahrefs.com', color: '#FF6B00' },
+  { name: 'Moz', category: 'SEO', logo: DefaultIcon, url: 'https://moz.com', color: '#4285F4' },
+  { name: 'Screaming Frog', category: 'SEO', logo: DefaultIcon, url: 'https://screamingfrog.co.uk', color: '#8CC63F' },
+  
+  // Analytics
+  { name: 'Google Analytics', category: 'Analytics', logo: GoogleAnalyticsIcon, url: 'https://analytics.google.com', color: '#E37400' },
+  { name: 'Mixpanel', category: 'Analytics', logo: DefaultIcon, url: 'https://mixpanel.com', color: '#7856FF' },
+  { name: 'Hotjar', category: 'Analytics', logo: DefaultIcon, url: 'https://hotjar.com', color: '#FF3C00' },
+  { name: 'Amplitude', category: 'Analytics', logo: DefaultIcon, url: 'https://amplitude.com', color: '#136ACD' },
+  { name: 'Tableau', category: 'Analytics', logo: DefaultIcon, url: 'https://tableau.com', color: '#E97627' },
+  { name: 'Power BI', category: 'Analytics', logo: DefaultIcon, url: 'https://powerbi.microsoft.com', color: '#F2C811' },
+  { name: 'Looker', category: 'Analytics', logo: DefaultIcon, url: 'https://looker.com', color: '#4285F4' },
+  { name: 'Segment', category: 'Analytics', logo: DefaultIcon, url: 'https://segment.com', color: '#52BD94' },
   
   // E-commerce
-  { name: 'Shopify', logo: ShopifyIcon, url: 'https://shopify.com', category: 'E-commerce', color: '#96BF48' },
-  { name: 'Stripe', logo: StripeIcon, url: 'https://stripe.com', category: 'E-commerce', color: '#635BFF' },
-
-  // Añadir todas las demás herramientas con DefaultIcon por ahora
-  { name: 'Poe', logo: DefaultIcon, url: 'https://poe.com', category: 'Chat IA', color: '#7B3FF2' },
-  { name: 'You.com', logo: DefaultIcon, url: 'https://you.com', category: 'Chat IA', color: '#FF6B6B' },
-  { name: 'Phind', logo: DefaultIcon, url: 'https://phind.com', category: 'Chat IA', color: '#00D9B1' },
-  { name: 'Adobe Firefly', logo: DefaultIcon, url: 'https://firefly.adobe.com', category: 'Diseño', color: '#FF0000' },
-  { name: 'Framer', logo: DefaultIcon, url: 'https://framer.com', category: 'Diseño', color: '#0055FF' },
-  { name: 'Sketch', logo: DefaultIcon, url: 'https://sketch.com', category: 'Diseño', color: '#F7B500' },
-  { name: 'Adobe XD', logo: DefaultIcon, url: 'https://adobe.com/products/xd', category: 'Diseño', color: '#FF61F6' },
-  { name: 'InVision', logo: DefaultIcon, url: 'https://invisionapp.com', category: 'Diseño', color: '#FF3366' },
-  { name: 'Penpot', logo: DefaultIcon, url: 'https://penpot.app', category: 'Diseño', color: '#000000' },
-  { name: 'Lunacy', logo: DefaultIcon, url: 'https://icons8.com/lunacy', category: 'Diseño', color: '#179DE3' },
-  { name: 'DALL-E 3', logo: DefaultIcon, url: 'https://openai.com/dall-e-3', category: 'Imágenes IA', color: '#00A67E' },
-  { name: 'Stable Diffusion', logo: DefaultIcon, url: 'https://stability.ai', category: 'Imágenes IA', color: '#9333EA' },
-  { name: 'Leonardo AI', logo: DefaultIcon, url: 'https://leonardo.ai', category: 'Imágenes IA', color: '#5C16C5' },
-  { name: 'Ideogram', logo: DefaultIcon, url: 'https://ideogram.ai', category: 'Imágenes IA', color: '#6366F1' },
-  { name: 'Bing Image Creator', logo: DefaultIcon, url: 'https://bing.com/create', category: 'Imágenes IA', color: '#0078D4' },
-  { name: 'NightCafe', logo: DefaultIcon, url: 'https://nightcafe.studio', category: 'Imágenes IA', color: '#FF6B6B' },
-  { name: 'Artbreeder', logo: DefaultIcon, url: 'https://artbreeder.com', category: 'Imágenes IA', color: '#1A1A1A' },
-  { name: 'Synthesia', logo: DefaultIcon, url: 'https://synthesia.io', category: 'Video IA', color: '#4353FF' },
-  { name: 'RunwayML', logo: DefaultIcon, url: 'https://runwayml.com', category: 'Video IA', color: '#000000' },
-  { name: 'Pika Labs', logo: DefaultIcon, url: 'https://pika.art', category: 'Video IA', color: '#FF4B4B' },
-  { name: 'HeyGen', logo: DefaultIcon, url: 'https://heygen.com', category: 'Video IA', color: '#5C3EE8' },
-  { name: 'D-ID', logo: DefaultIcon, url: 'https://d-id.com', category: 'Video IA', color: '#6C5CE7' },
-  { name: 'Fliki', logo: DefaultIcon, url: 'https://fliki.ai', category: 'Video IA', color: '#FF6B6B' },
-  { name: 'Pictory', logo: DefaultIcon, url: 'https://pictory.ai', category: 'Video IA', color: '#00D4FF' },
-  { name: 'Descript', logo: DefaultIcon, url: 'https://descript.com', category: 'Video IA', color: '#5E5ADB' },
-  { name: 'Lumen5', logo: DefaultIcon, url: 'https://lumen5.com', category: 'Video IA', color: '#5846F6' },
-  { name: 'Obsidian', logo: DefaultIcon, url: 'https://obsidian.md', category: 'Productividad', color: '#7C3AED' },
-  { name: 'Monday', logo: DefaultIcon, url: 'https://monday.com', category: 'Productividad', color: '#FF3D71' },
-  { name: 'ClickUp', logo: DefaultIcon, url: 'https://clickup.com', category: 'Productividad', color: '#7B68EE' },
-  { name: 'Asana', logo: DefaultIcon, url: 'https://asana.com', category: 'Productividad', color: '#F06A6A' },
-  { name: 'Trello', logo: DefaultIcon, url: 'https://trello.com', category: 'Productividad', color: '#0079BF' },
-  { name: 'Todoist', logo: DefaultIcon, url: 'https://todoist.com', category: 'Productividad', color: '#E44332' },
-  { name: 'Linear', logo: DefaultIcon, url: 'https://linear.app', category: 'Productividad', color: '#5E6AD2' },
-  { name: 'Coda', logo: DefaultIcon, url: 'https://coda.io', category: 'Productividad', color: '#F46A54' },
-  { name: 'Airtable', logo: DefaultIcon, url: 'https://airtable.com', category: 'Productividad', color: '#FCB400' },
-  { name: 'Jasper', logo: DefaultIcon, url: 'https://jasper.ai', category: 'Escritura', color: '#5C16C5' },
-  { name: 'Copy.ai', logo: DefaultIcon, url: 'https://copy.ai', category: 'Escritura', color: '#7C3AED' },
-  { name: 'Writesonic', logo: DefaultIcon, url: 'https://writesonic.com', category: 'Escritura', color: '#006AFF' },
-  { name: 'Grammarly', logo: DefaultIcon, url: 'https://grammarly.com', category: 'Escritura', color: '#15B67A' },
-  { name: 'Hemingway', logo: DefaultIcon, url: 'https://hemingwayapp.com', category: 'Escritura', color: '#F7BE16' },
-  { name: 'ProWritingAid', logo: DefaultIcon, url: 'https://prowritingaid.com', category: 'Escritura', color: '#00A8E1' },
-  { name: 'Rytr', logo: DefaultIcon, url: 'https://rytr.me', category: 'Escritura', color: '#FF5A5F' },
-  { name: 'Wordtune', logo: DefaultIcon, url: 'https://wordtune.com', category: 'Escritura', color: '#6B46C1' },
-  { name: 'GitHub Copilot', logo: DefaultIcon, url: 'https://github.com/features/copilot', category: 'Código', color: '#24292E' },
-  { name: 'Cursor', logo: DefaultIcon, url: 'https://cursor.sh', category: 'Código', color: '#000000' },
-  { name: 'Tabnine', logo: DefaultIcon, url: 'https://tabnine.com', category: 'Código', color: '#FF6B6B' },
-  { name: 'Replit', logo: DefaultIcon, url: 'https://replit.com', category: 'Código', color: '#F26207' },
-  { name: 'CodePen', logo: DefaultIcon, url: 'https://codepen.io', category: 'Código', color: '#000000' },
-  { name: 'CodeSandbox', logo: DefaultIcon, url: 'https://codesandbox.io', category: 'Código', color: '#040404' },
-  { name: 'Vercel', logo: DefaultIcon, url: 'https://vercel.com', category: 'Código', color: '#000000' },
-  { name: 'Netlify', logo: DefaultIcon, url: 'https://netlify.com', category: 'Código', color: '#00C7B7' },
-  { name: 'Railway', logo: DefaultIcon, url: 'https://railway.app', category: 'Código', color: '#853BCE' },
-  { name: 'Supabase', logo: DefaultIcon, url: 'https://supabase.com', category: 'Código', color: '#3ECF8E' },
-  { name: 'ElevenLabs', logo: DefaultIcon, url: 'https://elevenlabs.io', category: 'Audio', color: '#000000' },
-  { name: 'Murf AI', logo: DefaultIcon, url: 'https://murf.ai', category: 'Audio', color: '#6C5CE7' },
-  { name: 'Suno AI', logo: DefaultIcon, url: 'https://suno.ai', category: 'Audio', color: '#FA5252' },
-  { name: 'Soundraw', logo: DefaultIcon, url: 'https://soundraw.io', category: 'Audio', color: '#6366F1' },
-  { name: 'Boomy', logo: DefaultIcon, url: 'https://boomy.com', category: 'Audio', color: '#FF006E' },
-  { name: 'AIVA', logo: DefaultIcon, url: 'https://aiva.ai', category: 'Audio', color: '#000000' },
-  { name: 'Splash Pro', logo: DefaultIcon, url: 'https://splashpro.com', category: 'Audio', color: '#7C3AED' },
-  { name: 'Voicemod', logo: DefaultIcon, url: 'https://voicemod.net', category: 'Audio', color: '#01E5C0' },
-  { name: 'Buffer', logo: DefaultIcon, url: 'https://buffer.com', category: 'Marketing', color: '#168EEA' },
-  { name: 'Hootsuite', logo: DefaultIcon, url: 'https://hootsuite.com', category: 'Marketing', color: '#000000' },
-  { name: 'Mailchimp', logo: DefaultIcon, url: 'https://mailchimp.com', category: 'Marketing', color: '#FFE01B' },
-  { name: 'HubSpot', logo: DefaultIcon, url: 'https://hubspot.com', category: 'Marketing', color: '#FF7A59' },
-  { name: 'Semrush', logo: DefaultIcon, url: 'https://semrush.com', category: 'SEO', color: '#FF642D' },
-  { name: 'Ahrefs', logo: DefaultIcon, url: 'https://ahrefs.com', category: 'SEO', color: '#FF6B00' },
-  { name: 'Moz', logo: DefaultIcon, url: 'https://moz.com', category: 'SEO', color: '#4285F4' },
-  { name: 'Screaming Frog', logo: DefaultIcon, url: 'https://screamingfrog.co.uk', category: 'SEO', color: '#8CC63F' },
-  { name: 'Google Analytics', logo: DefaultIcon, url: 'https://analytics.google.com', category: 'Analytics', color: '#E37400' },
-  { name: 'Mixpanel', logo: DefaultIcon, url: 'https://mixpanel.com', category: 'Analytics', color: '#7856FF' },
-  { name: 'Hotjar', logo: DefaultIcon, url: 'https://hotjar.com', category: 'Analytics', color: '#FF3C00' },
-  { name: 'Amplitude', logo: DefaultIcon, url: 'https://amplitude.com', category: 'Analytics', color: '#136ACD' },
-  { name: 'Tableau', logo: DefaultIcon, url: 'https://tableau.com', category: 'Analytics', color: '#E97627' },
-  { name: 'Power BI', logo: DefaultIcon, url: 'https://powerbi.microsoft.com', category: 'Analytics', color: '#F2C811' },
-  { name: 'Looker', logo: DefaultIcon, url: 'https://looker.com', category: 'Analytics', color: '#4285F4' },
-  { name: 'Segment', logo: DefaultIcon, url: 'https://segment.com', category: 'Analytics', color: '#52BD94' },
-  { name: 'WooCommerce', logo: DefaultIcon, url: 'https://woocommerce.com', category: 'E-commerce', color: '#96588A' },
-  { name: 'BigCommerce', logo: DefaultIcon, url: 'https://bigcommerce.com', category: 'E-commerce', color: '#121118' },
-  { name: 'Square', logo: DefaultIcon, url: 'https://squareup.com', category: 'E-commerce', color: '#3E4348' },
-  { name: 'PayPal', logo: DefaultIcon, url: 'https://paypal.com', category: 'E-commerce', color: '#003087' },
-  { name: 'Etsy', logo: DefaultIcon, url: 'https://etsy.com', category: 'E-commerce', color: '#F14000' },
-  { name: 'Gumroad', logo: DefaultIcon, url: 'https://gumroad.com', category: 'E-commerce', color: '#36A9AE' },
-  { name: 'Microsoft Teams', logo: DefaultIcon, url: 'https://teams.microsoft.com', category: 'Comunicación', color: '#6264A7' },
-  { name: 'Google Meet', logo: DefaultIcon, url: 'https://meet.google.com', category: 'Comunicación', color: '#00897B' },
-  { name: 'Skype', logo: DefaultIcon, url: 'https://skype.com', category: 'Comunicación', color: '#00AFF0' },
-  { name: 'Telegram', logo: DefaultIcon, url: 'https://telegram.org', category: 'Comunicación', color: '#229ED9' },
-  { name: 'WhatsApp', logo: DefaultIcon, url: 'https://whatsapp.com', category: 'Comunicación', color: '#25D366' },
-  { name: 'Duolingo', logo: DefaultIcon, url: 'https://duolingo.com', category: 'Educación', color: '#58CC02' },
-  { name: 'Coursera', logo: DefaultIcon, url: 'https://coursera.org', category: 'Educación', color: '#0056D2' },
-  { name: 'Khan Academy', logo: DefaultIcon, url: 'https://khanacademy.org', category: 'Educación', color: '#14BF96' },
-  { name: 'Udemy', logo: DefaultIcon, url: 'https://udemy.com', category: 'Educación', color: '#A435F0' },
-  { name: 'edX', logo: DefaultIcon, url: 'https://edx.org', category: 'Educación', color: '#02262B' },
-  { name: 'Skillshare', logo: DefaultIcon, url: 'https://skillshare.com', category: 'Educación', color: '#00FF84' },
-  { name: 'MasterClass', logo: DefaultIcon, url: 'https://masterclass.com', category: 'Educación', color: '#000000' },
-  { name: 'Pluralsight', logo: DefaultIcon, url: 'https://pluralsight.com', category: 'Educación', color: '#F15B2A' },
-  { name: 'Instagram', logo: DefaultIcon, url: 'https://instagram.com', category: 'Social Media', color: '#E4405F' },
-  { name: 'LinkedIn', logo: DefaultIcon, url: 'https://linkedin.com', category: 'Social Media', color: '#0A66C2' },
-  { name: 'TikTok', logo: DefaultIcon, url: 'https://tiktok.com', category: 'Social Media', color: '#000000' },
-  { name: 'Pinterest', logo: DefaultIcon, url: 'https://pinterest.com', category: 'Social Media', color: '#E60023' },
-  { name: 'Twitter/X', logo: DefaultIcon, url: 'https://twitter.com', category: 'Social Media', color: '#000000' },
-  { name: 'Facebook', logo: DefaultIcon, url: 'https://facebook.com', category: 'Social Media', color: '#1877F2' },
-  { name: 'Reddit', logo: DefaultIcon, url: 'https://reddit.com', category: 'Social Media', color: '#FF4500' },
-  { name: 'YouTube', logo: DefaultIcon, url: 'https://youtube.com', category: 'Social Media', color: '#FF0000' },
-  { name: 'Zapier', logo: DefaultIcon, url: 'https://zapier.com', category: 'Automatización', color: '#FF4A00' },
-  { name: 'Make', logo: DefaultIcon, url: 'https://make.com', category: 'Automatización', color: '#6D00CC' },
-  { name: 'IFTTT', logo: DefaultIcon, url: 'https://ifttt.com', category: 'Automatización', color: '#000000' },
-  { name: 'n8n', logo: DefaultIcon, url: 'https://n8n.io', category: 'Automatización', color: '#EA4B71' },
-  { name: 'Integromat', logo: DefaultIcon, url: 'https://integromat.com', category: 'Automatización', color: '#2F8EED' },
-  { name: 'Automate.io', logo: DefaultIcon, url: 'https://automate.io', category: 'Automatización', color: '#27AE60' },
-  { name: 'Pabbly', logo: DefaultIcon, url: 'https://pabbly.com', category: 'Automatización', color: '#FF6900' },
-  { name: 'Workato', logo: DefaultIcon, url: 'https://workato.com', category: 'Automatización', color: '#1063E1' },
-  { name: 'AWS', logo: DefaultIcon, url: 'https://aws.amazon.com', category: 'Cloud', color: '#FF9900' },
-  { name: 'Google Cloud', logo: DefaultIcon, url: 'https://cloud.google.com', category: 'Cloud', color: '#4285F4' },
-  { name: 'Microsoft Azure', logo: DefaultIcon, url: 'https://azure.microsoft.com', category: 'Cloud', color: '#0078D4' },
-  { name: 'DigitalOcean', logo: DefaultIcon, url: 'https://digitalocean.com', category: 'Cloud', color: '#0080FF' },
-  { name: 'Linode', logo: DefaultIcon, url: 'https://linode.com', category: 'Cloud', color: '#00A95C' },
-  { name: 'Cloudflare', logo: DefaultIcon, url: 'https://cloudflare.com', category: 'Cloud', color: '#F38020' },
-  { name: 'Heroku', logo: DefaultIcon, url: 'https://heroku.com', category: 'Cloud', color: '#430098' },
-  { name: 'Hugging Face', logo: DefaultIcon, url: 'https://huggingface.co', category: 'IA Tools', color: '#FFD21E' },
-  { name: 'Replicate', logo: DefaultIcon, url: 'https://replicate.com', category: 'IA Tools', color: '#000000' },
-  { name: 'Cohere', logo: DefaultIcon, url: 'https://cohere.ai', category: 'IA Tools', color: '#39594D' },
-  { name: 'Anthropic', logo: DefaultIcon, url: 'https://anthropic.com', category: 'IA Tools', color: '#D97757' },
-  { name: 'OpenAI', logo: DefaultIcon, url: 'https://openai.com', category: 'IA Tools', color: '#00A67E' },
+  { name: 'Shopify', category: 'E-commerce', logo: ShopifyIcon, url: 'https://shopify.com', color: '#96BF48' },
+  { name: 'WooCommerce', category: 'E-commerce', logo: DefaultIcon, url: 'https://woocommerce.com', color: '#96588A' },
+  { name: 'BigCommerce', category: 'E-commerce', logo: DefaultIcon, url: 'https://bigcommerce.com', color: '#121118' },
+  { name: 'Square', category: 'E-commerce', logo: DefaultIcon, url: 'https://squareup.com', color: '#3E4348' },
+  { name: 'PayPal', category: 'E-commerce', logo: DefaultIcon, url: 'https://paypal.com', color: '#003087' },
+  { name: 'Stripe', category: 'E-commerce', logo: StripeIcon, url: 'https://stripe.com', color: '#635BFF' },
+  { name: 'Etsy', category: 'E-commerce', logo: DefaultIcon, url: 'https://etsy.com', color: '#F14000' },
+  { name: 'Gumroad', category: 'E-commerce', logo: DefaultIcon, url: 'https://gumroad.com', color: '#36A9AE' },
+  
+  // Comunicación
+  { name: 'Slack', category: 'Comunicación', logo: SlackIcon, url: 'https://slack.com', color: '#4A154B' },
+  { name: 'Zoom', category: 'Comunicación', logo: ZoomIcon, url: 'https://zoom.us', color: '#2D8CFF' },
+  { name: 'Discord', category: 'Comunicación', logo: DefaultIcon, url: 'https://discord.com', color: '#5865F2' },
+  { name: 'Microsoft Teams', category: 'Comunicación', logo: DefaultIcon, url: 'https://teams.microsoft.com', color: '#6264A7' },
+  { name: 'Google Meet', category: 'Comunicación', logo: DefaultIcon, url: 'https://meet.google.com', color: '#00897B' },
+  { name: 'Skype', category: 'Comunicación', logo: DefaultIcon, url: 'https://skype.com', color: '#00AFF0' },
+  { name: 'Telegram', category: 'Comunicación', logo: DefaultIcon, url: 'https://telegram.org', color: '#229ED9' },
+  { name: 'WhatsApp', category: 'Comunicación', logo: DefaultIcon, url: 'https://whatsapp.com', color: '#25D366' },
+  
+  // Educación
+  { name: 'Duolingo', category: 'Educación', logo: DefaultIcon, url: 'https://duolingo.com', color: '#58CC02' },
+  { name: 'Coursera', category: 'Educación', logo: DefaultIcon, url: 'https://coursera.org', color: '#0056D2' },
+  { name: 'Khan Academy', category: 'Educación', logo: DefaultIcon, url: 'https://khanacademy.org', color: '#14BF96' },
+  { name: 'Udemy', category: 'Educación', logo: DefaultIcon, url: 'https://udemy.com', color: '#A435F0' },
+  { name: 'edX', category: 'Educación', logo: DefaultIcon, url: 'https://edx.org', color: '#02262B' },
+  { name: 'Skillshare', category: 'Educación', logo: DefaultIcon, url: 'https://skillshare.com', color: '#00FF84' },
+  { name: 'MasterClass', category: 'Educación', logo: DefaultIcon, url: 'https://masterclass.com', color: '#000000' },
+  { name: 'Pluralsight', category: 'Educación', logo: DefaultIcon, url: 'https://pluralsight.com', color: '#F15B2A' },
+  
+  // Social Media
+  { name: 'Instagram', category: 'Social Media', logo: InstagramIcon, url: 'https://instagram.com', color: '#E4405F' },
+  { name: 'LinkedIn', category: 'Social Media', logo: LinkedInIcon, url: 'https://linkedin.com', color: '#0A66C2' },
+  { name: 'TikTok', category: 'Social Media', logo: DefaultIcon, url: 'https://tiktok.com', color: '#000000' },
+  { name: 'Pinterest', category: 'Social Media', logo: DefaultIcon, url: 'https://pinterest.com', color: '#E60023' },
+  { name: 'Twitter/X', category: 'Social Media', logo: DefaultIcon, url: 'https://twitter.com', color: '#000000' },
+  { name: 'Facebook', category: 'Social Media', logo: DefaultIcon, url: 'https://facebook.com', color: '#1877F2' },
+  { name: 'Reddit', category: 'Social Media', logo: DefaultIcon, url: 'https://reddit.com', color: '#FF4500' },
+  { name: 'YouTube', category: 'Social Media', logo: DefaultIcon, url: 'https://youtube.com', color: '#FF0000' },
+  
+  // Automatización
+  { name: 'Zapier', category: 'Automatización', logo: DefaultIcon, url: 'https://zapier.com', color: '#FF4A00' },
+  { name: 'Make', category: 'Automatización', logo: DefaultIcon, url: 'https://make.com', color: '#6D00CC' },
+  { name: 'IFTTT', category: 'Automatización', logo: DefaultIcon, url: 'https://ifttt.com', color: '#000000' },
+  { name: 'n8n', category: 'Automatización', logo: DefaultIcon, url: 'https://n8n.io', color: '#EA4B71' },
+  { name: 'Integromat', category: 'Automatización', logo: DefaultIcon, url: 'https://integromat.com', color: '#2F8EED' },
+  { name: 'Automate.io', category: 'Automatización', logo: DefaultIcon, url: 'https://automate.io', color: '#27AE60' },
+  { name: 'Pabbly', category: 'Automatización', logo: DefaultIcon, url: 'https://pabbly.com', color: '#FF6900' },
+  { name: 'Workato', category: 'Automatización', logo: DefaultIcon, url: 'https://workato.com', color: '#1063E1' },
+  
+  // Cloud
+  { name: 'AWS', category: 'Cloud', logo: DefaultIcon, url: 'https://aws.amazon.com', color: '#FF9900' },
+  { name: 'Google Cloud', category: 'Cloud', logo: DefaultIcon, url: 'https://cloud.google.com', color: '#4285F4' },
+  { name: 'Microsoft Azure', category: 'Cloud', logo: DefaultIcon, url: 'https://azure.microsoft.com', color: '#0078D4' },
+  { name: 'DigitalOcean', category: 'Cloud', logo: DefaultIcon, url: 'https://digitalocean.com', color: '#0080FF' },
+  { name: 'Linode', category: 'Cloud', logo: DefaultIcon, url: 'https://linode.com', color: '#00A95C' },
+  { name: 'Cloudflare', category: 'Cloud', logo: DefaultIcon, url: 'https://cloudflare.com', color: '#F38020' },
+  { name: 'Heroku', category: 'Cloud', logo: DefaultIcon, url: 'https://heroku.com', color: '#430098' },
+  
+  // IA Tools
+  { name: 'Hugging Face', category: 'IA Tools', logo: DefaultIcon, url: 'https://huggingface.co', color: '#FFD21E' },
+  { name: 'Replicate', category: 'IA Tools', logo: DefaultIcon, url: 'https://replicate.com', color: '#000000' },
+  { name: 'Cohere', category: 'IA Tools', logo: DefaultIcon, url: 'https://cohere.ai', color: '#39594D' },
+  { name: 'Anthropic', category: 'IA Tools', logo: DefaultIcon, url: 'https://anthropic.com', color: '#D97757' },
+  { name: 'OpenAI', category: 'IA Tools', logo: DefaultIcon, url: 'https://openai.com', color: '#00A67E' },
 ];
 
 export default function HorizontalTechTicker() {
-  const [isPaused, setIsPaused] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
-  const [startX, setStartX] = useState(0);
-  const [scrollLeft, setScrollLeft] = useState(0);
-  const [momentum, setMomentum] = useState(0);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const animationRef = useRef<number | undefined>(undefined);
-  const lastMouseX = useRef(0);
-  const velocityRef = useRef(0);
-
-  // Función para aplicar momentum después de soltar
+  // Duplicamos los logos solo una vez para crear el efecto infinito
+  const duplicatedTools = [...techTools, ...techTools];
+  
+  // Detectar si es móvil
+  const [isMobile, setIsMobile] = useState(false);
+  
   useEffect(() => {
-    if (momentum !== 0 && !isDragging) {
-      const applyMomentum = () => {
-        if (scrollRef.current && Math.abs(momentum) > 0.1) {
-          scrollRef.current.scrollLeft += momentum;
-          setMomentum(m => m * 0.92); // Ajustado para desaceleración más natural
-          animationRef.current = requestAnimationFrame(applyMomentum);
-        } else {
-          setMomentum(0);
-          setIsPaused(false);
-        }
-      };
-      animationRef.current = requestAnimationFrame(applyMomentum);
-    }
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
     };
-  }, [momentum, isDragging]);
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (!scrollRef.current) return;
-    setIsDragging(true);
-    setStartX(e.pageX - scrollRef.current.offsetLeft);
-    setScrollLeft(scrollRef.current.scrollLeft);
-    setIsPaused(true);
-    setMomentum(0);
-    lastMouseX.current = e.pageX;
-    velocityRef.current = 0;
-  };
-
-  const handleMouseUp = () => {
-    if (!isDragging) return;
-    setIsDragging(false);
-    if (Math.abs(velocityRef.current) > 1) {
-      setMomentum(velocityRef.current * 0.6); // Ajustado para mejor control
-    } else {
-      setTimeout(() => setIsPaused(false), 100);
-    }
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || !scrollRef.current) return;
-    e.preventDefault();
-    const x = e.pageX - scrollRef.current.offsetLeft;
-    const walk = (x - startX) * 1; // Reducido de 1.5 a 1
-    scrollRef.current.scrollLeft = scrollLeft - walk;
-    velocityRef.current = e.pageX - lastMouseX.current;
-    lastMouseX.current = e.pageX;
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (!scrollRef.current) return;
-    setIsDragging(true);
-    setStartX(e.touches[0].pageX - scrollRef.current.offsetLeft);
-    setScrollLeft(scrollRef.current.scrollLeft);
-    setIsPaused(true);
-    setMomentum(0);
-    lastMouseX.current = e.touches[0].pageX;
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!isDragging || !scrollRef.current) return;
-    const x = e.touches[0].pageX - scrollRef.current.offsetLeft;
-    const walk = Math.abs(x - startX);
-    // Solo prevenir scroll vertical si el movimiento horizontal es significativo
-    if (walk > 10) {
-      e.preventDefault();
-    }
-    const actualWalk = (x - startX) * 1;
-    scrollRef.current.scrollLeft = scrollLeft - actualWalk;
-    velocityRef.current = e.touches[0].pageX - lastMouseX.current;
-    lastMouseX.current = e.touches[0].pageX;
-  };
-
-  const handleTouchEnd = () => {
-    if (!isDragging) return;
-    setIsDragging(false);
-    if (Math.abs(velocityRef.current) > 1) {
-      setMomentum(velocityRef.current * 0.6); // Ajustado para mejor control
-    } else {
-      setTimeout(() => setIsPaused(false), 100);
-    }
-  };
-
-  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    // Prevenir navegación si estamos arrastrando
-    if (isDragging || Math.abs(velocityRef.current) > 3) {
-      e.preventDefault();
-    }
-  };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   return (
-    <div 
-      className="relative w-full overflow-hidden bg-gradient-to-r from-blue-950 via-blue-900 to-blue-950 py-6 rounded-2xl"
-    >
-      {/* Gradientes laterales */}
-      <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-blue-950 to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-blue-950 to-transparent z-10 pointer-events-none" />
-      
-      <div 
-        ref={scrollRef}
-        className="ticker-wrapper overflow-x-auto py-2"
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseMove={handleMouseMove}
-        onMouseLeave={handleMouseUp}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
+    <div className="ticker-container">
+      <div className="ticker-wrapper">
         <div 
-          ref={contentRef}
           className="ticker-content"
           style={{
-            animationPlayState: isPaused ? 'paused' : 'running'
+            animation: `ticker-scroll ${isMobile ? '50s' : '40s'} linear infinite`,
+            WebkitAnimation: `ticker-scroll ${isMobile ? '50s' : '40s'} linear infinite`,
+            MozAnimation: `ticker-scroll ${isMobile ? '50s' : '40s'} linear infinite`
           }}
         >
-          {/* Duplicamos los items 3 veces para asegurar loop infinito sin huecos */}
-          {[...techTools, ...techTools, ...techTools].map((tool, index) => (
-            <a
+          {duplicatedTools.map((tool, index) => (
+            <div
               key={`${tool.name}-${index}`}
-              href={tool.url}
-              target={tool.url.startsWith('/') ? '_self' : '_blank'}
-              rel={tool.url.startsWith('/') ? undefined : 'noopener noreferrer'}
-              className="ticker-item group"
-              draggable={false}
-              onClick={handleClick}
-              style={{
-                '--brand-color': tool.color || '#6366f1'
-              } as React.CSSProperties}
-              title={tool.name}
+              className="ticker-item"
             >
-              <div className="logo-wrapper">
-                <tool.logo className="w-8 h-8 text-blue-300 group-hover:text-white transition-colors duration-300" />
+              <div className="ticker-item-inner">
+                <tool.logo className="ticker-logo" />
+                <span className="ticker-name">{tool.name}</span>
+                <span className="ticker-category">{tool.category}</span>
               </div>
-              <div className="item-details">
-                <p className="item-name">{tool.name}</p>
-                <p className="item-category">{tool.category}</p>
-              </div>
-            </a>
+            </div>
           ))}
         </div>
       </div>
 
       <style jsx>{`
+        .ticker-container {
+          position: relative;
+          width: 100%;
+          padding: 40px 0;
+          background: #1a2847;
+          overflow: hidden;
+        }
+
         .ticker-wrapper {
-          overflow-x: auto;
-          overflow-y: hidden;
-          white-space: nowrap;
-          cursor: grab;
-          user-select: none;
-          -webkit-overflow-scrolling: touch;
-          scrollbar-width: none;
-          -ms-overflow-style: none;
-          touch-action: pan-y; /* Solo permite scroll vertical, el horizontal lo manejamos nosotros */
-        }
-
-        .ticker-wrapper::-webkit-scrollbar {
-          display: none;
-        }
-
-        .ticker-wrapper:active {
-          cursor: grabbing;
+          display: flex;
+          align-items: center;
+          height: 100%;
+          overflow: hidden;
+          position: relative;
         }
 
         .ticker-content {
-          display: inline-flex;
-          animation: scroll 45s linear infinite; /* Velocidad final optimizada */
+          display: flex !important;
+          align-items: center;
+          gap: 50px;
+          padding: 0 50px;
           will-change: transform;
-          gap: 0;
+          transform: translateZ(0);
+          -webkit-transform: translateZ(0);
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+          perspective: 1000px;
+        }
+        
+        @keyframes ticker-scroll {
+          0% {
+            transform: translate3d(0, 0, 0);
+          }
+          100% {
+            transform: translate3d(-50%, 0, 0);
+          }
+        }
+        
+        @-webkit-keyframes ticker-scroll {
+          0% {
+            -webkit-transform: translate3d(0, 0, 0);
+          }
+          100% {
+            -webkit-transform: translate3d(-50%, 0, 0);
+          }
+        }
+        
+        @-moz-keyframes ticker-scroll {
+          0% {
+            -moz-transform: translate3d(0, 0, 0);
+          }
+          100% {
+            -moz-transform: translate3d(-50%, 0, 0);
+          }
+        }
+        
+        /* Pausa al hacer hover */
+        .ticker-wrapper:hover .ticker-content {
+          animation-play-state: paused !important;
+          -webkit-animation-play-state: paused !important;
+          -moz-animation-play-state: paused !important;
         }
 
         .ticker-item {
-          display: inline-flex;
-          align-items: center;
-          gap: 12px;
-          margin: 0 8px; /* Reducido de 12px */
-          padding: 14px 24px; /* Aumentado para mejor área táctil */
-          background: linear-gradient(to bottom right, rgba(219, 234, 254, 0.08), rgba(147, 197, 253, 0.12));
-          border-radius: 12px;
-          border: 1px solid rgba(147, 197, 253, 0.4);
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          text-decoration: none;
-          color: inherit;
-          transform: scale(1);
-          user-select: none;
           flex-shrink: 0;
+          cursor: pointer;
+          transition: all 0.3s ease;
           position: relative;
-          overflow: hidden;
-          backdrop-filter: blur(8px) saturate(1.5);
-          -webkit-backdrop-filter: blur(8px) saturate(1.5);
         }
 
-        .ticker-item::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: linear-gradient(135deg, var(--brand-color) 0%, transparent 70%);
-          opacity: 0;
-          transition: opacity 0.3s ease;
-        }
-
-        .ticker-item:hover {
-          box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4), 
-                      0 0 40px -10px var(--brand-color);
-          transform: scale(1.05) translateY(-2px);
-          border-color: rgba(147, 197, 253, 0.7);
-          background: linear-gradient(to bottom right, rgba(219, 234, 254, 0.15), rgba(147, 197, 253, 0.2));
-        }
-
-        .ticker-item:hover::before {
-          opacity: 0.2;
-        }
-
-        .ticker-item:hover .logo-wrapper {
-          transform: rotate(5deg) scale(1.1);
-        }
-
-        .ticker-item:hover .item-name {
-          color: white;
-          text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-        }
-
-        .logo-wrapper {
-          width: 36px;
-          height: 36px;
+        .ticker-item-inner {
           display: flex;
+          flex-direction: column;
           align-items: center;
           justify-content: center;
-          flex-shrink: 0;
-          transition: transform 0.3s ease;
-          position: relative;
-          z-index: 1;
+          gap: 8px;
+          padding: 24px 32px;
+          background: rgba(59, 130, 246, 0.08);
+          border: 1px solid rgba(59, 130, 246, 0.3);
+          border-radius: 16px;
+          transition: all 0.3s ease;
+          min-width: 140px;
+          text-align: center;
         }
 
-        .item-details {
-          position: relative;
-          z-index: 1;
+        .ticker-logo {
+          width: 48px;
+          height: 48px;
+          object-fit: contain;
+          color: white;
+          opacity: 0.9;
+          transition: all 0.3s ease;
         }
 
-        .item-name {
+        .ticker-name {
+          font-size: 16px;
           font-weight: 600;
-          font-size: 14px;
+          color: white;
+          opacity: 0.95;
           line-height: 1.2;
-          transition: color 0.3s ease;
-          color: #dbeafe; /* Azul muy claro */
+          margin-top: 4px;
         }
 
-        .item-category {
-          font-size: 11px;
-          opacity: 0.7;
-          margin-top: 2px;
-          color: #93c5fd; /* Azul claro */
+        .ticker-category {
+          font-size: 13px;
+          font-weight: 400;
+          color: rgba(255, 255, 255, 0.6);
+          line-height: 1;
         }
 
-        @keyframes scroll {
-          0% {
-            transform: translateX(0);
+        .ticker-item:hover .ticker-item-inner {
+          background: rgba(59, 130, 246, 0.15);
+          border-color: rgba(59, 130, 246, 0.5);
+          transform: translateY(-2px);
+          box-shadow: 
+            0 8px 24px -4px rgba(59, 130, 246, 0.2),
+            0 0 0 1px rgba(59, 130, 246, 0.1);
+        }
+
+        .ticker-item:hover .ticker-logo {
+          opacity: 1;
+          transform: scale(1.05);
+        }
+
+        .ticker-item:hover .ticker-name {
+          opacity: 1;
+        }
+
+        .ticker-item:hover .ticker-category {
+          color: rgba(255, 255, 255, 0.8);
+        }
+
+        @media (max-width: 768px) {
+          .ticker-container {
+            padding: 30px 0;
           }
-          100% {
-            transform: translateX(-33.333%); /* Para 3 copias */
-          }
-        }
 
-        @media (max-width: 640px) {
           .ticker-content {
-            animation-duration: 30s; /* Más rápido en móvil */
+            gap: 30px;
+            padding: 0 30px;
           }
 
-          .ticker-item {
-            padding: 12px 20px; /* Aumentado para mejor área táctil */
-            margin: 0 6px; /* Reducido de 8px */
+          .ticker-item-inner {
+            padding: 20px 24px;
+            min-width: 120px;
+            gap: 6px;
           }
-          
-          .logo-wrapper {
-            width: 32px;
-            height: 32px;
-          }
-          
-          .logo-wrapper svg {
-            width: 24px;
-            height: 24px;
-          }
-          
-          .item-name {
-            font-size: 13px;
-          }
-          
-          .item-category {
-            font-size: 10px;
-          }
-        }
 
-        /* Indicador visual de arrastre */
-        @media (hover: hover) {
-          .ticker-wrapper:hover {
-            box-shadow: inset 0 0 0 2px rgba(59, 130, 246, 0.3);
-            border-radius: 1rem;
+          .ticker-logo {
+            width: 40px;
+            height: 40px;
+          }
+
+          .ticker-name {
+            font-size: 14px;
+          }
+
+          .ticker-category {
+            font-size: 11px;
           }
         }
       `}</style>

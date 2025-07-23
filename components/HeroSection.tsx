@@ -85,15 +85,6 @@ export default function HeroSection() {
         <div className="grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* COLUMNA IZQUIERDA */}
           <div className="flex flex-col justify-center h-full">
-            {/* Imagen de crecimiento con IA */}
-            <div className="mb-8 flex justify-center lg:justify-start">
-              <img 
-                src="/images/ai-growth-arrow.png" 
-                alt="Crecimiento impulsado por IA" 
-                className="w-full max-w-[400px] h-auto animate-float"
-              />
-            </div>
-
             {/* Badge animado */}
             <div className="mb-6">
               <span className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm font-medium text-blue-200 border border-white/20">
@@ -324,13 +315,6 @@ export default function HeroSection() {
         }
         .animate-gradient {
           animation: gradient 3s ease infinite;
-        }
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
-        }
-        .animate-float {
-          animation: float 4s ease-in-out infinite;
         }
       `}</style>
     </section>

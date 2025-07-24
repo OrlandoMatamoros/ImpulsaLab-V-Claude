@@ -15,6 +15,42 @@ export default function DiagnosticSection() {
           </p>
         </div>
 
+        {/* Texto explicativo del concepto */}
+        <div className="max-w-4xl mx-auto mb-16 text-center">
+          <p className="text-gray-600 mb-4">
+            Nuestro sistema se basa en la premisa de que un negocio saludable es como un organismo vivo que necesita tres sistemas vitales para prosperar:
+          </p>
+          <div className="grid md:grid-cols-3 gap-6 text-left mt-8">
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-full mb-3">
+                <span className="text-2xl">💨</span>
+              </div>
+              <p className="text-sm text-gray-600">
+                <span className="font-semibold text-blue-600">Finanzas</span> es el <strong>oxígeno</strong> del negocio. Sin flujo de caja positivo, no puede sobrevivir.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-purple-100 rounded-full mb-3">
+                <span className="text-2xl">💪</span>
+              </div>
+              <p className="text-sm text-gray-600">
+                <span className="font-semibold text-purple-600">Operaciones</span> son los <strong>músculos</strong>. Procesos eficientes para entregar valor.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-3">
+                <span className="text-2xl">⚡</span>
+              </div>
+              <p className="text-sm text-gray-600">
+                <span className="font-semibold text-green-600">Marketing</span> es la <strong>energía futura</strong>. Atrae clientes para crecer mañana.
+              </p>
+            </div>
+          </div>
+          <p className="text-sm text-gray-500 mt-6">
+            Inicialmente, ponderamos cada eje con la misma importancia (33.3%), pero nuestro modelo permite ajustar esta ponderación según la industria del cliente.
+          </p>
+        </div>
+
         <div className="grid md:grid-cols-3 gap-8">
           {/* Eje X: FINANZAS */}
           <Link href="/servicios/finanzas" className="block">

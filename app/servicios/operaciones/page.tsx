@@ -60,14 +60,14 @@ export default function OperacionesPage() {
               Agentes de IA: Tu Equipo Digital 24/7
             </h2>
             
-            {/* Video Demo */}
+            {/* Video Demo - CORREGIDO */}
             <div className="relative bg-gray-900 rounded-lg overflow-hidden mb-12 aspect-video">
               <iframe 
-                className="w-full h-full"
-                src="https://www.youtube.com/embed/lMFV5mq_IXo?autoplay=1&mute=1&loop=1&playlist=lMFV5mq_IXo"
+                className="absolute top-0 left-0 w-full h-full"
+                src="https://www.youtube.com/embed/lMFV5mq_IXo"
                 title="Automatización Demo - Impulsa Lab"
                 frameBorder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
               />
             </div>

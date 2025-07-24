@@ -97,11 +97,10 @@ const InstagramIcon: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-// Icono genérico para herramientas sin logo específico
+// Icono genérico mejorado
 const DefaultIcon: React.FC<{ className?: string }> = ({ className }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor">
-    <rect x="3" y="3" width="18" height="18" rx="4" stroke="currentColor" strokeWidth="2" fill="none"/>
-    <circle cx="12" cy="12" r="3" fill="currentColor"/>
+    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
   </svg>
 );
 
@@ -311,16 +310,24 @@ export default function HorizontalTechTicker() {
           }}
         >
           {duplicatedTools.map((tool, index) => (
-            <div
+            <a
               key={`${tool.name}-${index}`}
+              href={tool.url}
+              target="_blank"
+              rel="noopener noreferrer"
               className="ticker-item"
+              aria-label={`Visitar ${tool.name}`}
             >
               <div className="ticker-item-inner">
-                <tool.logo className="ticker-logo" />
-                <span className="ticker-name">{tool.name}</span>
-                <span className="ticker-category">{tool.category}</span>
+                <div className="ticker-logo">
+                  <tool.logo className="w-full h-full" />
+                </div>
+                <div className="ticker-text">
+                  <span className="ticker-name">{tool.name}</span>
+                  <span className="ticker-category">{tool.category}</span>
+                </div>
               </div>
-            </div>
+            </a>
           ))}
         </div>
       </div>
@@ -329,7 +336,7 @@ export default function HorizontalTechTicker() {
         .ticker-container {
           position: relative;
           width: 100%;
-          padding: 40px 0;
+          padding: 20px 0;
           background: #1a2847;
           overflow: hidden;
         }
@@ -345,8 +352,8 @@ export default function HorizontalTechTicker() {
         .ticker-content {
           display: flex !important;
           align-items: center;
-          gap: 50px;
-          padding: 0 50px;
+          gap: 24px;
+          padding: 0 24px;
           will-change: transform;
           transform: translateZ(0);
           -webkit-transform: translateZ(0);
@@ -394,54 +401,83 @@ export default function HorizontalTechTicker() {
           cursor: pointer;
           transition: all 0.3s ease;
           position: relative;
+          text-decoration: none;
+          display: inline-block;
+          color: inherit;
         }
 
         .ticker-item-inner {
           display: flex;
-          flex-direction: column;
           align-items: center;
-          justify-content: center;
-          gap: 8px;
-          padding: 24px 32px;
+          gap: 12px;
+          padding: 12px 20px;
           background: rgba(59, 130, 246, 0.08);
           border: 1px solid rgba(59, 130, 246, 0.3);
-          border-radius: 16px;
+          border-radius: 12px;
           transition: all 0.3s ease;
-          min-width: 140px;
-          text-align: center;
+          min-width: 180px;
+          height: 64px;
+          position: relative;
+          overflow: visible;
         }
 
         .ticker-logo {
-          width: 48px;
-          height: 48px;
+          width: 36px;
+          height: 36px;
+          min-width: 36px;
+          min-height: 36px;
           object-fit: contain;
           color: white;
           opacity: 0.9;
           transition: all 0.3s ease;
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .ticker-logo svg {
+          width: 100%;
+          height: 100%;
+          display: block;
+        }
+
+        .ticker-text {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+          flex-grow: 1;
+          min-width: 0;
+          overflow: hidden;
         }
 
         .ticker-name {
-          font-size: 16px;
+          font-size: 15px;
           font-weight: 600;
           color: white;
           opacity: 0.95;
           line-height: 1.2;
-          margin-top: 4px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .ticker-category {
-          font-size: 13px;
+          font-size: 12px;
           font-weight: 400;
-          color: rgba(255, 255, 255, 0.6);
+          color: rgba(255, 255, 255, 0.5);
           line-height: 1;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         .ticker-item:hover .ticker-item-inner {
           background: rgba(59, 130, 246, 0.15);
           border-color: rgba(59, 130, 246, 0.5);
-          transform: translateY(-2px);
+          transform: translateY(-1px);
           box-shadow: 
-            0 8px 24px -4px rgba(59, 130, 246, 0.2),
+            0 4px 12px -2px rgba(59, 130, 246, 0.2),
             0 0 0 1px rgba(59, 130, 246, 0.1);
         }
 
@@ -455,28 +491,29 @@ export default function HorizontalTechTicker() {
         }
 
         .ticker-item:hover .ticker-category {
-          color: rgba(255, 255, 255, 0.8);
+          color: rgba(255, 255, 255, 0.7);
         }
 
         @media (max-width: 768px) {
           .ticker-container {
-            padding: 30px 0;
+            padding: 16px 0;
           }
 
           .ticker-content {
-            gap: 30px;
-            padding: 0 30px;
+            gap: 16px;
+            padding: 0 16px;
           }
 
           .ticker-item-inner {
-            padding: 20px 24px;
-            min-width: 120px;
-            gap: 6px;
+            padding: 10px 16px;
+            min-width: 160px;
+            height: 56px;
+            gap: 10px;
           }
 
           .ticker-logo {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
           }
 
           .ticker-name {

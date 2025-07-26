@@ -1,817 +1,421 @@
 'use client';
 
-import { useState } from 'react';
+import * as React from 'react';
 import Link from 'next/link';
-import HorizontalTechTicker from './HorizontalTechTicker';
-import { getToolIcon } from './icons/ToolIcons';
-
-interface Tool {
-  name: string;
-  category: string;
-  description: string;
-  url: string;
-  keywords: string[];
-  logo: string;
-  useCase?: string;
-}
-
-// Base de datos completa de herramientas (mínimo 5 por categoría)
-const allTools: Tool[] = [
-  // CHAT IA (10 herramientas)
-  { 
-    name: 'ChatGPT', 
-    category: 'Chat IA', 
-    description: 'Asistente de IA conversacional avanzado de OpenAI', 
-    url: 'https://chatgpt.com', 
-    keywords: ['ai', 'asistente', 'chat', 'texto', 'gpt', 'conversación'],
-    logo: '🤖',
-    useCase: 'Ideal para: consultas generales, generación de contenido, análisis'
-  },
-  { 
-    name: 'Claude', 
-    category: 'Chat IA', 
-    description: 'IA para análisis profundo y escritura avanzada', 
-    url: 'https://claude.ai', 
-    keywords: ['ai', 'asistente', 'analisis', 'texto', 'anthropic'],
-    logo: '🧠',
-    useCase: 'Ideal para: análisis complejos, escritura técnica, código'
-  },
-  { 
-    name: 'Gemini', 
-    category: 'Chat IA', 
-    description: 'IA multimodal de Google con acceso a información actualizada', 
-    url: 'https://gemini.google.com', 
-    keywords: ['ai', 'google', 'multimodal', 'búsqueda'],
-    logo: '✨',
-    useCase: 'Ideal para: búsquedas actualizadas, análisis de imágenes'
-  },
-  { 
-    name: 'Perplexity', 
-    category: 'Chat IA', 
-    description: 'Motor de respuestas IA con fuentes en tiempo real', 
-    url: 'https://perplexity.ai', 
-    keywords: ['búsqueda', 'ai', 'investigación', 'fuentes'],
-    logo: '🔍',
-    useCase: 'Ideal para: investigación con fuentes verificadas'
-  },
-  { 
-    name: 'Microsoft Copilot', 
-    category: 'Chat IA', 
-    description: 'Asistente IA de Microsoft integrado con Bing', 
-    url: 'https://copilot.microsoft.com', 
-    keywords: ['microsoft', 'bing', 'ai', 'chat'],
-    logo: '🚁',
-    useCase: 'Ideal para: búsquedas web, generación de imágenes'
-  },
-  { 
-    name: 'Poe', 
-    category: 'Chat IA', 
-    description: 'Acceso a múltiples modelos de IA en una plataforma', 
-    url: 'https://poe.com', 
-    keywords: ['ai', 'múltiple', 'chat', 'modelos'],
-    logo: '🤝',
-    useCase: 'Ideal para: comparar respuestas de diferentes IAs'
-  },
-  { 
-    name: 'Pi', 
-    category: 'Chat IA', 
-    description: 'IA personal diseñada para conversaciones empáticas', 
-    url: 'https://pi.ai', 
-    keywords: ['ai', 'personal', 'empatía', 'conversación'],
-    logo: '💬',
-    useCase: 'Ideal para: conversaciones personales, apoyo emocional'
-  },
-  { 
-    name: 'Character AI', 
-    category: 'Chat IA', 
-    description: 'Chat con personajes IA personalizados', 
-    url: 'https://character.ai', 
-    keywords: ['ai', 'personajes', 'roleplay', 'chat'],
-    logo: '🎭',
-    useCase: 'Ideal para: entretenimiento, aprendizaje interactivo'
-  },
-  { 
-    name: 'HuggingChat', 
-    category: 'Chat IA', 
-    description: 'Chat IA open source de Hugging Face', 
-    url: 'https://huggingface.co/chat', 
-    keywords: ['ai', 'open source', 'chat', 'hugging face'],
-    logo: '🤗',
-    useCase: 'Ideal para: alternativa open source, privacidad'
-  },
-  { 
-    name: 'You.com', 
-    category: 'Chat IA', 
-    description: 'Motor de búsqueda con IA conversacional', 
-    url: 'https://you.com', 
-    keywords: ['búsqueda', 'ai', 'chat', 'privacidad'],
-    logo: '🔎',
-    useCase: 'Ideal para: búsquedas privadas con IA'
-  },
-  
-  // DISEÑO (10 herramientas)
-  { 
-    name: 'Figma', 
-    category: 'Diseño', 
-    description: 'Herramienta de diseño colaborativo en la nube', 
-    url: 'https://figma.com', 
-    keywords: ['diseño', 'ui', 'ux', 'prototipo', 'colaborativo'],
-    logo: '🎨',
-    useCase: 'Ideal para: diseño UI/UX, prototipos, trabajo en equipo'
-  },
-  { 
-    name: 'Canva', 
-    category: 'Diseño', 
-    description: 'Diseño gráfico simplificado con plantillas y IA', 
-    url: 'https://canva.com', 
-    keywords: ['diseño', 'plantillas', 'gráfico', 'social media'],
-    logo: '🎯',
-    useCase: 'Ideal para: posts sociales, presentaciones, diseño rápido'
-  },
-  { 
-    name: 'Adobe Firefly', 
-    category: 'Diseño', 
-    description: 'IA generativa integrada en Creative Cloud', 
-    url: 'https://firefly.adobe.com', 
-    keywords: ['adobe', 'imagen', 'ai', 'diseño'],
-    logo: '🔥',
-    useCase: 'Ideal para: edición profesional con IA'
-  },
-  { 
-    name: 'Framer', 
-    category: 'Diseño', 
-    description: 'Diseño y desarrollo web con IA', 
-    url: 'https://framer.com', 
-    keywords: ['web', 'diseño', 'no-code', 'ai'],
-    logo: '🖼️',
-    useCase: 'Ideal para: sitios web interactivos sin código'
-  },
-  { 
-    name: 'Sketch', 
-    category: 'Diseño', 
-    description: 'Diseño de interfaces para Mac', 
-    url: 'https://sketch.com', 
-    keywords: ['diseño', 'ui', 'mac', 'interfaces'],
-    logo: '💎',
-    useCase: 'Ideal para: diseño de apps y sistemas de diseño'
-  },
-  { 
-    name: 'Webflow', 
-    category: 'Diseño', 
-    description: 'Constructor visual de sitios web profesionales', 
-    url: 'https://webflow.com', 
-    keywords: ['web', 'diseño', 'cms', 'no-code'],
-    logo: '🌐',
-    useCase: 'Ideal para: sitios web complejos sin programar'
-  },
-  { 
-    name: 'Spline', 
-    category: 'Diseño', 
-    description: 'Diseño 3D colaborativo en el navegador', 
-    url: 'https://spline.design', 
-    keywords: ['3d', 'diseño', 'web', 'interactivo'],
-    logo: '🎲',
-    useCase: 'Ideal para: diseños 3D interactivos para web'
-  },
-  { 
-    name: 'Penpot', 
-    category: 'Diseño', 
-    description: 'Diseño open source para equipos', 
-    url: 'https://penpot.app', 
-    keywords: ['diseño', 'open source', 'ui', 'colaborativo'],
-    logo: '🖊️',
-    useCase: 'Ideal para: alternativa open source a Figma'
-  },
-  { 
-    name: 'Lunacy', 
-    category: 'Diseño', 
-    description: 'Editor gráfico gratuito con IA', 
-    url: 'https://icons8.com/lunacy', 
-    keywords: ['diseño', 'gratis', 'windows', 'ai'],
-    logo: '🌙',
-    useCase: 'Ideal para: diseño en Windows, recursos gratuitos'
-  },
-  { 
-    name: 'Rive', 
-    category: 'Diseño', 
-    description: 'Animaciones interactivas para apps y web', 
-    url: 'https://rive.app', 
-    keywords: ['animación', 'interactivo', 'diseño', 'motion'],
-    logo: '🎬',
-    useCase: 'Ideal para: animaciones complejas e interactivas'
-  },
-  
-  // IMÁGENES IA (10 herramientas)
-  { 
-    name: 'DALL-E 3', 
-    category: 'Imágenes IA', 
-    description: 'Generación de imágenes con IA de OpenAI', 
-    url: 'https://openai.com/dall-e-3', 
-    keywords: ['imagen', 'ai', 'generación', 'arte', 'dall-e'],
-    logo: '🖼️',
-    useCase: 'Ideal para: ilustraciones únicas, conceptos visuales'
-  },
-  { 
-    name: 'Midjourney', 
-    category: 'Imágenes IA', 
-    description: 'Creación artística avanzada con IA', 
-    url: 'https://midjourney.com', 
-    keywords: ['imagen', 'ai', 'arte', 'creativo'],
-    logo: '🎭',
-    useCase: 'Ideal para: arte conceptual, imágenes artísticas'
-  },
-  { 
-    name: 'Stable Diffusion', 
-    category: 'Imágenes IA', 
-    description: 'Modelo open source para generación de imágenes', 
-    url: 'https://stability.ai', 
-    keywords: ['imagen', 'ai', 'open source', 'stable'],
-    logo: '🌟',
-    useCase: 'Ideal para: generación personalizable, uso comercial'
-  },
-  { 
-    name: 'Leonardo AI', 
-    category: 'Imágenes IA', 
-    description: 'Plataforma de generación con control granular', 
-    url: 'https://leonardo.ai', 
-    keywords: ['imagen', 'ai', 'diseño', 'gaming'],
-    logo: '🎨',
-    useCase: 'Ideal para: assets para juegos, concept art'
-  },
-  { 
-    name: 'Ideogram', 
-    category: 'Imágenes IA', 
-    description: 'IA especializada en texto dentro de imágenes', 
-    url: 'https://ideogram.ai', 
-    keywords: ['imagen', 'texto', 'ai', 'tipografía'],
-    logo: '📝',
-    useCase: 'Ideal para: logos, pósters con texto'
-  },
-  { 
-    name: 'Bing Image Creator', 
-    category: 'Imágenes IA', 
-    description: 'Generador de imágenes gratuito de Microsoft', 
-    url: 'https://bing.com/create', 
-    keywords: ['imagen', 'microsoft', 'gratis', 'ai'],
-    logo: '🖌️',
-    useCase: 'Ideal para: generación rápida y gratuita'
-  },
-  { 
-    name: 'Playground AI', 
-    category: 'Imágenes IA', 
-    description: 'Editor de imágenes IA con herramientas avanzadas', 
-    url: 'https://playgroundai.com', 
-    keywords: ['imagen', 'editor', 'ai', 'filtros'],
-    logo: '🎮',
-    useCase: 'Ideal para: edición y generación combinadas'
-  },
-  { 
-    name: 'NightCafe', 
-    category: 'Imágenes IA', 
-    description: 'Comunidad de arte IA con múltiples modelos', 
-    url: 'https://nightcafe.studio', 
-    keywords: ['arte', 'comunidad', 'ai', 'imagen'],
-    logo: '🌃',
-    useCase: 'Ideal para: explorar estilos artísticos, comunidad'
-  },
-  { 
-    name: 'Lexica', 
-    category: 'Imágenes IA', 
-    description: 'Motor de búsqueda de imágenes generadas por IA', 
-    url: 'https://lexica.art', 
-    keywords: ['búsqueda', 'imagen', 'ai', 'prompts'],
-    logo: '🔍',
-    useCase: 'Ideal para: inspiración, encontrar prompts'
-  },
-  { 
-    name: 'Clipdrop', 
-    category: 'Imágenes IA', 
-    description: 'Suite de herramientas IA para edición de imágenes', 
-    url: 'https://clipdrop.co', 
-    keywords: ['edición', 'imagen', 'ai', 'herramientas'],
-    logo: '✂️',
-    useCase: 'Ideal para: remover fondos, upscaling, edición rápida'
-  },
-  
-  // VIDEO IA (5 herramientas)
-  { 
-    name: 'Synthesia', 
-    category: 'Video IA', 
-    description: 'Creación de videos con avatares IA', 
-    url: 'https://synthesia.io', 
-    keywords: ['video', 'ai', 'avatar', 'presentación'],
-    logo: '🎬',
-    useCase: 'Ideal para: videos corporativos, formación'
-  },
-  { 
-    name: 'RunwayML', 
-    category: 'Video IA', 
-    description: 'Suite completa de herramientas IA para video', 
-    url: 'https://runwayml.com', 
-    keywords: ['video', 'edición', 'ai', 'efectos'],
-    logo: '🛫',
-    useCase: 'Ideal para: edición avanzada, efectos VFX'
-  },
-  { 
-    name: 'Pika Labs', 
-    category: 'Video IA', 
-    description: 'Generación de videos desde texto o imágenes', 
-    url: 'https://pika.art', 
-    keywords: ['video', 'generación', 'ai', 'animación'],
-    logo: '⚡',
-    useCase: 'Ideal para: videos cortos, animaciones'
-  },
-  { 
-    name: 'HeyGen', 
-    category: 'Video IA', 
-    description: 'Videos con avatares IA para marketing', 
-    url: 'https://heygen.com', 
-    keywords: ['video', 'avatar', 'marketing', 'ai'],
-    logo: '👋',
-    useCase: 'Ideal para: videos de ventas personalizados'
-  },
-  { 
-    name: 'Descript', 
-    category: 'Video IA', 
-    description: 'Edición de video como si fuera texto', 
-    url: 'https://descript.com', 
-    keywords: ['video', 'edición', 'podcast', 'transcripción'],
-    logo: '📹',
-    useCase: 'Ideal para: podcasts, videos YouTube'
-  },
-  
-  // PRODUCTIVIDAD (6 herramientas)
-  { 
-    name: 'Notion', 
-    category: 'Productividad', 
-    description: 'Workspace todo-en-uno para notas y gestión', 
-    url: 'https://notion.so', 
-    keywords: ['productividad', 'notas', 'gestión', 'workspace'],
-    logo: '📝',
-    useCase: 'Ideal para: gestión de proyectos, wiki personal'
-  },
-  { 
-    name: 'Obsidian', 
-    category: 'Productividad', 
-    description: 'Notas con conexiones y gestión del conocimiento', 
-    url: 'https://obsidian.md', 
-    keywords: ['notas', 'conocimiento', 'markdown', 'local'],
-    logo: '💎',
-    useCase: 'Ideal para: segunda cerebro, investigación'
-  },
-  { 
-    name: 'ClickUp', 
-    category: 'Productividad', 
-    description: 'Plataforma todo-en-uno con IA para equipos', 
-    url: 'https://clickup.com', 
-    keywords: ['gestión', 'proyectos', 'equipo', 'ai'],
-    logo: '✅',
-    useCase: 'Ideal para: gestión de proyectos complejos'
-  },
-  { 
-    name: 'Monday.com', 
-    category: 'Productividad', 
-    description: 'Work OS con automatizaciones y IA', 
-    url: 'https://monday.com', 
-    keywords: ['gestión', 'proyectos', 'equipo', 'workflow'],
-    logo: '📅',
-    useCase: 'Ideal para: flujos de trabajo personalizados'
-  },
-  { 
-    name: 'Airtable', 
-    category: 'Productividad', 
-    description: 'Base de datos visual con funciones de hoja de cálculo', 
-    url: 'https://airtable.com', 
-    keywords: ['base datos', 'spreadsheet', 'colaboración', 'automatización'],
-    logo: '📊',
-    useCase: 'Ideal para: CRM personalizado, inventarios'
-  },
-  { 
-    name: 'Asana', 
-    category: 'Productividad', 
-    description: 'Gestión de tareas y proyectos en equipo', 
-    url: 'https://asana.com', 
-    keywords: ['tareas', 'proyectos', 'equipo', 'colaboración'],
-    logo: '🎯',
-    useCase: 'Ideal para: seguimiento de proyectos en equipo'
-  },
-  
-  // ESCRITURA (5 herramientas)
-  { 
-    name: 'Jasper', 
-    category: 'Escritura', 
-    description: 'IA para copywriting y contenido de marketing', 
-    url: 'https://jasper.ai', 
-    keywords: ['escritura', 'copy', 'marketing', 'contenido'],
-    logo: '✍️',
-    useCase: 'Ideal para: blogs, copy publicitario, emails'
-  },
-  { 
-    name: 'Copy.ai', 
-    category: 'Escritura', 
-    description: 'Generador de copy para marketing y ventas', 
-    url: 'https://copy.ai', 
-    keywords: ['copy', 'marketing', 'ventas', 'ai'],
-    logo: '📄',
-    useCase: 'Ideal para: ads, emails, descripciones'
-  },
-  { 
-    name: 'Writesonic', 
-    category: 'Escritura', 
-    description: 'Plataforma de escritura IA con SEO integrado', 
-    url: 'https://writesonic.com', 
-    keywords: ['escritura', 'seo', 'contenido', 'ai'],
-    logo: '🚀',
-    useCase: 'Ideal para: artículos SEO, contenido web'
-  },
-  { 
-    name: 'Grammarly', 
-    category: 'Escritura', 
-    description: 'Corrector avanzado con sugerencias de IA', 
-    url: 'https://grammarly.com', 
-    keywords: ['gramática', 'escritura', 'corrección', 'ai'],
-    logo: '📝',
-    useCase: 'Ideal para: corrección y mejora de estilo'
-  },
-  { 
-    name: 'Quillbot', 
-    category: 'Escritura', 
-    description: 'Parafraseo y mejora de textos con IA', 
-    url: 'https://quillbot.com', 
-    keywords: ['parafraseo', 'escritura', 'mejora', 'ai'],
-    logo: '🪶',
-    useCase: 'Ideal para: reescribir y mejorar textos'
-  },
-  
-  // AUDIO/MÚSICA (5 herramientas)
-  { 
-    name: 'ElevenLabs', 
-    category: 'Audio/Música', 
-    description: 'Las voces IA más realistas del mercado', 
-    url: 'https://elevenlabs.io', 
-    keywords: ['voz', 'audio', 'ai', 'text-to-speech'],
-    logo: '🎙️',
-    useCase: 'Ideal para: narración, doblaje, audiolibros'
-  },
-  { 
-    name: 'Murf AI', 
-    category: 'Audio/Música', 
-    description: 'Generación de voces profesionales para videos', 
-    url: 'https://murf.ai', 
-    keywords: ['voz', 'narración', 'ai', 'audio'],
-    logo: '🗣️',
-    useCase: 'Ideal para: videos corporativos, e-learning'
-  },
-  { 
-    name: 'Suno AI', 
-    category: 'Audio/Música', 
-    description: 'Crea canciones completas con IA', 
-    url: 'https://suno.ai', 
-    keywords: ['música', 'canción', 'ai', 'composición'],
-    logo: '🎵',
-    useCase: 'Ideal para: jingles, música de fondo'
-  },
-  { 
-    name: 'Soundraw', 
-    category: 'Audio/Música', 
-    description: 'Música personalizada generada por IA', 
-    url: 'https://soundraw.io', 
-    keywords: ['música', 'ai', 'royalty-free', 'personalizada'],
-    logo: '🎼',
-    useCase: 'Ideal para: música para videos y podcasts'
-  },
-  { 
-    name: 'Adobe Podcast', 
-    category: 'Audio/Música', 
-    description: 'Mejora la calidad de audio con IA', 
-    url: 'https://podcast.adobe.com', 
-    keywords: ['audio', 'podcast', 'mejora', 'ai'],
-    logo: '🎧',
-    useCase: 'Ideal para: limpiar y mejorar grabaciones'
-  },
-  
-  // CÓDIGO/DEV (5 herramientas)
-  { 
-    name: 'GitHub Copilot', 
-    category: 'Código/Dev', 
-    description: 'Asistente de código IA integrado en el IDE', 
-    url: 'https://github.com/features/copilot', 
-    keywords: ['código', 'programación', 'github', 'ai'],
-    logo: '👨‍💻',
-    useCase: 'Ideal para: autocompletado inteligente de código'
-  },
-  { 
-    name: 'Cursor', 
-    category: 'Código/Dev', 
-    description: 'IDE con IA integrada para desarrollo rápido', 
-    url: 'https://cursor.sh', 
-    keywords: ['ide', 'código', 'ai', 'editor'],
-    logo: '💻',
-    useCase: 'Ideal para: desarrollo con IA asistida'
-  },
-  { 
-    name: 'Tabnine', 
-    category: 'Código/Dev', 
-    description: 'Autocompletado de código con IA', 
-    url: 'https://tabnine.com', 
-    keywords: ['código', 'autocompletado', 'ai', 'ide'],
-    logo: '⌨️',
-    useCase: 'Ideal para: predicción de código'
-  },
-  { 
-    name: 'Replit', 
-    category: 'Código/Dev', 
-    description: 'IDE en la nube con IA y deployment', 
-    url: 'https://replit.com', 
-    keywords: ['ide', 'cloud', 'código', 'deployment'],
-    logo: '🔧',
-    useCase: 'Ideal para: desarrollo colaborativo'
-  },
-  { 
-    name: 'Codeium', 
-    category: 'Código/Dev', 
-    description: 'Autocompletado de código gratuito con IA', 
-    url: 'https://codeium.com', 
-    keywords: ['código', 'gratis', 'ai', 'autocompletado'],
-    logo: '🤖',
-    useCase: 'Ideal para: desarrollo con IA gratuito'
-  }
-];
-
-const agents: Agent[] = [
-  {
-    name: 'Agente Unificador 4 IAs',
-    description: 'Una consulta, cuatro respuestas integradas',
-    price: '5 consultas gratis/dia',
-    status: 'active',
-    url: '/agente-unificador',
-    icon: '🤖'
-  }
-];
-
-const news: NewsItem[] = [
-  {
-    title: 'IA aumenta productividad en 40%',
-    category: 'Productividad',
-    readTime: '3 min',
-    url: '#'
-  }
-];
-
-interface Agent {
-  name: string;
-  description: string;
-  price: string;
-  status: 'active' | 'coming-soon';
-  url: string;
-  icon: string;
-}
-
-interface NewsItem {
-  title: string;
-  category: string;
-  readTime: string;
-  url: string;
-}
+import { 
+  ExternalLink, 
+  Grid3X3, 
+  Bot, 
+  Newspaper, 
+  Sparkles, 
+  ChevronRight,
+  Search,
+  MessageSquare,
+  Image,
+  Video,
+  Code,
+  Music,
+  FileText,
+  Briefcase,
+  ChevronDown
+} from 'lucide-react';
+import { tools, getCategories } from '@/lib/tools-data';
 
 export default function ToolsSection() {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('Todas');
+  const [selectedCategory, setSelectedCategory] = React.useState<string | null>(null);
+  const [isExpanded, setIsExpanded] = React.useState(false);
   
-  const categories = ['Todas', 'Chat IA', 'Diseño', 'Productividad', 'Imágenes IA', 'Video IA', 'Audio/Música', 'Código/Dev', 'Escritura'];
-  
-  const filteredTools = allTools.filter(tool => {
-    const matchesSearch = searchTerm === '' || 
-      tool.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tool.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      tool.keywords.some(keyword => keyword.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    const matchesCategory = selectedCategory === 'Todas' || tool.category === selectedCategory;
-    
-    return matchesSearch && matchesCategory;
+  const categories = getCategories();
+  const categoryIcons: Record<string, any> = {
+    'Chat IA': MessageSquare,
+    'Generación de Imágenes': Image,
+    'Video y Animación': Video,
+    'Código y Desarrollo': Code,
+    'Audio y Música': Music,
+    'Escritura y Contenido': FileText,
+    'Productividad': Briefcase
+  };
+
+  const categoryColors: Record<string, string> = {
+    'Chat IA': 'from-blue-500/20 to-cyan-500/20 border-blue-500/30',
+    'Generación de Imágenes': 'from-purple-500/20 to-pink-500/20 border-purple-500/30',
+    'Video y Animación': 'from-red-500/20 to-orange-500/20 border-red-500/30',
+    'Código y Desarrollo': 'from-green-500/20 to-emerald-500/20 border-green-500/30',
+    'Audio y Música': 'from-indigo-500/20 to-violet-500/20 border-indigo-500/30',
+    'Escritura y Contenido': 'from-amber-500/20 to-yellow-500/20 border-amber-500/30',
+    'Productividad': 'from-gray-500/20 to-slate-500/20 border-gray-500/30'
+  };
+
+  // Herramientas más populares para mostrar primero
+  const popularTools = ['ChatGPT', 'Claude', 'Gemini', 'DALL-E', 'Midjourney', 'GitHub Copilot', 'Canva', 'Notion', 'Figma'];
+  const sortedTools = [...tools].sort((a, b) => {
+    const aIndex = popularTools.indexOf(a.name);
+    const bIndex = popularTools.indexOf(b.name);
+    if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+    if (aIndex !== -1) return -1;
+    if (bIndex !== -1) return 1;
+    return 0;
   });
 
+  const displayedTools = selectedCategory 
+    ? tools.filter(tool => tool.category === selectedCategory)
+    : sortedTools.slice(0, 18);
+
   return (
-    <section id="herramientas" className="bg-gray-50 py-20">
-      <div className="container mx-auto px-4">
-        
-        {/* Tech Ticker - configurado para correr infinito */}
-        <div className="mb-16">
-          <HorizontalTechTicker />
-        </div>
-
-        <div className="grid lg:grid-cols-3 gap-8">
+    <section className="relative overflow-hidden bg-gradient-to-b from-gray-50 to-white">
+      {/* Fondo con patrón */}
+      <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
+      
+      {/* Efectos de luz más dramáticos */}
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-400 rounded-full blur-[120px] opacity-20"></div>
+      <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-purple-400 rounded-full blur-[120px] opacity-20"></div>
+      
+      {/* Contenedor principal */}
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        {/* Header mejorado con más impacto visual */}
+        <div className="text-center mb-20">
+          <div className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-full border border-blue-500/20 mb-8 backdrop-blur-sm">
+            <Sparkles className="w-5 h-5 text-blue-600 animate-pulse" />
+            <span className="text-base font-semibold text-gray-700">Herramientas y Servicios</span>
+          </div>
           
-          {/* Columna izquierda - Arsenal Tecnológico mejorado */}
-          <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <span className="text-2xl">🔍</span>
+          {/* Título principal con estilo HeroSection */}
+          <h2 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-8 leading-tight">
+            <span className="text-gray-900">Potencia e impulsa</span>
+            <br />
+            <span className="text-gray-900"> tu Negocio, </span>
+            <span className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+              Con las Ultimas herramientas
+            </span>
+            <br />
+            <span className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 bg-clip-text text-transparent">
+               de IA.
+            </span>
+          </h2>
+          
+          <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+            Accede a más de <span className="font-semibold text-gray-900">{tools.length} herramientas</span> de inteligencia artificial 
+            y servicios especializados para transformar tu negocio
+          </p>
+        </div>
+        
+        {/* Grid principal */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          
+          {/* 1. Arsenal Tecnológico - Mejorado */}
+          <div className="group relative bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-blue-200 overflow-hidden">
+            {/* Efecto gradient al hover */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl text-white shadow-lg">
+                    <Grid3X3 className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    Arsenal Tecnológico
+                  </h3>
+                </div>
+                <Link 
+                  href="/herramientas/arsenal" 
+                  className="text-blue-600 hover:text-blue-700 transition hover:scale-110"
+                >
+                  <ExternalLink className="w-5 h-5" />
+                </Link>
               </div>
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900">Arsenal Tecnológico</h3>
-                <p className="text-gray-600">Busca herramientas IA por categoría</p>
-              </div>
-            </div>
-
-            {/* Barra de búsqueda */}
-            <div className="mb-4">
-              <input
-                type="text"
-                placeholder="Buscar herramientas..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
-            </div>
-
-            {/* Botón Ver Arsenal Completo - justo debajo de la búsqueda */}
-            <Link
-              href="#"
-              className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 shadow-md hover:shadow-lg mb-6"
-            >
-              <span>🔧</span>
-              Ver Arsenal Completo
-            </Link>
-
-            {/* Selector de categorías mejorado */}
-            <div className="mb-6">
-              <p className="text-sm font-medium text-gray-700 mb-2">Filtrar por categoría:</p>
-              <div className="grid grid-cols-2 gap-2">
-                {categories.map(category => (
-                  <button
-                    key={category}
-                    onClick={() => setSelectedCategory(category)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                      selectedCategory === category
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                    }`}
-                  >
-                    {category}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Resultados de búsqueda */}
-            <div className="space-y-3 max-h-96 overflow-y-auto custom-scrollbar">
-              {filteredTools.length > 0 ? (
-                <>
-                  <p className="text-sm text-gray-500 mb-2">
-                    {filteredTools.length} herramientas encontradas
-                  </p>
-                  {filteredTools.slice(0, 8).map((tool, index) => {
-                    const IconComponent = getToolIcon(tool.name);
+              
+              <p className="text-gray-600 mb-6">
+                Explora nuestro catálogo completo de {tools.length} herramientas de IA organizadas por categoría
+              </p>
+              
+              {/* Mini buscador de categorías */}
+              <div className="space-y-3 mb-6">
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  <Search className="w-4 h-4" />
+                  <span>Categorías disponibles:</span>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-2">
+                  {categories.slice(0, 6).map((category) => {
+                    const Icon = categoryIcons[category] || Grid3X3;
+                    const count = tools.filter(t => t.category === category).length;
+                    const colorClass = categoryColors[category] || 'from-gray-500/20 to-gray-500/20 border-gray-500/30';
+                    const isSelected = selectedCategory === category;
+                    
                     return (
-                      <a
-                        key={index}
-                        href={tool.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="block p-4 rounded-lg border border-gray-200 hover:border-blue-300 hover:shadow-md transition-all duration-200 group"
+                      <button
+                        key={category}
+                        onClick={() => setSelectedCategory(isSelected ? null : category)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg bg-gradient-to-r ${colorClass} border backdrop-blur-sm transition-all duration-300 hover:scale-105 ${
+                          isSelected ? 'ring-2 ring-blue-500 shadow-lg' : ''
+                        }`}
                       >
-                        <div className="flex items-start gap-3">
-                          <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center text-gray-600 group-hover:text-blue-600 transition-colors">
-                            <IconComponent className="w-8 h-8" />
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-gray-900 group-hover:text-blue-600 flex items-center gap-2">
-                              {tool.name}
-                              <svg className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                              </svg>
-                            </h4>
-                            <p className="text-sm text-gray-600 mt-1">{tool.description}</p>
-                            {tool.useCase && (
-                              <p className="text-xs text-blue-600 mt-2">{tool.useCase}</p>
-                            )}
-                            <div className="flex items-center gap-2 mt-2">
-                              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                                {tool.category}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </a>
+                        <Icon className="w-4 h-4" />
+                        <span className="text-xs font-medium text-gray-700">{category}</span>
+                        <span className="ml-auto text-xs font-bold text-gray-600">{count}</span>
+                      </button>
                     );
                   })}
-                </>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <span className="text-4xl mb-4 block">🔍</span>
-                  <p className="font-medium">No se encontraron herramientas</p>
-                  <p className="text-sm mt-2">Intenta con otra categoría o término de búsqueda</p>
                 </div>
+                
+                {categories.length > 6 && (
+                  <button
+                    onClick={() => setIsExpanded(!isExpanded)}
+                    className="flex items-center gap-1 text-xs text-gray-500 hover:text-gray-700 mx-auto transition-colors"
+                  >
+                    {isExpanded ? 'Ver menos' : `+${categories.length - 6} categorías más`}
+                    <ChevronDown className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                  </button>
+                )}
+              </div>
+              
+              {/* Preview de herramientas con más espacio vertical */}
+              <div className="grid grid-cols-6 gap-3 mb-8 min-h-[140px]">
+                {displayedTools.map((tool, index) => {
+                  const ToolIcon = tool.logo;
+                  return (
+                    <a
+                      key={index}
+                      href={tool.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group/icon relative w-12 h-12 rounded-xl bg-gradient-to-br from-gray-50 to-gray-100 p-2 flex items-center justify-center shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-110 hover:-translate-y-1"
+                      style={{ color: tool.color }}
+                    >
+                      <ToolIcon className="w-full h-full" />
+                      {/* Tooltip mejorado con más espacio */}
+                      <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover/icon:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
+                        {tool.name}
+                      </div>
+                    </a>
+                  );
+                })}
+              </div>
+              
+              {selectedCategory && (
+                <button
+                  onClick={() => setSelectedCategory(null)}
+                  className="text-sm text-blue-600 hover:text-blue-700 mb-4 block mx-auto"
+                >
+                  Mostrar todas las herramientas
+                </button>
               )}
+              
+              <Link 
+                href="/herramientas/arsenal"
+                className="relative inline-flex items-center gap-2 w-full justify-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 font-medium shadow-lg hover:shadow-xl hover:scale-105"
+              >
+                Explorar Arsenal Completo
+                <ChevronRight className="w-5 h-5" />
+              </Link>
             </div>
           </div>
-
-          {/* Columna del medio - Agentes */}
-          <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="bg-purple-100 p-3 rounded-lg">
-                <span className="text-2xl">🤖</span>
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900">Agentes Impulsa Lab</h3>
-                <p className="text-gray-600">IA especializada para tu negocio</p>
+          
+          {/* 2. Columna central con Agentes y Prompt Designer */}
+          <div className="space-y-8">
+            {/* Agentes de Impulsa Lab */}
+            <div className="group relative bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-purple-200 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl text-white shadow-lg">
+                      <Bot className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900">
+                      Agentes IA
+                    </h3>
+                  </div>
+                  <Link 
+                    href="/herramientas/agentes" 
+                    className="text-purple-600 hover:text-purple-700 transition hover:scale-110"
+                  >
+                    <ExternalLink className="w-5 h-5" />
+                  </Link>
+                </div>
+                
+                <p className="text-gray-600 mb-4">
+                  Asistentes especializados para cada área
+                </p>
+                
+                <ul className="space-y-3 mb-6">
+                  {['Marketing Digital', 'Desarrollo Web', 'Diseño Creativo', 'Análisis de Datos'].map((agent, idx) => (
+                    <li key={idx} className="flex items-center gap-3 text-sm text-gray-700 group/item">
+                      <div className="w-2 h-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full group-hover/item:scale-150 transition-transform"></div>
+                      <span className="group-hover/item:text-purple-600 transition-colors">{agent}</span>
+                    </li>
+                  ))}
+                </ul>
+                
+                <Link 
+                  href="/herramientas/agentes"
+                  className="inline-flex items-center gap-2 w-full justify-center bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 rounded-xl hover:from-purple-700 hover:to-pink-700 transition-all duration-300 font-medium shadow-lg"
+                >
+                  Conocer Agentes
+                  <ChevronRight className="w-4 h-4" />
+                </Link>
               </div>
             </div>
-
-            <div className="space-y-4 mb-6">
-              {agents.map((agent, index) => (
-                <div
-                  key={index}
-                  className="p-4 rounded-lg border border-green-200 bg-green-50"
+            
+            {/* Prompt Designer - Estilo anterior mejorado */}
+            <div className="group relative bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 border border-emerald-200 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-3">
+                    <Sparkles className="w-6 h-6 text-emerald-600" />
+                    <h3 className="text-xl font-bold text-gray-900">
+                      Prompt Designer
+                    </h3>
+                  </div>
+                  <Link 
+                    href="/herramientas/prompt-designer" 
+                    className="text-emerald-600 hover:text-emerald-700 transition hover:scale-110"
+                  >
+                    <ExternalLink className="w-5 h-5" />
+                  </Link>
+                </div>
+                
+                <p className="text-gray-600 mb-4">
+                  Crea prompts profesionales con nuestra guía interactiva
+                </p>
+                
+                {/* Mini formulario preview - Estilo anterior */}
+                <div className="space-y-3">
+                  <div className="bg-white rounded-lg p-3 border border-gray-200">
+                    <label className="text-sm font-medium text-gray-700">
+                      ¿Qué quieres lograr?
+                    </label>
+                    <input 
+                      type="text" 
+                      placeholder="Ej: Crear contenido para redes sociales"
+                      className="w-full mt-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-not-allowed"
+                      disabled
+                    />
+                  </div>
+                  
+                  <Link 
+                    href="/herramientas/prompt-designer"
+                    className="block w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-center py-2 rounded-lg hover:opacity-90 transition font-medium shadow-lg"
+                  >
+                    Diseñar Mi Prompt
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          {/* 3. Agente de Noticias - Extendido */}
+          <div className="group relative bg-white rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-orange-200 overflow-hidden h-full">
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            
+            <div className="relative z-10 flex flex-col h-full">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl text-white shadow-lg">
+                    <Newspaper className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    Agente de Noticias
+                  </h3>
+                </div>
+                <Link 
+                  href="/herramientas/noticias" 
+                  className="text-orange-600 hover:text-orange-700 transition hover:scale-110"
                 >
-                  <div className="flex items-start gap-3">
-                    <span className="text-xl">{agent.icon}</span>
-                    <div className="flex-1">
-                      <h4 className="font-bold text-gray-900 text-sm">{agent.name}</h4>
-                      <p className="text-sm text-gray-600 mb-2">{agent.description}</p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium text-purple-600">{agent.price}</span>
-                        <Link
-                          href={agent.url}
-                          className="bg-purple-600 text-white px-3 py-1 rounded text-xs font-medium hover:bg-purple-700 transition-colors"
-                        >
-                          Usar Ahora
-                        </Link>
+                  <ExternalLink className="w-5 h-5" />
+                </Link>
+              </div>
+              
+              <p className="text-gray-600 mb-6">
+                Las últimas novedades en IA actualizadas diariamente
+              </p>
+              
+              {/* Preview de noticias extendido */}
+              <div className="space-y-3 flex-grow">
+                {[
+                  { 
+                    title: 'OpenAI lanza GPT-5 con capacidades revolucionarias', 
+                    time: '2 horas', 
+                    tag: 'Tecnología',
+                    source: 'TechCrunch'
+                  },
+                  { 
+                    title: 'Nueva regulación de IA aprobada en la Unión Europea', 
+                    time: '5 horas', 
+                    tag: 'Legal',
+                    source: 'Reuters'
+                  },
+                  { 
+                    title: 'Microsoft invierte $10B en startups de IA', 
+                    time: '8 horas', 
+                    tag: 'Negocios',
+                    source: 'Bloomberg'
+                  },
+                  { 
+                    title: 'Google presenta Gemini Ultra: el modelo más avanzado', 
+                    time: '1 día', 
+                    tag: 'Lanzamiento',
+                    source: 'The Verge'
+                  },
+                  { 
+                    title: 'Meta anuncia nuevo framework para IA generativa', 
+                    time: '1 día', 
+                    tag: 'Desarrollo',
+                    source: 'Wired'
+                  }
+                ].map((news, idx) => (
+                  <div 
+                    key={idx}
+                    className="group/news bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg p-4 border-l-4 border-orange-500 hover:from-orange-50 hover:to-orange-100 transition-all duration-300 hover:translate-x-1 cursor-pointer"
+                  >
+                    <h4 className="font-semibold text-sm text-gray-800 group-hover/news:text-orange-700 transition-colors line-clamp-2">
+                      {news.title}
+                    </h4>
+                    <div className="flex items-center justify-between mt-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-600">{news.time}</span>
+                        <span className="text-xs px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full">
+                          {news.tag}
+                        </span>
                       </div>
+                      <span className="text-xs text-gray-500 italic">{news.source}</span>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              
+              <Link 
+                href="/herramientas/noticias"
+                className="inline-flex items-center gap-2 w-full justify-center bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-3 rounded-xl hover:from-orange-700 hover:to-red-700 transition-all duration-300 font-medium shadow-lg hover:shadow-xl hover:scale-105 mt-6"
+              >
+                Ver Todas las Noticias
+                <ChevronRight className="w-5 h-5" />
+              </Link>
             </div>
-
-            <Link
-              href="/agentes-ia"
-              className="w-full bg-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 transition-colors flex items-center justify-center gap-2"
-            >
-              <span>🤖</span>
-              Ver Todos los Agentes
-            </Link>
           </div>
-
-          {/* Columna derecha - Noticias */}
-          <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="bg-green-100 p-3 rounded-lg">
-                <span className="text-2xl">📰</span>
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900">Noticias IA</h3>
-                <p className="text-gray-600">Últimas tendencias para negocios</p>
-              </div>
-            </div>
-
-            <div className="space-y-3 mb-6">
-              {news.map((item, index) => (
-                <a
-                  key={index}
-                  href={item.url}
-                  className="block p-3 rounded-lg border border-gray-100 hover:border-green-200 hover:shadow-md transition-all duration-200 group"
-                >
-                  <h4 className="font-medium text-gray-900 group-hover:text-green-600 mb-1 text-sm">
-                    {item.title}
-                  </h4>
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <span className="bg-gray-100 px-2 py-1 rounded">{item.category}</span>
-                    <span>•</span>
-                    <span>{item.readTime}</span>
-                  </div>
-                </a>
-              ))}
-            </div>
-
-            <Link
-              href="/noticias-ia"
-              className="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+          
+        </div>
+        
+        {/* CTA final mejorado */}
+        <div className="mt-20 text-center">
+          <div className="inline-flex flex-col items-center gap-4 px-8 py-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl border border-blue-100">
+            <p className="text-lg text-gray-700 font-medium">
+              ¿Necesitas ayuda para elegir la herramienta perfecta?
+            </p>
+            <Link 
+              href="/contacto" 
+              className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 font-medium shadow-lg hover:shadow-xl hover:scale-105"
             >
-              <span>📰</span>
-              Ver Todas las Noticias
+              Agenda una Asesoría Gratuita
+              <ChevronRight className="w-5 h-5" />
             </Link>
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #888;
-          border-radius: 10px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #555;
-        }
-      `}</style>
     </section>
   );
 }

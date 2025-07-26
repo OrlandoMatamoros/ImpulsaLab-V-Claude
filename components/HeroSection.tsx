@@ -161,10 +161,18 @@ export default function HeroSection() {
                     <div className="flex justify-center mb-4">
                       <HubIcon className="w-16 h-16 md:w-20 md:h-20 lg:w-24 lg:h-24" />
                     </div>
-                    <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 text-[#002D62]">
-                      Hub de Herramientas IA
-                    </h3>
-                    <p className="text-gray-600 text-sm md:text-base lg:text-lg">
+                    <Link 
+                      href="/herramientas"
+                      className="group inline-flex items-center gap-2 hover:gap-3 transition-all duration-300"
+                    >
+                      <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold text-[#002D62] group-hover:text-blue-700 transition-colors">
+                        Hub de Herramientas IA
+                      </h3>
+                      <svg className="w-6 h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 text-blue-600 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </Link>
+                    <p className="text-gray-600 text-sm md:text-base lg:text-lg mt-3">
                       Tu arsenal completo para dominar la IA en tu negocio
                     </p>
                   </div>
@@ -174,8 +182,8 @@ export default function HeroSection() {
                     
                     {/* ARSENAL TECNOLÓGICO */}
                     <Link 
-                      href="/herramientas"
-                      className="group relative bg-gradient-to-br from-blue-600 to-blue-700 p-4 md:p-5 lg:p-6 rounded-xl border-2 border-blue-500 hover:border-blue-300 transition-all duration-500 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/50 overflow-hidden"
+                      href="/herramientas/arsenal"
+                      className="group relative bg-gradient-to-br from-blue-600 to-blue-700 p-4 md:p-5 lg:p-6 rounded-xl border-2 border-blue-500 hover:border-blue-300 transition-all duration-500 hover:scale-105 hover:shadow-xl hover:shadow-blue-500/50 overflow-hidden cursor-pointer"
                     >
                       <div className="absolute top-2 right-2 bg-white text-blue-700 text-xs px-2 py-1 rounded-full animate-pulse font-bold">
                         Gratis
@@ -201,8 +209,8 @@ export default function HeroSection() {
 
                     {/* AGENTE UNIFICADOR */}
                     <Link 
-                      href="/agente-unificador"
-                      className="group relative bg-gradient-to-br from-purple-600 to-purple-700 p-4 md:p-5 lg:p-6 rounded-xl border-2 border-purple-500 hover:border-purple-300 transition-all duration-500 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/50 overflow-hidden"
+                      href="/herramientas/agentes"
+                      className="group relative bg-gradient-to-br from-purple-600 to-purple-700 p-4 md:p-5 lg:p-6 rounded-xl border-2 border-purple-500 hover:border-purple-300 transition-all duration-500 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/50 overflow-hidden cursor-pointer"
                     >
                       <div className="absolute top-2 right-2 bg-white text-purple-700 text-xs px-2 py-1 rounded-full animate-pulse font-bold">
                         Popular
@@ -215,21 +223,21 @@ export default function HeroSection() {
                           <div className="p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
                             <AIIcon className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 text-white" />
                           </div>
-                          <span className="font-bold text-sm md:text-base lg:text-lg text-white">4 IAs</span>
+                          <span className="font-bold text-sm md:text-base lg:text-lg text-white">Agentes IA</span>
                         </div>
                         <p className="text-xs md:text-sm lg:text-base text-white/90 font-medium mb-2">
-                          ChatGPT + Claude + Gemini + Grok
+                          4 Agentes especializados trabajando para ti
                         </p>
                         <p className="text-xs md:text-sm text-white/80">
-                          Una respuesta, 4 perspectivas
+                          ChatGPT, Claude, Gemini y Perplexity
                         </p>
                       </div>
                     </Link>
 
                     {/* NOTICIAS IA */}
                     <Link 
-                      href="/noticias-ia"
-                      className="group relative bg-gradient-to-br from-emerald-600 to-emerald-700 p-4 md:p-5 lg:p-6 rounded-xl border-2 border-emerald-500 hover:border-emerald-300 transition-all duration-500 hover:scale-105 hover:shadow-xl hover:shadow-emerald-500/50 overflow-hidden"
+                      href="/herramientas/noticias"
+                      className="group relative bg-gradient-to-br from-emerald-600 to-emerald-700 p-4 md:p-5 lg:p-6 rounded-xl border-2 border-emerald-500 hover:border-emerald-300 transition-all duration-500 hover:scale-105 hover:shadow-xl hover:shadow-emerald-500/50 overflow-hidden cursor-pointer"
                     >
                       <div className="absolute top-2 right-2 bg-white text-emerald-700 text-xs px-2 py-1 rounded-full animate-pulse font-bold">
                         Actualizado
@@ -255,8 +263,8 @@ export default function HeroSection() {
 
                     {/* ESTRUCTURADOR PROMPTS */}
                     <Link 
-                      href="/estructurador-prompts"
-                      className="group relative bg-gradient-to-br from-orange-600 to-red-600 p-4 md:p-5 lg:p-6 rounded-xl border-2 border-orange-500 hover:border-orange-300 transition-all duration-500 hover:scale-105 hover:shadow-xl hover:shadow-orange-500/50 overflow-hidden"
+                      href="/herramientas/prompt-designer"
+                      className="group relative bg-gradient-to-br from-orange-600 to-red-600 p-4 md:p-5 lg:p-6 rounded-xl border-2 border-orange-500 hover:border-orange-300 transition-all duration-500 hover:scale-105 hover:shadow-xl hover:shadow-orange-500/50 overflow-hidden cursor-pointer"
                     >
                       <div className="absolute top-2 right-2 bg-white text-orange-700 text-xs px-2 py-1 rounded-full animate-pulse font-bold">
                         Pro
@@ -269,7 +277,7 @@ export default function HeroSection() {
                           <div className="p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors">
                             <PromptIcon className="w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 text-white" />
                           </div>
-                          <span className="font-bold text-sm md:text-base lg:text-lg text-white">Prompts</span>
+                          <span className="font-bold text-sm md:text-base lg:text-lg text-white">Prompt Designer</span>
                         </div>
                         <p className="text-xs md:text-sm lg:text-base text-white/90 font-medium mb-2">
                           Resultados 10x mejores

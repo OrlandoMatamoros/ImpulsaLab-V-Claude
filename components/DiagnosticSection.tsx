@@ -49,6 +49,14 @@ export default function DiagnosticSection() {
           <p className="text-sm text-gray-500 mt-6">
             Inicialmente, ponderamos cada eje con la misma importancia (33.3%), pero nuestro modelo permite ajustar esta ponderación según la industria del cliente.
           </p>
+          {/* Botón para iniciar diagnóstico */}
+          <div className="mt-8">
+            <Link href="/diagnostico">
+              <button className="bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-blue-700 transition-colors duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                🎯 Iniciar Diagnóstico 3D Gratuito
+              </button>
+            </Link>
+          </div>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">

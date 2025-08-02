@@ -46,7 +46,7 @@ const mockNews: NewsItem[] = [
     content: 'JPMorgan Chase ha logrado reducir significativamente sus costos operativos mediante la implementación estratégica de IA...',
     category: 'business-ai',
     source: 'Financial Times',
-    sourceUrl: 'https://www.ft.com/content/jpmorgan-ai-transformation',
+    sourceUrl: 'https://www.ft.com',
     date: '2025-01-25',
     readTime: 6,
     imageUrl: 'https://images.unsplash.com/photo-1560472355-536de3962603?w=800&h=600&fit=crop',
@@ -61,7 +61,7 @@ const mockNews: NewsItem[] = [
     content: 'Microsoft ha anunciado el lanzamiento de Copilot for Business Essentials, una solución de IA accesible para PYMES...',
     category: 'product-launches',
     source: 'The Wall Street Journal',
-    sourceUrl: 'https://www.wsj.com/tech/microsoft-copilot-smes',
+    sourceUrl: 'https://www.wsj.com',
     date: '2025-01-24',
     readTime: 5,
     imageUrl: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=600&fit=crop',
@@ -75,7 +75,7 @@ const mockNews: NewsItem[] = [
     content: 'Amazon ha compartido detalles sobre su revolucionario sistema de IA para optimización logística...',
     category: 'business-ai',
     source: 'Bloomberg',
-    sourceUrl: 'https://www.bloomberg.com/news/amazon-ai-supply-chain',
+    sourceUrl: 'https://www.bloomberg.com',
     date: '2025-01-23',
     readTime: 7,
     imageUrl: 'https://images.unsplash.com/photo-1553413077-190dd305871c?w=800&h=600&fit=crop',
@@ -88,7 +88,7 @@ const mockNews: NewsItem[] = [
     content: 'El último informe de Deloitte sobre tendencias tecnológicas empresariales muestra un cambio sísmico...',
     category: 'market-trends',
     source: 'Forbes',
-    sourceUrl: 'https://www.forbes.com/deloitte-ai-investment-study',
+    sourceUrl: 'https://www.forbes.com',
     date: '2025-01-22',
     readTime: 8,
     imageUrl: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&h=600&fit=crop',
@@ -102,7 +102,7 @@ const mockNews: NewsItem[] = [
     content: 'Una importante cadena de retail ha compartido resultados extraordinarios tras implementar Einstein GPT...',
     category: 'success-stories',
     source: 'Harvard Business Review',
-    sourceUrl: 'https://hbr.org/2025/01/salesforce-retail-case-study',
+    sourceUrl: 'https://hbr.org',
     date: '2025-01-21',
     readTime: 5,
     imageUrl: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=600&fit=crop',
@@ -115,7 +115,7 @@ const mockNews: NewsItem[] = [
     content: 'El New York Times analiza el boom de inversión en startups de IA enfocadas en soluciones empresariales...',
     category: 'market-trends',
     source: 'The New York Times',
-    sourceUrl: 'https://www.nytimes.com/2025/01/20/business/ai-startup-funding',
+    sourceUrl: 'https://www.nytimes.com',
     date: '2025-01-20',
     readTime: 7,
     imageUrl: 'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=800&h=600&fit=crop',
@@ -129,7 +129,7 @@ const mockNews: NewsItem[] = [
     content: 'Walmart ha revelado los impresionantes resultados de su partnership con Google Cloud...',
     category: 'business-ai',
     source: 'Reuters',
-    sourceUrl: 'https://www.reuters.com/technology/walmart-google-cloud-ai',
+    sourceUrl: 'https://www.reuters.com',
     date: '2025-01-19',
     readTime: 6,
     imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop',
@@ -142,7 +142,7 @@ const mockNews: NewsItem[] = [
     content: 'McKinsey & Company publica su análisis más completo sobre el impacto de la IA generativa en la productividad...',
     category: 'research',
     source: 'McKinsey & Company',
-    sourceUrl: 'https://www.mckinsey.com/capabilities/ai-productivity-report',
+    sourceUrl: 'https://www.mckinsey.com',
     date: '2025-01-18',
     readTime: 10,
     imageUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop',
@@ -155,7 +155,7 @@ const mockNews: NewsItem[] = [
     content: 'OpenAI y PwC anuncian una colaboración sin precedentes para acelerar la adopción de IA en grandes corporaciones...',
     category: 'business-ai',
     source: 'Financial Times',
-    sourceUrl: 'https://www.ft.com/content/openai-pwc-enterprise',
+    sourceUrl: 'https://www.ft.com',
     date: '2025-01-17',
     readTime: 5,
     imageUrl: 'https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=800&h=600&fit=crop',
@@ -168,7 +168,7 @@ const mockNews: NewsItem[] = [
     content: 'Tesla ha compartido detalles sobre su revolucionario sistema de IA para manufactura automatizada...',
     category: 'success-stories',
     source: 'The Economist',
-    sourceUrl: 'https://www.economist.com/business/tesla-ai-manufacturing',
+    sourceUrl: 'https://www.economist.com',
     date: '2025-01-16',
     readTime: 8,
     imageUrl: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&h=600&fit=crop',
@@ -201,6 +201,13 @@ export default function NoticiasPage() {
   const [showFilters, setShowFilters] = useState(false)
   const [showNewsletter, setShowNewsletter] = useState(false)
   const [email, setEmail] = useState('')
+  const [selectedTag, setSelectedTag] = useState<string | null>(null)
+
+  // Manejar click en tags
+  const handleTagClick = (tag: string) => {
+    setSelectedTag(tag)
+    setSearchQuery(tag)
+  }
 
   // Filtrar y ordenar noticias
   const filteredNews = useMemo(() => {
@@ -352,13 +359,13 @@ export default function NoticiasPage() {
           {/* Barra de búsqueda principal */}
           <div className="max-w-2xl mx-auto">
             <div className="relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
               <input
                 type="text"
                 placeholder="Buscar noticias, herramientas, tendencias..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 bg-white/5 backdrop-blur-lg border border-white/30 rounded-2xl text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white/10 transition-all"
+                className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all shadow-lg"
               />
             </div>
           </div>
@@ -423,7 +430,12 @@ export default function NoticiasPage() {
             {/* Noticia Destacada */}
             {featuredNews.length > 0 && filteredNews.includes(featuredNews[0]) && (
               <article className="mb-8 group cursor-pointer animate-fadeInUp">
-                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-white/10">
+                <a
+                  href={featuredNews[0].sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="relative block h-full overflow-hidden rounded-2xl bg-gradient-to-br from-purple-900/20 to-blue-900/20 border border-white/10 group"
+                >
                   <div className="absolute top-4 left-4 z-10">
                     <span className="px-3 py-1 bg-purple-600 text-white text-xs font-semibold rounded-full">
                       DESTACADO
@@ -440,14 +452,9 @@ export default function NoticiasPage() {
                   
                   <div className="absolute bottom-0 left-0 right-0 p-8">
                     <div className="flex items-center gap-4 mb-4">
-                    <a 
-                      href={featuredNews[0].sourceUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-purple-400 text-sm font-medium hover:text-purple-300 transition-colors"
-                    >
-                      {featuredNews[0].source}
-                    </a>
+                      <span className="text-purple-400 text-sm font-medium">
+                        {featuredNews[0].source}
+                      </span>
                       <span className="text-gray-400 text-sm">
                         {new Date(featuredNews[0].date).toLocaleDateString('es-ES', { 
                           year: 'numeric', 
@@ -468,12 +475,16 @@ export default function NoticiasPage() {
                     <div className="flex items-center justify-between">
                       <div className="flex flex-wrap gap-2">
                         {featuredNews[0].tags.slice(0, 3).map((tag, index) => (
-                          <span
+                          <button
                             key={index}
-                            className="px-3 py-1 bg-white/10 rounded-full text-xs"
+                            onClick={(e) => {
+                              e.preventDefault()
+                              handleTagClick(tag)
+                            }}
+                            className="px-3 py-1 bg-white/10 hover:bg-white/20 rounded-full text-xs transition-colors"
                           >
                             {tag}
-                          </span>
+                          </button>
                         ))}
                       </div>
                       
@@ -483,7 +494,7 @@ export default function NoticiasPage() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </a>
               </article>
             )}
 
@@ -492,9 +503,14 @@ export default function NoticiasPage() {
               {filteredNews.filter(news => !news.isFeatured || news !== featuredNews[0]).map((news, index) => (
                 <article
                   key={news.id}
-                  className="group cursor-pointer news-card"
+                  className="group cursor-pointer news-card h-full"
                 >
-                  <div className="h-full bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden hover:bg-white/10 transition-all duration-300">
+                  <a 
+                    href={news.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="h-full flex flex-col bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden hover:bg-white/10 transition-all duration-300"
+                  >
                     <div className="relative h-48 overflow-hidden">
                       <img
                         src={news.imageUrl}
@@ -511,16 +527,9 @@ export default function NoticiasPage() {
                       )}
                     </div>
                     
-                    <div className="p-6">
+                    <div className="p-6 flex-1 flex flex-col">
                       <div className="flex items-center gap-3 mb-3 text-sm">
-                        <a 
-                        href={news.sourceUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-purple-400 font-medium hover:text-purple-300 transition-colors"
-                      >
-                        {news.source}
-                      </a>
+                        <span className="text-purple-400 font-medium">{news.source}</span>
                         <span className="text-gray-500">•</span>
                         <span className="text-gray-400">
                           {new Date(news.date).toLocaleDateString('es-ES')}
@@ -536,26 +545,31 @@ export default function NoticiasPage() {
                         {news.title}
                       </h3>
                       
-                      <p className="text-gray-400 mb-4 line-clamp-3">
+                      <p className="text-gray-400 mb-4 line-clamp-3 flex-1">
                         {news.summary}
                       </p>
                       
                       <div className="flex items-center justify-between">
                         <div className="flex flex-wrap gap-2">
                           {news.tags.slice(0, 2).map((tag, index) => (
-                            <span
+                            <button
                               key={index}
-                              className="px-2 py-1 bg-white/10 rounded-full text-xs"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                handleTagClick(tag)
+                              }}
+                              className="px-2 py-1 bg-white/10 hover:bg-white/20 rounded-full text-xs transition-colors"
                             >
                               {tag}
-                            </span>
+                            </button>
                           ))}
                         </div>
                         
                         <ExternalLink className="w-4 h-4 text-purple-400 opacity-0 transition-opacity group-hover:opacity-100" />
                       </div>
                     </div>
-                  </div>
+                  </a>
                 </article>
               ))}
             </div>
@@ -601,9 +615,12 @@ export default function NoticiasPage() {
               
               <div className="space-y-4">
                 {trendingNews.slice(0, 5).map((news, index) => (
-                  <div
+                  <a
                     key={news.id}
-                    className="group cursor-pointer"
+                    href={news.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group cursor-pointer block"
                   >
                     <div className="flex gap-3">
                       <span className="text-2xl font-bold text-gray-600">
@@ -618,7 +635,7 @@ export default function NoticiasPage() {
                         </p>
                       </div>
                     </div>
-                  </div>
+                  </a>
                 ))}
               </div>
             </div>
@@ -630,6 +647,7 @@ export default function NoticiasPage() {
                 {['OpenAI', 'GPT-5', 'Claude', 'IA Generativa', 'Machine Learning', 'Regulación', 'Startups', 'Inversión'].map((tag) => (
                   <button
                     key={tag}
+                    onClick={() => handleTagClick(tag)}
                     className="px-3 py-1 bg-white/10 hover:bg-white/20 rounded-full text-sm transition-colors"
                   >
                     {tag}

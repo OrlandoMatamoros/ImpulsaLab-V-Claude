@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { LINKS } from '@/lib/constants'
 import { useState } from 'react'
+import ProtectedSection from '@/components/ProtectedSection'
 
 // Definir tipos para TypeScript
 interface Dashboard {
@@ -188,9 +189,8 @@ export default function FinanzasPage() {
 
   return (
     <>
-      {/* Sección 1: Hero - Tema Oscuro */}
+      {/* Sección 1: Hero - SIEMPRE VISIBLE */}
       <section className="relative bg-[#002D62] text-white pt-24 pb-20 overflow-hidden">
-        {/* Patrón de fondo abstracto */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-0 -left-4 w-72 h-72 bg-white rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
           <div className="absolute top-0 -right-4 w-72 h-72 bg-white rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
@@ -210,7 +210,7 @@ export default function FinanzasPage() {
         </div>
       </section>
 
-      {/* Sección 2: El Problema - Tema Claro */}
+      {/* Sección 2: El Problema - SIEMPRE VISIBLE */}
       <section className="py-20 bg-slate-50">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto">
@@ -236,7 +236,7 @@ export default function FinanzasPage() {
         </div>
       </section>
 
-      {/* Sección 3: La Solución - Tema Claro */}
+      {/* Sección 3: La Solución - SIEMPRE VISIBLE */}
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
@@ -293,394 +293,403 @@ export default function FinanzasPage() {
         </div>
       </section>
 
-      {/* NUEVA SECCIÓN: Ve Tu Negocio en Acción */}
-      <section className="py-20 bg-gradient-to-br from-blue-50 to-purple-50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-7xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-gray-900">
-              Ve Tu Negocio en Acción
-            </h2>
-            <p className="text-xl text-center text-gray-600 mb-8 max-w-3xl mx-auto">
-              Estos son ejemplos reales de dashboards que hemos creado. 
-              Haz clic en cualquier imagen para explorar los detalles.
-            </p>
+      {/* SECCIÓN PROTEGIDA: Ve Tu Negocio en Acción + Planes */}
+      <ProtectedSection
+        message="Regístrate gratis para explorar todos los ejemplos de dashboards, acceder a planes personalizados y agendar tu diagnóstico financiero"
+        showPreview={true}
+        previewBlur={false}
+      >
+        {/* NUEVA SECCIÓN: Ve Tu Negocio en Acción */}
+        <section className="py-20 bg-gradient-to-br from-blue-50 to-purple-50">
+          <div className="container mx-auto px-4">
+            <div className="max-w-7xl mx-auto">
+              <h2 className="text-3xl md:text-4xl font-bold text-center mb-4 text-gray-900">
+                Ve Tu Negocio en Acción
+              </h2>
+              <p className="text-xl text-center text-gray-600 mb-8 max-w-3xl mx-auto">
+                Estos son ejemplos reales de dashboards que hemos creado. 
+                Haz clic en cualquier imagen para explorar los detalles.
+              </p>
 
-            {/* Filtros por categoría */}
-            <div className="flex flex-wrap justify-center gap-2 mb-12">
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setActiveCategory(category)}
-                  className={`px-4 py-2 rounded-full font-medium transition-all duration-300 ${
-                    activeCategory === category
-                      ? 'bg-blue-600 text-white shadow-lg scale-105'
-                      : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
-                  }`}
-                >
-                  {category}
-                  {category === "Todos" && (
-                    <span className="ml-2 text-sm opacity-75">({dashboards.length})</span>
-                  )}
-                </button>
-              ))}
-            </div>
+              {/* Filtros por categoría */}
+              <div className="flex flex-wrap justify-center gap-2 mb-12">
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setActiveCategory(category)}
+                    className={`px-4 py-2 rounded-full font-medium transition-all duration-300 ${
+                      activeCategory === category
+                        ? 'bg-blue-600 text-white shadow-lg scale-105'
+                        : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
+                    }`}
+                  >
+                    {category}
+                    {category === "Todos" && (
+                      <span className="ml-2 text-sm opacity-75">({dashboards.length})</span>
+                    )}
+                  </button>
+                ))}
+              </div>
 
-            {/* Grid de Dashboards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-16">
-              {filteredDashboards.map((dashboard) => (
-                <div 
-                  key={dashboard.id}
-                  onClick={() => setSelectedDashboard(dashboard)}
-                  className="group cursor-pointer transform transition-all duration-300 hover:scale-105"
-                >
-                  <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl">
-                    <div className="relative h-48 bg-gray-100">
-                      <img 
-                        src={dashboard.image}
-                        alt={dashboard.title}
-                        className="w-full h-full object-cover object-top"
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      <div className="absolute top-2 right-2 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                        {dashboard.category}
+              {/* Grid de Dashboards - Solo primeros 6 como preview */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-16">
+                {filteredDashboards.slice(0, 6).map((dashboard) => (
+                  <div 
+                    key={dashboard.id}
+                    onClick={() => setSelectedDashboard(dashboard)}
+                    className="group cursor-pointer transform transition-all duration-300 hover:scale-105"
+                  >
+                    <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl">
+                      <div className="relative h-48 bg-gray-100">
+                        <img 
+                          src={dashboard.image}
+                          alt={dashboard.title}
+                          className="w-full h-full object-cover object-top"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                        <div className="absolute top-2 right-2 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-semibold">
+                          {dashboard.category}
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
+                          <p className="text-white p-4 text-sm font-medium">
+                            Click para ver detalles
+                          </p>
+                        </div>
                       </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end">
-                        <p className="text-white p-4 text-sm font-medium">
-                          Click para ver detalles
+                      <div className="p-4">
+                        <h4 className="font-bold text-gray-900 mb-2 line-clamp-1">
+                          {dashboard.title}
+                        </h4>
+                        <p className="text-sm text-gray-600 line-clamp-2">
+                          {dashboard.description}
+                        </p>
+                        <p className="text-xs text-blue-600 mt-2 font-semibold">
+                          {dashboard.metrics}
                         </p>
                       </div>
                     </div>
-                    <div className="p-4">
-                      <h4 className="font-bold text-gray-900 mb-2 line-clamp-1">
-                        {dashboard.title}
-                      </h4>
-                      <p className="text-sm text-gray-600 line-clamp-2">
-                        {dashboard.description}
-                      </p>
-                      <p className="text-xs text-blue-600 mt-2 font-semibold">
-                        {dashboard.metrics}
-                      </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Mensaje para ver más */}
+              {filteredDashboards.length > 6 && (
+                <div className="text-center mb-16">
+                  <div className="inline-flex items-center gap-2 px-6 py-3 bg-blue-100 text-blue-700 rounded-full">
+                    <span className="font-medium">+{filteredDashboards.length - 6} dashboards más disponibles</span>
+                  </div>
+                </div>
+              )}
+
+              {/* Modal para imagen expandida */}
+              {selectedDashboard && (
+                <div 
+                  className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+                  onClick={() => setSelectedDashboard(null)}
+                >
+                  <div 
+                    className="relative max-w-7xl w-full bg-white rounded-2xl overflow-hidden animate-fadeIn"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {/* Header del modal */}
+                    <div className="flex items-center justify-between p-6 border-b">
+                      <div>
+                        <h3 className="text-2xl font-bold text-gray-900">
+                          {selectedDashboard.title}
+                        </h3>
+                        <span className="inline-block mt-2 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
+                          {selectedDashboard.category}
+                        </span>
+                      </div>
+                      <button 
+                        onClick={() => setSelectedDashboard(null)}
+                        className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+                      >
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    {/* Contenido del modal */}
+                    <div className="grid lg:grid-cols-3 gap-6 p-6 max-h-[80vh] overflow-y-auto">
+                      {/* Imagen grande */}
+                      <div className="lg:col-span-2">
+                        <img 
+                          src={selectedDashboard.image}
+                          alt={selectedDashboard.title}
+                          className="w-full rounded-lg shadow-lg"
+                        />
+                      </div>
+
+                      {/* Información detallada */}
+                      <div className="space-y-6">
+                        <div>
+                          <h4 className="font-semibold text-gray-900 mb-2">Descripción</h4>
+                          <p className="text-gray-600">{selectedDashboard.description}</p>
+                        </div>
+
+                        <div>
+                          <h4 className="font-semibold text-gray-900 mb-3">Funcionalidades Principales</h4>
+                          <ul className="space-y-2">
+                            {selectedDashboard.features.map((feature: string, idx: number) => (
+                              <li key={idx} className="flex items-start">
+                                <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span className="text-gray-700 text-sm">{feature}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        <div className="pt-4 border-t">
+                          <p className="text-sm font-semibold text-blue-600">
+                            {selectedDashboard.metrics}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
+              )}
 
-            {/* Modal para imagen expandida */}
-            {selectedDashboard && (
-              <div 
-                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
-                onClick={() => setSelectedDashboard(null)}
-              >
-                <div 
-                  className="relative max-w-7xl w-full bg-white rounded-2xl overflow-hidden animate-fadeIn"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {/* Header del modal */}
-                  <div className="flex items-center justify-between p-6 border-b">
-                    <div>
-                      <h3 className="text-2xl font-bold text-gray-900">
-                        {selectedDashboard.title}
-                      </h3>
-                      <span className="inline-block mt-2 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm">
-                        {selectedDashboard.category}
-                      </span>
-                    </div>
-                    <button 
-                      onClick={() => setSelectedDashboard(null)}
-                      className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                    >
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {/* Sección de beneficios */}
+              <div className="mt-20 mb-16">
+                <h3 className="text-2xl font-semibold text-center mb-8 text-gray-800">
+                  La Transformación es Real
+                </h3>
+                <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                  {/* Antes */}
+                  <div className="bg-red-50 rounded-xl p-8 border-2 border-red-200">
+                    <h4 className="font-semibold text-xl mb-4 text-red-800 flex items-center">
+                      <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
-                    </button>
+                      Antes
+                    </h4>
+                    <ul className="space-y-3 text-gray-700">
+                      <li className="flex items-start">
+                        <span className="text-red-500 mr-2">•</span>
+                        Excel con fórmulas rotas y datos desactualizados
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-red-500 mr-2">•</span>
+                        Horas perdidas consolidando información
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-red-500 mr-2">•</span>
+                        Decisiones basadas en corazonadas
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-red-500 mr-2">•</span>
+                        Sorpresas desagradables a fin de mes
+                      </li>
+                    </ul>
                   </div>
 
-                  {/* Contenido del modal */}
-                  <div className="grid lg:grid-cols-3 gap-6 p-6 max-h-[80vh] overflow-y-auto">
-                    {/* Imagen grande */}
-                    <div className="lg:col-span-2">
-                      <img 
-                        src={selectedDashboard.image}
-                        alt={selectedDashboard.title}
-                        className="w-full rounded-lg shadow-lg"
-                      />
-                    </div>
-
-                    {/* Información detallada */}
-                    <div className="space-y-6">
-                      <div>
-                        <h4 className="font-semibold text-gray-900 mb-2">Descripción</h4>
-                        <p className="text-gray-600">{selectedDashboard.description}</p>
-                      </div>
-
-                      <div>
-                        <h4 className="font-semibold text-gray-900 mb-3">Funcionalidades Principales</h4>
-                        <ul className="space-y-2">
-                          {selectedDashboard.features.map((feature: string, idx: number) => (
-                            <li key={idx} className="flex items-start">
-                              <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                              </svg>
-                              <span className="text-gray-700 text-sm">{feature}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div className="pt-4 border-t">
-                        <p className="text-sm font-semibold text-blue-600">
-                          {selectedDashboard.metrics}
-                        </p>
-                      </div>
-                    </div>
+                  {/* Después */}
+                  <div className="bg-green-50 rounded-xl p-8 border-2 border-green-200">
+                    <h4 className="font-semibold text-xl mb-4 text-green-800 flex items-center">
+                      <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      Después
+                    </h4>
+                    <ul className="space-y-3 text-gray-700">
+                      <li className="flex items-start">
+                        <span className="text-green-500 mr-2">✓</span>
+                        Dashboard actualizado automáticamente en tiempo real
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-green-500 mr-2">✓</span>
+                        Toda tu información en un solo lugar
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-green-500 mr-2">✓</span>
+                        Decisiones respaldadas por datos precisos
+                      </li>
+                      <li className="flex items-start">
+                        <span className="text-green-500 mr-2">✓</span>
+                        Control total y anticipación a problemas
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>
-            )}
 
-            {/* Sección de beneficios */}
-            <div className="mt-20 mb-16">
-              <h3 className="text-2xl font-semibold text-center mb-8 text-gray-800">
-                La Transformación es Real
-              </h3>
-              <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                {/* Antes */}
-                <div className="bg-red-50 rounded-xl p-8 border-2 border-red-200">
-                  <h4 className="font-semibold text-xl mb-4 text-red-800 flex items-center">
-                    <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    Antes
-                  </h4>
-                  <ul className="space-y-3 text-gray-700">
-                    <li className="flex items-start">
-                      <span className="text-red-500 mr-2">•</span>
-                      Excel con fórmulas rotas y datos desactualizados
-                    </li>
-                    <li className="flex items-start">
-                      <span className="text-red-500 mr-2">•</span>
-                      Horas perdidas consolidando información
-                    </li>
-                    <li className="flex items-start">
-                      <span className="text-red-500 mr-2">•</span>
-                      Decisiones basadas en corazonadas
-                    </li>
-                    <li className="flex items-start">
-                      <span className="text-red-500 mr-2">•</span>
-                      Sorpresas desagradables a fin de mes
-                    </li>
-                  </ul>
-                </div>
-
-                {/* Después */}
-                <div className="bg-green-50 rounded-xl p-8 border-2 border-green-200">
-                  <h4 className="font-semibold text-xl mb-4 text-green-800 flex items-center">
-                    <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Después
-                  </h4>
-                  <ul className="space-y-3 text-gray-700">
-                    <li className="flex items-start">
-                      <span className="text-green-500 mr-2">✓</span>
-                      Dashboard actualizado automáticamente en tiempo real
-                    </li>
-                    <li className="flex items-start">
-                      <span className="text-green-500 mr-2">✓</span>
-                      Toda tu información en un solo lugar
-                    </li>
-                    <li className="flex items-start">
-                      <span className="text-green-500 mr-2">✓</span>
-                      Decisiones respaldadas por datos precisos
-                    </li>
-                    <li className="flex items-start">
-                      <span className="text-green-500 mr-2">✓</span>
-                      Control total y anticipación a problemas
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            {/* CTA específico */}
-            <div className="text-center">
-              <Link 
-                href={`https://wa.me/573112669878?text=${encodeURIComponent('Hola, vi los ejemplos de dashboards financieros y quiero ver mis números claramente')}`}
-                target="_blank"
-                className="inline-flex items-center bg-green-600 text-white px-8 py-4 rounded-full 
-                         font-semibold text-lg transition-all duration-300 
-                         hover:scale-105 hover:bg-green-700 shadow-xl hover:shadow-2xl">
-                <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                </svg>
-                Quiero Ver Mis Números Claramente
-              </Link>
-              <p className="mt-4 text-gray-600">
-                Respuesta en menos de 2 horas en horario laboral
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Sección 4: Nuestro Proceso - Tema Gris */}
-      <section className="py-20 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-900">
-              Nuestra Metodología en 4 Pasos
-            </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-              {[
-                {
-                  numero: "1",
-                  titulo: "Diagnóstico y Recolección",
-                  descripcion: "Entendemos tu negocio y recolectamos tus datos."
-                },
-                {
-                  numero: "2",
-                  titulo: "Ingeniería de Datos",
-                  descripcion: "Limpiamos, estructuramos y modelamos tus datos."
-                },
-                {
-                  numero: "3",
-                  titulo: "Diseño y Entrega",
-                  descripcion: "Construimos tu dashboard 100% a medida."
-                },
-                {
-                  numero: "4",
-                  titulo: "Capacitación y Soporte",
-                  descripcion: "Te enseñamos a usarlo y te acompañamos."
-                }
-              ].map((paso, index) => (
-                <div key={index} className="relative">
-                  <div className="bg-white rounded-lg p-6 shadow-lg h-full">
-                    <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-xl mb-4">
-                      {paso.numero}
-                    </div>
-                    <h3 className="font-semibold text-gray-900 mb-2">{paso.titulo}</h3>
-                    <p className="text-gray-600">{paso.descripcion}</p>
-                  </div>
-                  {index < 3 && (
-                    <div className="hidden lg:block absolute top-1/2 -right-4 transform -translate-y-1/2 text-gray-300">
-                      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Sección 5: Planes y Precios - Tema Claro */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-900">
-              Planes Diseñados para tu Etapa de Crecimiento
-            </h2>
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* Plan Piloto Automático */}
-              <div className="bg-gray-50 rounded-lg p-8 border-2 border-gray-200">
-                <h3 className="text-2xl font-bold mb-2 text-gray-900">Implementación "Piloto Automático"</h3>
-                <p className="text-gray-600 mb-6">Ideal para: Negocios que necesitan claridad y control inmediato.</p>
-                
-                <div className="mb-6">
-                  <p className="text-3xl font-bold text-blue-600">Desde $1,500</p>
-                  <p className="text-gray-500">Pago único</p>
-                </div>
-
-                <div className="mb-8">
-                  <p className="font-semibold mb-3 text-gray-900">Entregables:</p>
-                  <ul className="space-y-2">
-                    <li className="flex items-start">
-                      <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-gray-700">Dashboard personalizado en Excel/Google Sheets</span>
-                    </li>
-                    <li className="flex items-start">
-                      <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-gray-700">Automatización de cálculos y reportes</span>
-                    </li>
-                    <li className="flex items-start">
-                      <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-gray-700">Capacitación inicial incluida</span>
-                    </li>
-                  </ul>
-                </div>
-
-                <Link href={LINKS.calendly}
-                      target="_blank"
-                      className="block w-full bg-blue-600 text-white text-center py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                  Agendar Diagnóstico
-                </Link>
-              </div>
-
-              {/* Plan Cohete */}
-              <div className="bg-blue-50 rounded-lg p-8 border-2 border-blue-200 relative">
-                <div className="absolute -top-3 right-8 bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
-                  Más Popular
-                </div>
-                <h3 className="text-2xl font-bold mb-2 text-gray-900">Consultoría Estratégica "Cohete"</h3>
-                <p className="text-gray-600 mb-6">Ideal para: Negocios que buscan optimizar y escalar con inteligencia de datos.</p>
-                
-                <div className="mb-6">
-                  <p className="text-3xl font-bold text-blue-600">Desde $2,500</p>
-                  <p className="text-gray-500">+ Suscripción mensual</p>
-                </div>
-
-                <div className="mb-8">
-                  <p className="font-semibold mb-3 text-gray-900">Entregables:</p>
-                  <ul className="space-y-2">
-                    <li className="flex items-start">
-                      <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-gray-700">Todo lo del plan Piloto Automático</span>
-                    </li>
-                    <li className="flex items-start">
-                      <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-gray-700">Análisis avanzado y modelado predictivo</span>
-                    </li>
-                    <li className="flex items-start">
-                      <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-gray-700">Reuniones mensuales de estrategia</span>
-                    </li>
-                    <li className="flex items-start">
-                      <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span className="text-gray-700">Soporte prioritario continuo</span>
-                    </li>
-                  </ul>
-                </div>
-
-                <Link href={LINKS.calendly}
-                      target="_blank"
-                      className="block w-full bg-blue-600 text-white text-center py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                  Agendar Diagnóstico
-                </Link>
+              {/* CTA específico */}
+              <div className="text-center">
+                <button className="inline-flex items-center bg-green-600 text-white px-8 py-4 rounded-full 
+                               font-semibold text-lg transition-all duration-300 
+                               hover:scale-105 hover:bg-green-700 shadow-xl hover:shadow-2xl">
+                  <svg className="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                  </svg>
+                  Quiero Ver Mis Números Claramente
+                </button>
+                <p className="mt-4 text-gray-600">
+                  Respuesta en menos de 2 horas en horario laboral
+                </p>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Sección 6: CTA Final - Tema Oscuro */}
+        {/* Sección 4: Nuestro Proceso */}
+        <section className="py-20 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <div className="max-w-5xl mx-auto">
+              <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-900">
+                Nuestra Metodología en 4 Pasos
+              </h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {[
+                  {
+                    numero: "1",
+                    titulo: "Diagnóstico y Recolección",
+                    descripcion: "Entendemos tu negocio y recolectamos tus datos."
+                  },
+                  {
+                    numero: "2",
+                    titulo: "Ingeniería de Datos",
+                    descripcion: "Limpiamos, estructuramos y modelamos tus datos."
+                  },
+                  {
+                    numero: "3",
+                    titulo: "Diseño y Entrega",
+                    descripcion: "Construimos tu dashboard 100% a medida."
+                  },
+                  {
+                    numero: "4",
+                    titulo: "Capacitación y Soporte",
+                    descripcion: "Te enseñamos a usarlo y te acompañamos."
+                  }
+                ].map((paso, index) => (
+                  <div key={index} className="relative">
+                    <div className="bg-white rounded-lg p-6 shadow-lg h-full">
+                      <div className="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold text-xl mb-4">
+                        {paso.numero}
+                      </div>
+                      <h3 className="font-semibold text-gray-900 mb-2">{paso.titulo}</h3>
+                      <p className="text-gray-600">{paso.descripcion}</p>
+                    </div>
+                    {index < 3 && (
+                      <div className="hidden lg:block absolute top-1/2 -right-4 transform -translate-y-1/2 text-gray-300">
+                        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Sección 5: Planes y Precios */}
+        <section className="py-20 bg-white">
+          <div className="container mx-auto px-4">
+            <div className="max-w-5xl mx-auto">
+              <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-900">
+                Planes Diseñados para tu Etapa de Crecimiento
+              </h2>
+              <div className="grid md:grid-cols-2 gap-8">
+                {/* Plan Piloto Automático */}
+                <div className="bg-gray-50 rounded-lg p-8 border-2 border-gray-200">
+                  <h3 className="text-2xl font-bold mb-2 text-gray-900">Implementación "Piloto Automático"</h3>
+                  <p className="text-gray-600 mb-6">Ideal para: Negocios que necesitan claridad y control inmediato.</p>
+                  
+                  <div className="mb-6">
+                    <p className="text-3xl font-bold text-blue-600">Desde $1,500</p>
+                    <p className="text-gray-500">Pago único</p>
+                  </div>
+
+                  <div className="mb-8">
+                    <p className="font-semibold mb-3 text-gray-900">Entregables:</p>
+                    <ul className="space-y-2">
+                      <li className="flex items-start">
+                        <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-gray-700">Dashboard personalizado en Excel/Google Sheets</span>
+                      </li>
+                      <li className="flex items-start">
+                        <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-gray-700">Automatización de cálculos y reportes</span>
+                      </li>
+                      <li className="flex items-start">
+                        <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-gray-700">Capacitación inicial incluida</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <button className="block w-full bg-blue-600 text-white text-center py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                    Agendar Diagnóstico
+                  </button>
+                </div>
+
+                {/* Plan Cohete */}
+                <div className="bg-blue-50 rounded-lg p-8 border-2 border-blue-200 relative">
+                  <div className="absolute -top-3 right-8 bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-semibold">
+                    Más Popular
+                  </div>
+                  <h3 className="text-2xl font-bold mb-2 text-gray-900">Consultoría Estratégica "Cohete"</h3>
+                  <p className="text-gray-600 mb-6">Ideal para: Negocios que buscan optimizar y escalar con inteligencia de datos.</p>
+                  
+                  <div className="mb-6">
+                    <p className="text-3xl font-bold text-blue-600">Desde $2,500</p>
+                    <p className="text-gray-500">+ Suscripción mensual</p>
+                  </div>
+
+                  <div className="mb-8">
+                    <p className="font-semibold mb-3 text-gray-900">Entregables:</p>
+                    <ul className="space-y-2">
+                      <li className="flex items-start">
+                        <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-gray-700">Todo lo del plan Piloto Automático</span>
+                      </li>
+                      <li className="flex items-start">
+                        <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-gray-700">Análisis avanzado y modelado predictivo</span>
+                      </li>
+                      <li className="flex items-start">
+                        <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-gray-700">Reuniones mensuales de estrategia</span>
+                      </li>
+                      <li className="flex items-start">
+                        <svg className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <span className="text-gray-700">Soporte prioritario continuo</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <button className="block w-full bg-blue-600 text-white text-center py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                    Agendar Diagnóstico
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </ProtectedSection>
+
+      {/* Sección 6: CTA Final - SIEMPRE VISIBLE */}
       <section className="py-20 bg-[#002D62] text-white">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">

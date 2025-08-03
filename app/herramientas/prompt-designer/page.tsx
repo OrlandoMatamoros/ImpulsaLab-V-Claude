@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { Copy, Check, Save, History, Sparkles, Target, FileText, Palette, Shield, Package, ChevronRight, ChevronLeft, X, Trash2, Clock } from 'lucide-react'
+import ProtectedSection from '@/components/ProtectedSection'
 
 // Tipos para el formulario
 interface FormData {
@@ -97,15 +98,6 @@ const promptTemplates: Record<string, TemplateCategory> = {
         tone: "educativo inspirador, claro, adaptado a la edad",
         constraints: "Duración: [MINUTOS], incluir diversidad de estilos de aprendizaje, evaluación formativa, uso de tecnología",
         output: "Objetivos SMART, secuencia didáctica minuto a minuto, materiales necesarios, rúbricas de evaluación, actividades diferenciadas"
-      },
-      {
-        id: "course-curriculum",
-        name: "Diseño Curricular de Curso",
-        objective: "crear curriculum completo para curso o programa formativo",
-        context: "Área: [CAMPO DE ESTUDIO]\nModalidad: [PRESENCIAL/ONLINE/HÍBRIDO]\nDuración total: [SEMANAS/MESES]\nPerfil estudiantes: [BACKGROUND]\nObjetivo final: [COMPETENCIAS A DESARROLLAR]",
-        tone: "académico profesional, motivador, orientado a competencias",
-        constraints: "Alineado con estándares educativos, incluir prerrequisitos, progresión lógica, balance teoría-práctica",
-        output: "Syllabus completo, módulos con objetivos, cronograma, metodología, sistema de evaluación, recursos bibliográficos"
       }
     ]
   },
@@ -121,15 +113,6 @@ const promptTemplates: Record<string, TemplateCategory> = {
         tone: "ejecutivo persuasivo, respaldado por datos, visionario pero realista",
         constraints: "Máximo 15-20 páginas, incluir proyecciones a 3-5 años, análisis de competencia, métricas clave",
         output: "Executive summary, análisis de mercado, estrategia go-to-market, proyecciones financieras, equipo, necesidades de inversión"
-      },
-      {
-        id: "market-analysis",
-        name: "Análisis de Mercado Profundo",
-        objective: "realizar investigación y análisis exhaustivo de mercado",
-        context: "Industria: [SECTOR]\nGeografía: [REGIÓN/PAÍS]\nSegmento objetivo: [B2B/B2C ESPECÍFICO]\nCompetidores principales: [LISTA]\nTendencias relevantes: [TECNOLÓGICAS/SOCIALES/ECONÓMICAS]",
-        tone: "analítico objetivo, basado en evidencia, estratégico",
-        constraints: "Usar fuentes verificables, datos actualizados, incluir análisis PESTEL y Porter, cuantificar oportunidades",
-        output: "Tamaño de mercado, segmentación, análisis competitivo, barreras de entrada, oportunidades y amenazas, recomendaciones estratégicas"
       }
     ]
   }
@@ -264,9 +247,9 @@ export default function PromptDesigner() {
     
     if (formData.tone) {
       parts.push(`\n\n<PARAMETROS>
-• Tono: (${formData.tone})
-• Formato: [Estructurado y profesional]
-• Audiencia: [Definida en contexto]
+- Tono: (${formData.tone})
+- Formato: [Estructurado y profesional]
+- Audiencia: [Definida en contexto]
 </PARAMETROS>`)
     }
     
@@ -365,7 +348,7 @@ ${formData.constraints.split(',').map(c => `- ${c.trim()}`).join('\n')}
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50 py-12 px-4">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
+        {/* Header - SIEMPRE VISIBLE */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center p-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl mb-6">
             <Sparkles className="w-8 h-8 text-white" />
@@ -376,361 +359,371 @@ ${formData.constraints.split(',').map(c => `- ${c.trim()}`).join('\n')}
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Crea prompts profesionales paso a paso con nuestra herramienta interactiva
           </p>
-        </div>
-
-        {/* Botones de acción superior */}
-        <div className="flex justify-center gap-4 mb-8">
-          <button
-            onClick={() => setShowHistory(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-md hover:shadow-lg transition-all"
-          >
-            <History className="w-5 h-5 text-gray-600" />
-            <span className="text-gray-700">Historial</span>
-          </button>
-        </div>
-
-        {/* Templates Section */}
-        <div className="mb-12">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Templates por Industria</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            {Object.entries(promptTemplates).map(([key, category]) => (
-              <button
-                key={key}
-                onClick={() => setSelectedCategory(selectedCategory === key ? null : key)}
-                className={`p-4 rounded-xl border-2 transition-all ${
-                  selectedCategory === key
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
-                }`}
-              >
-                <div className="text-3xl mb-2">{category.icon}</div>
-                <div className="font-semibold text-gray-900">{category.name}</div>
-              </button>
-            ))}
+          <div className="mt-6 inline-flex items-center gap-2 px-6 py-3 bg-blue-100 text-blue-700 rounded-full">
+            <span className="font-medium">Próximamente: Plantillas premium y colaboración</span>
           </div>
-          
-          {selectedCategory && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fadeIn">
-              {promptTemplates[selectedCategory].templates.map((template) => (
+        </div>
+
+        {/* CONTENIDO PROTEGIDO - Toda la herramienta interactiva */}
+        <ProtectedSection
+          message="Regístrate gratis para usar nuestro Diseñador de Prompts con plantillas profesionales, historial y exportación"
+          showPreview={true}
+          previewBlur={false}
+        >
+          {/* Botones de acción superior */}
+          <div className="flex justify-center gap-4 mb-8">
+            <button
+              onClick={() => setShowHistory(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-md hover:shadow-lg transition-all"
+            >
+              <History className="w-5 h-5 text-gray-600" />
+              <span className="text-gray-700">Historial</span>
+            </button>
+          </div>
+
+          {/* Templates Section */}
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">Templates por Industria</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+              {Object.entries(promptTemplates).map(([key, category]) => (
                 <button
-                  key={template.id}
-                  onClick={() => handleTemplateSelect(template)}
-                  className="p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all text-left"
+                  key={key}
+                  onClick={() => setSelectedCategory(selectedCategory === key ? null : key)}
+                  className={`p-4 rounded-xl border-2 transition-all ${
+                    selectedCategory === key
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 bg-white hover:border-gray-300'
+                  }`}
                 >
-                  <h3 className="font-semibold text-gray-900 mb-2">{template.name}</h3>
-                  <p className="text-sm text-gray-600">{template.objective}</p>
+                  <div className="text-3xl mb-2">{category.icon}</div>
+                  <div className="font-semibold text-gray-900">{category.name}</div>
                 </button>
               ))}
             </div>
-          )}
-        </div>
-
-        {/* Main Content Grid */}
-        <div className="grid lg:grid-cols-2 gap-8">
-          {/* Formulario */}
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            {/* Progress Bar */}
-            <div className="mb-8">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm font-medium text-gray-600">Progreso</span>
-                <span className="text-sm font-medium text-gray-900">{Math.round(progress)}%</span>
-              </div>
-              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-500"
-                  style={{ width: `${progress}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Steps Navigation */}
-            <div className="flex items-center justify-between mb-8">
-              {steps.map((step, index) => {
-                const Icon = step.icon
-                const isActive = currentStep === index
-                const isComplete = isStepComplete(step.id)
-                
-                return (
+            
+            {selectedCategory && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fadeIn">
+                {promptTemplates[selectedCategory].templates.map((template) => (
                   <button
-                    key={step.id}
-                    onClick={() => setCurrentStep(index)}
-                    className="flex flex-col items-center gap-2 flex-1"
+                    key={template.id}
+                    onClick={() => handleTemplateSelect(template)}
+                    className="p-4 bg-white rounded-xl border border-gray-200 hover:border-blue-400 hover:shadow-md transition-all text-left"
                   >
-                    <div
-                      className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-                        isActive
-                          ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg scale-110'
-                          : isComplete
-                          ? 'bg-green-500 text-white'
-                          : 'bg-gray-200 text-gray-500'
-                      }`}
-                    >
-                      {isComplete && !isActive ? (
-                        <Check className="w-5 h-5" />
-                      ) : (
-                        <Icon className="w-5 h-5" />
-                      )}
-                    </div>
-                    <span className={`text-xs font-medium hidden md:block ${
-                      isActive ? 'text-blue-600' : 'text-gray-600'
-                    }`}>
-                      {step.title}
-                    </span>
+                    <h3 className="font-semibold text-gray-900 mb-2">{template.name}</h3>
+                    <p className="text-sm text-gray-600">{template.objective}</p>
                   </button>
-                )
-              })}
-            </div>
-
-            {/* Form Fields */}
-            <div className="space-y-6">
-              {currentStep === 0 && (
-                <div className="animate-fadeIn">
-                  <label className="block text-lg font-semibold text-gray-900 mb-3">
-                    ¿Qué quieres lograr?
-                  </label>
-                  <textarea
-                    value={formData.objective}
-                    onChange={(e) => setFormData({ ...formData, objective: e.target.value })}
-                    placeholder="Ejemplo: crear contenido para redes sociales, escribir código, generar ideas de negocio..."
-                    className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                    rows={4}
-                  />
-                  <div className="mt-3 p-4 bg-blue-50 rounded-lg">
-                    <p className="text-sm text-blue-700">
-                      <strong>💡 Tip:</strong> Sé específico sobre tu objetivo. En lugar de "escribir contenido", 
-                      prueba "crear 5 posts de LinkedIn sobre inteligencia artificial para CEOs".
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {currentStep === 1 && (
-                <div className="animate-fadeIn">
-                  <label className="block text-lg font-semibold text-gray-900 mb-3">
-                    Contexto y detalles específicos
-                  </label>
-                  <textarea
-                    value={formData.context}
-                    onChange={(e) => setFormData({ ...formData, context: e.target.value })}
-                    placeholder="Proporciona información relevante sobre tu proyecto, empresa, audiencia, etc."
-                    className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                    rows={4}
-                  />
-                  <div className="mt-3 p-4 bg-purple-50 rounded-lg">
-                    <p className="text-sm text-purple-700">
-                      <strong>💡 Tip:</strong> Incluye datos como tu industria, público objetivo, 
-                      valores de marca o cualquier información que ayude a personalizar el resultado.
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {currentStep === 2 && (
-                <div className="animate-fadeIn">
-                  <label className="block text-lg font-semibold text-gray-900 mb-3">
-                    Tono y estilo deseado
-                  </label>
-                  <textarea
-                    value={formData.tone}
-                    onChange={(e) => setFormData({ ...formData, tone: e.target.value })}
-                    placeholder="Ejemplo: profesional pero cercano, humorístico, técnico, inspirador..."
-                    className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                    rows={4}
-                  />
-                  <div className="mt-3 p-4 bg-green-50 rounded-lg">
-                    <p className="text-sm text-green-700">
-                      <strong>💡 Tip:</strong> El tono correcto marca la diferencia. 
-                      Piensa en cómo hablarías con tu audiencia ideal.
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {currentStep === 3 && (
-                <div className="animate-fadeIn">
-                  <label className="block text-lg font-semibold text-gray-900 mb-3">
-                    Restricciones o requisitos especiales
-                  </label>
-                  <textarea
-                    value={formData.constraints}
-                    onChange={(e) => setFormData({ ...formData, constraints: e.target.value })}
-                    placeholder="Ejemplo: máximo 500 palabras, evitar jerga técnica, incluir llamadas a la acción..."
-                    className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                    rows={4}
-                  />
-                  <div className="mt-3 p-4 bg-orange-50 rounded-lg">
-                    <p className="text-sm text-orange-700">
-                      <strong>💡 Tip:</strong> Las restricciones claras evitan resultados no deseados. 
-                      Incluye límites de longitud, formatos específicos o elementos a evitar.
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {currentStep === 4 && (
-                <div className="animate-fadeIn">
-                  <label className="block text-lg font-semibold text-gray-900 mb-3">
-                    ¿Qué resultado esperas?
-                  </label>
-                  <textarea
-                    value={formData.output}
-                    onChange={(e) => setFormData({ ...formData, output: e.target.value })}
-                    placeholder="Ejemplo: lista con 10 ideas, código completo con comentarios, plan detallado paso a paso..."
-                    className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                    rows={4}
-                  />
-                  <div className="mt-3 p-4 bg-pink-50 rounded-lg">
-                    <p className="text-sm text-pink-700">
-                      <strong>💡 Tip:</strong> Describe exactamente qué formato y estructura 
-                      necesitas para el resultado final.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Navigation Buttons */}
-            <div className="flex justify-between mt-8">
-              <button
-                onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
-                disabled={currentStep === 0}
-                className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
-                  currentStep === 0
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                <ChevronLeft className="w-5 h-5" />
-                Anterior
-              </button>
-              
-              <button
-                onClick={() => setCurrentStep(Math.min(steps.length - 1, currentStep + 1))}
-                disabled={currentStep === steps.length - 1}
-                className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
-                  currentStep === steps.length - 1
-                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-lg'
-                }`}
-              >
-                Siguiente
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Preview Panel */}
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Vista Previa</h2>
-              <div className="flex gap-2">
+          {/* Main Content Grid */}
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Formulario */}
+            <div className="bg-white rounded-2xl shadow-xl p-8">
+              {/* Progress Bar */}
+              <div className="mb-8">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium text-gray-600">Progreso</span>
+                  <span className="text-sm font-medium text-gray-900">{Math.round(progress)}%</span>
+                </div>
+                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-500"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Steps Navigation */}
+              <div className="flex items-center justify-between mb-8">
+                {steps.map((step, index) => {
+                  const Icon = step.icon
+                  const isActive = currentStep === index
+                  const isComplete = isStepComplete(step.id)
+                  
+                  return (
+                    <button
+                      key={step.id}
+                      onClick={() => setCurrentStep(index)}
+                      className="flex flex-col items-center gap-2 flex-1"
+                    >
+                      <div
+                        className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${
+                          isActive
+                            ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-lg scale-110'
+                            : isComplete
+                            ? 'bg-green-500 text-white'
+                            : 'bg-gray-200 text-gray-500'
+                        }`}
+                      >
+                        {isComplete && !isActive ? (
+                          <Check className="w-5 h-5" />
+                        ) : (
+                          <Icon className="w-5 h-5" />
+                        )}
+                      </div>
+                      <span className={`text-xs font-medium hidden md:block ${
+                        isActive ? 'text-blue-600' : 'text-gray-600'
+                      }`}>
+                        {step.title}
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Form Fields */}
+              <div className="space-y-6">
+                {currentStep === 0 && (
+                  <div className="animate-fadeIn">
+                    <label className="block text-lg font-semibold text-gray-900 mb-3">
+                      ¿Qué quieres lograr?
+                    </label>
+                    <textarea
+                      value={formData.objective}
+                      onChange={(e) => setFormData({ ...formData, objective: e.target.value })}
+                      placeholder="Ejemplo: crear contenido para redes sociales, escribir código, generar ideas de negocio..."
+                      className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      rows={4}
+                    />
+                    <div className="mt-3 p-4 bg-blue-50 rounded-lg">
+                      <p className="text-sm text-blue-700">
+                        <strong>💡 Tip:</strong> Sé específico sobre tu objetivo. En lugar de "escribir contenido", 
+                        prueba "crear 5 posts de LinkedIn sobre inteligencia artificial para CEOs".
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {currentStep === 1 && (
+                  <div className="animate-fadeIn">
+                    <label className="block text-lg font-semibold text-gray-900 mb-3">
+                      Contexto y detalles específicos
+                    </label>
+                    <textarea
+                      value={formData.context}
+                      onChange={(e) => setFormData({ ...formData, context: e.target.value })}
+                      placeholder="Proporciona información relevante sobre tu proyecto, empresa, audiencia, etc."
+                      className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      rows={4}
+                    />
+                    <div className="mt-3 p-4 bg-purple-50 rounded-lg">
+                      <p className="text-sm text-purple-700">
+                        <strong>💡 Tip:</strong> Incluye datos como tu industria, público objetivo, 
+                        valores de marca o cualquier información que ayude a personalizar el resultado.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {currentStep === 2 && (
+                  <div className="animate-fadeIn">
+                    <label className="block text-lg font-semibold text-gray-900 mb-3">
+                      Tono y estilo deseado
+                    </label>
+                    <textarea
+                      value={formData.tone}
+                      onChange={(e) => setFormData({ ...formData, tone: e.target.value })}
+                      placeholder="Ejemplo: profesional pero cercano, humorístico, técnico, inspirador..."
+                      className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      rows={4}
+                    />
+                    <div className="mt-3 p-4 bg-green-50 rounded-lg">
+                      <p className="text-sm text-green-700">
+                        <strong>💡 Tip:</strong> El tono correcto marca la diferencia. 
+                        Piensa en cómo hablarías con tu audiencia ideal.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {currentStep === 3 && (
+                  <div className="animate-fadeIn">
+                    <label className="block text-lg font-semibold text-gray-900 mb-3">
+                      Restricciones o requisitos especiales
+                    </label>
+                    <textarea
+                      value={formData.constraints}
+                      onChange={(e) => setFormData({ ...formData, constraints: e.target.value })}
+                      placeholder="Ejemplo: máximo 500 palabras, evitar jerga técnica, incluir llamadas a la acción..."
+                      className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      rows={4}
+                    />
+                    <div className="mt-3 p-4 bg-orange-50 rounded-lg">
+                      <p className="text-sm text-orange-700">
+                        <strong>💡 Tip:</strong> Las restricciones claras evitan resultados no deseados. 
+                        Incluye límites de longitud, formatos específicos o elementos a evitar.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {currentStep === 4 && (
+                  <div className="animate-fadeIn">
+                    <label className="block text-lg font-semibold text-gray-900 mb-3">
+                      ¿Qué resultado esperas?
+                    </label>
+                    <textarea
+                      value={formData.output}
+                      onChange={(e) => setFormData({ ...formData, output: e.target.value })}
+                      placeholder="Ejemplo: lista con 10 ideas, código completo con comentarios, plan detallado paso a paso..."
+                      className="w-full p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                      rows={4}
+                    />
+                    <div className="mt-3 p-4 bg-pink-50 rounded-lg">
+                      <p className="text-sm text-pink-700">
+                        <strong>💡 Tip:</strong> Describe exactamente qué formato y estructura 
+                        necesitas para el resultado final.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Navigation Buttons */}
+              <div className="flex justify-between mt-8">
                 <button
-                  onClick={handleSave}
-                  className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                  title="Guardar en historial"
+                  onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
+                  disabled={currentStep === 0}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
+                    currentStep === 0
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
                 >
-                  {saved ? (
-                    <Check className="w-5 h-5 text-green-500" />
-                  ) : (
-                    <Save className="w-5 h-5 text-gray-600" />
-                  )}
+                  <ChevronLeft className="w-5 h-5" />
+                  Anterior
                 </button>
+                
+                <button
+                  onClick={() => setCurrentStep(Math.min(steps.length - 1, currentStep + 1))}
+                  disabled={currentStep === steps.length - 1}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-lg font-medium transition-all ${
+                    currentStep === steps.length - 1
+                      ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-lg'
+                  }`}
+                >
+                  Siguiente
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Preview Panel */}
+            <div className="bg-white rounded-2xl shadow-xl p-8">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900">Vista Previa</h2>
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleSave}
+                    className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                    title="Guardar en historial"
+                  >
+                    {saved ? (
+                      <Check className="w-5 h-5 text-green-500" />
+                    ) : (
+                      <Save className="w-5 h-5 text-gray-600" />
+                    )}
+                  </button>
+                  <button
+                    onClick={handleCopy}
+                    className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                    title="Copiar prompt"
+                  >
+                    {copied ? (
+                      <Check className="w-5 h-5 text-green-500" />
+                    ) : (
+                      <Copy className="w-5 h-5 text-gray-600" />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6 min-h-[400px] font-mono text-sm">
+                {generatePrompt() ? (
+                  <div className="space-y-1">
+                    {generatePrompt().split('\n').map((line, index) => {
+                      // Resaltado de sintaxis para diferentes elementos
+                      let className = "text-gray-800"
+                      
+                      if (line.includes('<') && line.includes('>')) {
+                        className = "text-blue-600 font-semibold"
+                      } else if (line.startsWith('[') || line.includes('[')) {
+                        className = "text-purple-600"
+                      } else if (line.startsWith('{') || line.includes('{')) {
+                        className = "text-green-600"
+                      } else if (line.startsWith('•') || line.startsWith('-')) {
+                        className = "text-orange-600"
+                      } else if (line.match(/^\d\./)) {
+                        className = "text-pink-600 font-medium"
+                      } else if (line.includes('"')) {
+                        className = "text-teal-600"
+                      }
+                      
+                      return (
+                        <div key={index} className={className}>
+                          {line || '\u00A0'}
+                        </div>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                    <Sparkles className="w-12 h-12 mb-4" />
+                    <p className="text-center font-sans">
+                      Tu prompt aparecerá aquí mientras lo construyes
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Acciones adicionales */}
+              <div className="mt-6 space-y-3">
                 <button
                   onClick={handleCopy}
-                  className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                  title="Copiar prompt"
+                  disabled={!generatePrompt()}
+                  className={`w-full py-3 px-6 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${
+                    generatePrompt()
+                      ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-lg'
+                      : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                  }`}
                 >
-                  {copied ? (
-                    <Check className="w-5 h-5 text-green-500" />
-                  ) : (
-                    <Copy className="w-5 h-5 text-gray-600" />
-                  )}
+                  <Copy className="w-5 h-5" />
+                  {copied ? '¡Copiado!' : 'Copiar Prompt'}
+                </button>
+                
+                <button
+                  onClick={() => {
+                    setFormData({
+                      objective: '',
+                      context: '',
+                      tone: '',
+                      constraints: '',
+                      output: ''
+                    })
+                    setCurrentStep(0)
+                    setSelectedTemplate(null)
+                  }}
+                  className="w-full py-3 px-6 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-all"
+                >
+                  Limpiar Todo
                 </button>
               </div>
             </div>
-
-            <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6 min-h-[400px] font-mono text-sm">
-              {generatePrompt() ? (
-                <div className="space-y-1">
-                  {generatePrompt().split('\n').map((line, index) => {
-                    // Resaltado de sintaxis para diferentes elementos
-                    let className = "text-gray-800"
-                    
-                    if (line.includes('<') && line.includes('>')) {
-                      className = "text-blue-600 font-semibold"
-                    } else if (line.startsWith('[') || line.includes('[')) {
-                      className = "text-purple-600"
-                    } else if (line.startsWith('{') || line.includes('{')) {
-                      className = "text-green-600"
-                    } else if (line.startsWith('•') || line.startsWith('-')) {
-                      className = "text-orange-600"
-                    } else if (line.match(/^\d\./)) {
-                      className = "text-pink-600 font-medium"
-                    } else if (line.includes('"')) {
-                      className = "text-teal-600"
-                    }
-                    
-                    return (
-                      <div key={index} className={className}>
-                        {line || '\u00A0'}
-                      </div>
-                    )
-                  })}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-gray-400">
-                  <Sparkles className="w-12 h-12 mb-4" />
-                  <p className="text-center font-sans">
-                    Tu prompt aparecerá aquí mientras lo construyes
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* Acciones adicionales */}
-            <div className="mt-6 space-y-3">
-              <button
-                onClick={handleCopy}
-                disabled={!generatePrompt()}
-                className={`w-full py-3 px-6 rounded-lg font-medium transition-all flex items-center justify-center gap-2 ${
-                  generatePrompt()
-                    ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:shadow-lg'
-                    : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                }`}
-              >
-                <Copy className="w-5 h-5" />
-                {copied ? '¡Copiado!' : 'Copiar Prompt'}
-              </button>
-              
-              <button
-                onClick={() => {
-                  setFormData({
-                    objective: '',
-                    context: '',
-                    tone: '',
-                    constraints: '',
-                    output: ''
-                  })
-                  setCurrentStep(0)
-                  setSelectedTemplate(null)
-                }}
-                className="w-full py-3 px-6 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 transition-all"
-              >
-                Limpiar Todo
-              </button>
-            </div>
           </div>
-        </div>
 
-        {/* Modal de Historial */}
-        {showHistory && (
-          <PromptHistory
-            history={promptHistory}
-            onSelect={handleHistorySelect}
-            onDelete={handleDeleteHistory}
-            onClose={() => setShowHistory(false)}
-          />
-        )}
+          {/* Modal de Historial */}
+          {showHistory && (
+            <PromptHistory
+              history={promptHistory}
+              onSelect={handleHistorySelect}
+              onDelete={handleDeleteHistory}
+              onClose={() => setShowHistory(false)}
+            />
+          )}
+        </ProtectedSection>
       </div>
 
       <style jsx>{`

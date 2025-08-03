@@ -64,7 +64,33 @@ export function ProfessionalRecommendations({ scores, clientInfo, responses = []
       setLoading(false);
     }
   };
+  // Agregar al inicio del componente:
+const [retryCount, setRetryCount] = useState(0);
+const maxRetries = 3;
 
+// En el useEffect para generar recomendaciones:
+useEffect(() => {
+  const generateRecommendations = async () => {
+    if (retryCount >= maxRetries) {
+      setDefaultRecommendations();
+      setLoading(false);
+      return;
+    }
+
+    try {
+      // ... código existente de fetch
+    } catch (error) {
+      console.error('Error:', error);
+      setRetryCount(prev => prev + 1);
+      // Reintentar después de 2 segundos
+      setTimeout(() => {
+        generateRecommendations();
+      }, 2000);
+    }
+  };
+
+  generateRecommendations();
+}, [scores, clientInfo, responses, retryCount]);
   const setDefaultRecommendations = () => {
     // Recomendaciones por defecto si falla la IA
     const weakestAxis = Object.entries(scores).reduce((min, [key, value]) => 

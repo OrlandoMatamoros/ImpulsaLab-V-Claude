@@ -109,17 +109,29 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
     setCalculatedScores(scores);
   };
 
-  const resetDiagnostic = () => {
-    if (confirm('¿Deseas iniciar un nuevo diagnóstico? Se perderán los datos actuales.')) {
-      localStorage.removeItem('diagnostico-3d-progress');
-      setCurrentStep(0);
-      setClientInfo({});
-      setFinanceResponses([]);
-      setOperationsResponses([]);
-      setMarketingResponses([]);
-      setCalculatedScores(null);
-    }
-  };
+const resetDiagnostic = () => {
+  if (confirm('¿Deseas iniciar un nuevo diagnóstico? Se perderán los datos actuales.')) {
+    localStorage.removeItem('diagnostico-3d-progress');
+    setCurrentStep(0);
+    setClientInfo({});
+    setFinanceResponses([]);
+    setOperationsResponses([]);
+    setMarketingResponses([]);
+    setCalculatedScores(null);
+    // Recargar la página para asegurar limpieza completa
+    window.location.reload();
+  }
+};
+
+// Agregar un useEffect para detectar si es una nueva sesión:
+useEffect(() => {
+  // Si el usuario viene de la página principal, limpiar datos
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('new') === 'true') {
+    localStorage.removeItem('diagnostico-3d-progress');
+    window.location.href = window.location.pathname; // Remover el parámetro
+  }
+}, []);
 
   const handleScheduleConsultation = () => {
     // Construir URL con parámetros pre-llenados
@@ -298,28 +310,6 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
           Diagnóstico 3D Impulsa™ {isInternalMode && <span className="text-sm font-normal text-gray-600">(Modo Interno)</span>}
         </h1>
         
-        {/* Selector de modo */}
-        <div className="flex items-center gap-2 bg-gray-100 rounded-lg px-4 py-2">
-          <span className="text-sm font-medium text-gray-600">Modo:</span>
-          <button
-            onClick={() => window.location.href = '/diagnostico'}
-            className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-              !isInternalMode ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            Público
-          </button>
-          <button
-            onClick={() => window.location.href = '/diagnostico-interno'}
-            className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
-              isInternalMode ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            Consultor
-          </button>
-        </div>
-      </div>
-      
       {/* Barra de progreso */}
       <div className="mb-8">
         <div className="flex justify-between mb-2">
@@ -354,6 +344,9 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
         
         {renderStepContent()}
       </div>
+      {/* Cerrando el div principal */}
     </div>
+  );
+  </div>
   );
 }

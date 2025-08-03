@@ -87,7 +87,7 @@ export function ClientInfoStep({ clientInfo, onUpdate, onNext }: ClientInfoStepP
           name="companyName"
           value={formData.companyName}
           onChange={handleChange}
-          className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+          className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 ${
             errors.companyName ? 'border-red-500' : 'border-gray-300'
           }`}
           placeholder="Ej: Mesón Centroamericano"
@@ -104,7 +104,7 @@ export function ClientInfoStep({ clientInfo, onUpdate, onNext }: ClientInfoStepP
           name="contactName"
           value={formData.contactName}
           onChange={handleChange}
-          className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+          className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 ${
             errors.contactName ? 'border-red-500' : 'border-gray-300'
           }`}
           placeholder="Ej: Juan Pérez"
@@ -120,7 +120,7 @@ export function ClientInfoStep({ clientInfo, onUpdate, onNext }: ClientInfoStepP
           name="industry"
           value={formData.industry}
           onChange={handleChange}
-          className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+          className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 ${
             errors.industry ? 'border-red-500' : 'border-gray-300'
           }`}
         >
@@ -142,7 +142,7 @@ export function ClientInfoStep({ clientInfo, onUpdate, onNext }: ClientInfoStepP
             name="employeeCount"
             value={formData.employeeCount}
             onChange={handleChange}
-            className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 ${
               errors.employeeCount ? 'border-red-500' : 'border-gray-300'
             }`}
             placeholder="Ej: 10"
@@ -160,7 +160,9 @@ export function ClientInfoStep({ clientInfo, onUpdate, onNext }: ClientInfoStepP
             name="annualRevenue"
             value={formData.annualRevenue}
             onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+           className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 ${
+            errors.annualRevenue ? 'border-red-500' : 'border-gray-300'
+          }`}
             placeholder="Ej: 500000"
             min="0"
           />
@@ -176,9 +178,10 @@ export function ClientInfoStep({ clientInfo, onUpdate, onNext }: ClientInfoStepP
           name="email"
           value={formData.email}
           onChange={handleChange}
-          className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+          className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 ${
             errors.email ? 'border-red-500' : 'border-gray-300'
           }`}
+          
           placeholder="contacto@empresa.com"
         />
         {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
@@ -193,7 +196,9 @@ export function ClientInfoStep({ clientInfo, onUpdate, onNext }: ClientInfoStepP
           name="phone"
           value={formData.phone}
           onChange={handleChange}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 ${
+            errors.phone ? 'border-red-500' : 'border-gray-300'
+          }`}
           placeholder="+1 234 567 8900"
         />
       </div>

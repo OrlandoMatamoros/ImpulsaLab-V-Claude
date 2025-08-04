@@ -1,21 +1,38 @@
-import { initializeApp } from 'firebase/app';
+// lib/firebase.ts
+import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
-import { getStorage } from 'firebase/storage';
+import { getAnalytics, isSupported } from 'firebase/analytics';
 
+// Configuración segura con variables de entorno
 const firebaseConfig = {
-  apiKey: "AIzaSyDWf2DD7DkgH7P8vsRiAA11mIBbqvlkPYo",
-  authDomain: "impulsa-lab.firebaseapp.com",
-  databaseURL: "https://impulsa-lab-default-rtdb.firebaseio.com",
-  projectId: "impulsa-lab",
-  storageBucket: "impulsa-lab.firebasestorage.app",
-  messagingSenderId: "778240447733",
-  appId: "1:778240447733:web:d245261ca01b1bec3ba1bc"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
-const app = initializeApp(firebaseConfig);
-export const db = getFirestore(app);
-export const auth = getAuth(app);
-export const storage = getStorage(app);
+// Validación de configuración
+if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+  console.error('⚠️ Firebase configuration is incomplete. Check your .env.local file');
+}
 
-export default app;
+// Initialize Firebase (singleton pattern)
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+
+// Initialize Firestore
+export const db = getFirestore(app);
+
+// Initialize Auth
+export const auth = getAuth(app);
+
+// Initialize Analytics (only in browser)
+// Analytics - desactivado en desarrollo
+export const analytics = null;
+
+// Para activar en producción, descomentar:
+// export const analytics = typeof window !== 'undefined' && process.env.NODE_ENV === 'production'
+//   ? isSupported().then(yes => yes ? getAnalytics(app) : null)
+//   : null;

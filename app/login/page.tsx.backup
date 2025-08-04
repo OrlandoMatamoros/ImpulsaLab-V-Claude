@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, Suspense } from 'react'
+import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/FirebaseAuthContext'
@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2 } from 'lucide-react'
 
-function LoginPageContent() {
+export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
@@ -130,20 +130,5 @@ function LoginPageContent() {
         </form>
       </Card>
     </div>
-  )
-}
-
-// Wrapper con Suspense para evitar el error de build
-export default function LoginPage() {
-  return (
-    <Suspense 
-      fallback={
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#002D62]"></div>
-        </div>
-      }
-    >
-      <LoginPageContent />
-    </Suspense>
   )
 }

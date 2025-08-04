@@ -158,42 +158,82 @@ export function ResultsDashboard({
       const lightGray: [number, number, number] = [245, 245, 245];
       const darkGray: [number, number, number] = [64, 64, 64];
       
-      // Función mejorada para limpiar texto y evitar caracteres problemáticos
+      // Función MEJORADA para manejar texto con UTF-8 correctamente
       const cleanText = (text: string): string => {
         if (!text) return '';
         
-        // Mapeo completo de caracteres especiales
-        const replacements: { [key: string]: string } = {
-          'á': 'a', 'à': 'a', 'ä': 'a', 'â': 'a', 'ã': 'a',
-          'é': 'e', 'è': 'e', 'ë': 'e', 'ê': 'e',
-          'í': 'i', 'ì': 'i', 'ï': 'i', 'î': 'i',
-          'ó': 'o', 'ò': 'o', 'ö': 'o', 'ô': 'o', 'õ': 'o',
-          'ú': 'u', 'ù': 'u', 'ü': 'u', 'û': 'u',
-          'ñ': 'n',
-          'Á': 'A', 'À': 'A', 'Ä': 'A', 'Â': 'A', 'Ã': 'A',
-          'É': 'E', 'È': 'E', 'Ë': 'E', 'Ê': 'E',
-          'Í': 'I', 'Ì': 'I', 'Ï': 'I', 'Î': 'I',
-          'Ó': 'O', 'Ò': 'O', 'Ö': 'O', 'Ô': 'O', 'Õ': 'O',
-          'Ú': 'U', 'Ù': 'U', 'Ü': 'U', 'Û': 'U',
-          'Ñ': 'N',
-          '¿': '', '¡': '', '°': 'o', '€': 'EUR', '£': 'GBP', '$': 'USD',
-          '–': '-', '—': '-', '"': '"', "'": "'",
-          '…': '...', '•': '*', '×': 'x', '÷': '/', '™': 'TM', '®': '(R)', '©': '(C)'
-        };
-        
-        // Reemplazar caracteres especiales
-        let cleanedText = text;
-        for (const [char, replacement] of Object.entries(replacements)) {
-          cleanedText = cleanedText.replace(new RegExp(char, 'g'), replacement);
+        // No eliminar caracteres especiales, mantenerlos
+        return text.trim();
+      };
+      
+      // Configurar fuente con soporte UTF-8
+      pdf.setFont('helvetica', 'normal');
+      
+      // Función auxiliar para texto UTF-8
+      const addTextUTF8 = (text: string, x: number, y: number, options?: any) => {
+        try {
+          // Intentar primero con el texto original
+          pdf.text(text, x, y, options);
+        } catch (error) {
+          // Si falla, usar un fallback más robusto
+          console.warn('Error con caracteres especiales, usando fallback:', error);
+          const fallbackText = text
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '') // Eliminar diacríticos
+            .replace(/[^\x00-\x7F]/g, (char) => {
+              // Mapeo manual para caracteres comunes
+              const charMap: { [key: string]: string } = {
+                'á': 'a', 'à': 'a', 'ä': 'a', 'â': 'a', 'ã': 'a', 'å': 'a', 'ą': 'a',
+                'é': 'e', 'è': 'e', 'ë': 'e', 'ê': 'e', 'ę': 'e', 'ė': 'e', 'ē': 'e',
+                'í': 'i', 'ì': 'i', 'ï': 'i', 'î': 'i', 'į': 'i', 'ī': 'i',
+                'ó': 'o', 'ò': 'o', 'ö': 'o', 'ô': 'o', 'õ': 'o', 'ø': 'o', 'ō': 'o',
+                'ú': 'u', 'ù': 'u', 'ü': 'u', 'û': 'u', 'ū': 'u', 'ų': 'u',
+                'ñ': 'n', 'ń': 'n', 'ň': 'n', 'ņ': 'n',
+                'ç': 'c', 'ć': 'c', 'č': 'c',
+                'ž': 'z', 'ź': 'z', 'ż': 'z',
+                'š': 's', 'ś': 's', 'ș': 's',
+                'ľ': 'l', 'ł': 'l',
+                'ý': 'y', 'ÿ': 'y',
+                'đ': 'd', 'ď': 'd',
+                'ř': 'r', 'ŕ': 'r',
+                'ť': 't', 'ț': 't',
+                'ě': 'e',
+                'ů': 'u',
+                // Mayúsculas
+                'Á': 'A', 'À': 'A', 'Ä': 'A', 'Â': 'A', 'Ã': 'A', 'Å': 'A', 'Ą': 'A',
+                'É': 'E', 'È': 'E', 'Ë': 'E', 'Ê': 'E', 'Ę': 'E', 'Ė': 'E', 'Ē': 'E',
+                'Í': 'I', 'Ì': 'I', 'Ï': 'I', 'Î': 'I', 'Į': 'I', 'Ī': 'I',
+                'Ó': 'O', 'Ò': 'O', 'Ö': 'O', 'Ô': 'O', 'Õ': 'O', 'Ø': 'O', 'Ō': 'O',
+                'Ú': 'U', 'Ù': 'U', 'Ü': 'U', 'Û': 'U', 'Ū': 'U', 'Ų': 'U',
+                'Ñ': 'N', 'Ń': 'N', 'Ň': 'N', 'Ņ': 'N',
+                'Ç': 'C', 'Ć': 'C', 'Č': 'C',
+                'Ž': 'Z', 'Ź': 'Z', 'Ż': 'Z',
+                'Š': 'S', 'Ś': 'S', 'Ș': 'S',
+                'Ľ': 'L', 'Ł': 'L',
+                'Ý': 'Y', 'Ÿ': 'Y',
+                'Đ': 'D', 'Ď': 'D',
+                'Ř': 'R', 'Ŕ': 'R',
+                'Ť': 'T', 'Ț': 'T',
+                'Ě': 'E',
+                'Ů': 'U',
+                // Símbolos
+                '€': 'EUR', '£': 'GBP', '¥': 'JPY', '₹': 'INR', '¢': 'c',
+                '©': '(C)', '®': '(R)', '™': 'TM', '℠': 'SM',
+                '°': 'o', '№': 'No', '℃': 'C', '℉': 'F',
+                '¼': '1/4', '½': '1/2', '¾': '3/4',
+                '×': 'x', '÷': '/', '±': '+/-', '≈': '~', '≠': '!=', '≤': '<=', '≥': '>=',
+                '←': '<-', '→': '->', '↑': '^', '↓': 'v',
+                '•': '*', '·': '.', '…': '...', '–': '-', '—': '--',
+                '"': '"', '“': '"', '”': '"', '‘': "'", '’': "'",
+                '¿': '?', '¡': '!',
+                // Espacios especiales
+                '\u00A0': ' ', '\u2002': ' ', '\u2003': ' ', '\u2009': ' ',
+              };
+              return charMap[char] || '';
+            });
+          
+          pdf.text(fallbackText, x, y, options);
         }
-        
-        // Eliminar cualquier otro carácter no ASCII
-        cleanedText = cleanedText.replace(/[^\x00-\x7F]/g, '');
-        
-        // Limpiar espacios múltiples
-        cleanedText = cleanedText.replace(/\s+/g, ' ').trim();
-        
-        return cleanedText;
       };
       
       // Función mejorada para texto con word wrap y control de paginación
@@ -208,12 +248,11 @@ export function ResultsDashboard({
         style: string = 'normal',
         color: [number, number, number] = black
       ): number => {
-        const cleanedText = cleanText(text);
         pdf.setFontSize(fontSize);
         pdf.setFont(font, style);
         pdf.setTextColor(...color);
         
-        const lines = pdf.splitTextToSize(cleanedText, maxWidth);
+        const lines = pdf.splitTextToSize(text, maxWidth);
         let currentY = y;
         
         for (const line of lines) {
@@ -221,8 +260,10 @@ export function ResultsDashboard({
           if (currentY > pageHeight - 25) {
             pdf.addPage();
             currentY = 30;
+            // Agregar número de página si cambiamos
+            addPageNumber(pdf.getCurrentPageInfo().pageNumber, 7);
           }
-          pdf.text(line, x, currentY);
+          addTextUTF8(line, x, currentY);
           currentY += lineHeight;
         }
         
@@ -240,6 +281,8 @@ export function ResultsDashboard({
         if (yPos > pageHeight - 50) {
           pdf.addPage();
           yPos = 30;
+          // Agregar número de página
+          addPageNumber(pdf.getCurrentPageInfo().pageNumber, 7);
         }
         
         if (addTopMargin && yPos > 40) {
@@ -251,7 +294,7 @@ export function ResultsDashboard({
         pdf.setTextColor(...white);
         pdf.setFontSize(14);
         pdf.setFont('helvetica', 'bold');
-        pdf.text(cleanText(title), 20, yPos);
+        addTextUTF8(title, 20, yPos);
         pdf.setTextColor(...black);
         
         return yPos + 12;
@@ -262,7 +305,7 @@ export function ResultsDashboard({
         pdf.setFontSize(9);
         pdf.setTextColor(...gray);
         pdf.setFont('helvetica', 'normal');
-        pdf.text(`Pagina ${pageNum} de ${totalPages}`, pageWidth - 20, pageHeight - 10, { align: 'right' });
+        addTextUTF8(`Página ${pageNum} de ${totalPages}`, pageWidth - 20, pageHeight - 10, { align: 'right' });
       };
 
       // Función CORREGIDA para dibujar barra de progreso
@@ -274,30 +317,33 @@ export function ResultsDashboard({
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(12);
         pdf.setTextColor(...black);
-        pdf.text(`${label}:`, 25, validY);
+        addTextUTF8(`${label}:`, 25, validY);
         
         // Score numérico
         pdf.setFont('helvetica', 'normal');
-        pdf.text(`${validScore}/100`, 160, validY);
+        addTextUTF8(`${validScore}/100`, 160, validY);
         
         // Barra de fondo
         pdf.setFillColor(...lightGray);
         pdf.roundedRect(25, validY + 2, 130, 8, 2, 2, 'F');
         
         // Barra de progreso
-        pdf.setFillColor(...color);
-        const progressWidth = (validScore / 100) * 130;
-        pdf.roundedRect(25, validY + 2, progressWidth, 8, 2, 2, 'F');
+        if (validScore > 0) {
+          pdf.setFillColor(...color);
+          const progressWidth = Math.max(1, (validScore / 100) * 130);
+          pdf.roundedRect(25, validY + 2, progressWidth, 8, 2, 2, 'F');
+        }
         
-        // Indicador de benchmark (CORREGIDO)
-        const benchmarkScore = benchmarks[label.toLowerCase() as keyof typeof benchmarks] || 50;
+        // Indicador de benchmark
+        const benchmarkKey = label.toLowerCase() as keyof typeof benchmarks;
+        const benchmarkScore = benchmarks[benchmarkKey] || 50;
         const benchmarkX = 25 + (benchmarkScore / 100) * 130;
         
         // Validar coordenadas antes de dibujar la línea
         if (isFinite(benchmarkX) && benchmarkX >= 25 && benchmarkX <= 155) {
           pdf.setDrawColor(...darkGray);
           pdf.setLineWidth(2);
-          // LÍNEA CORREGIDA: usar 4 parámetros numéricos válidos
+          // Línea vertical para benchmark
           pdf.line(benchmarkX, validY + 1, benchmarkX, validY + 11);
         }
         
@@ -323,27 +369,26 @@ export function ResultsDashboard({
       pdf.setTextColor(...primaryBlue);
       pdf.setFontSize(14);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('IMPULSA', 30, 37);
+      addTextUTF8('IMPULSA', 30, 37);
       pdf.setFontSize(18);
-      pdf.text('LAB', 30, 45);
+      addTextUTF8('LAB', 30, 45);
       
-      // Línea decorativa bajo el logo (CORREGIDA)
+      // Línea decorativa bajo el logo
       pdf.setDrawColor(...secondaryBlue);
       pdf.setLineWidth(2);
-      // LÍNEA CORREGIDA: coordenadas válidas
       pdf.line(85, 37, 100, 37);
       
       // Título principal con sombra
       pdf.setTextColor(...white);
       pdf.setFontSize(40);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('DIAGNOSTICO 3D', pageWidth / 2, 75, { align: 'center' });
+      addTextUTF8('DIAGNÓSTICO 3D', pageWidth / 2, 75, { align: 'center' });
       
       pdf.setFontSize(20);
       pdf.setFont('helvetica', 'normal');
-      pdf.text('IMPULSA BUSINESS INTELLIGENCE', pageWidth / 2, 90, { align: 'center' });
+      addTextUTF8('IMPULSA BUSINESS INTELLIGENCE', pageWidth / 2, 90, { align: 'center' });
       
-      // Doble línea decorativa (CORREGIDA)
+      // Doble línea decorativa
       pdf.setDrawColor(...white);
       pdf.setLineWidth(3);
       pdf.line(30, 100, pageWidth - 30, 100);
@@ -351,9 +396,8 @@ export function ResultsDashboard({
       pdf.line(35, 104, pageWidth - 35, 104);
       
       // Información del cliente en un recuadro
-      const companyName = cleanText(clientInfo?.companyName || clientInfo?.name || 'Tu Empresa');
-      const contactName = cleanText(clientInfo?.contactName || '');
-      const cleanIndustry = cleanText(industryName);
+      const companyName = clientInfo?.companyName || clientInfo?.name || 'Tu Empresa';
+      const contactName = clientInfo?.contactName || '';
       const employeeCount = clientInfo?.employees || clientInfo?.employeeCount || '';
       
       // Recuadro para información del cliente
@@ -362,16 +406,16 @@ export function ResultsDashboard({
       
       pdf.setFontSize(24);
       pdf.setFont('helvetica', 'bold');
-      pdf.text(companyName.toUpperCase(), pageWidth / 2, 130, { align: 'center' });
+      addTextUTF8(companyName.toUpperCase(), pageWidth / 2, 130, { align: 'center' });
       
       pdf.setFontSize(14);
       pdf.setFont('helvetica', 'normal');
       if (contactName) {
-        pdf.text(`Contacto: ${contactName}`, pageWidth / 2, 140, { align: 'center' });
+        addTextUTF8(`Contacto: ${contactName}`, pageWidth / 2, 140, { align: 'center' });
       }
-      pdf.text(`Industria: ${cleanIndustry}`, pageWidth / 2, 148, { align: 'center' });
+      addTextUTF8(`Industria: ${industryName}`, pageWidth / 2, 148, { align: 'center' });
       if (employeeCount) {
-        pdf.text(`Empleados: ${employeeCount}`, pageWidth / 2, 156, { align: 'center' });
+        addTextUTF8(`Empleados: ${employeeCount}`, pageWidth / 2, 156, { align: 'center' });
       }
       
       // Score Global con diseño mejorado
@@ -396,20 +440,20 @@ export function ResultsDashboard({
       pdf.setTextColor(...primaryBlue);
       pdf.setFontSize(52);
       pdf.setFont('helvetica', 'bold');
-      pdf.text(averageScore.toString(), pageWidth / 2, 195, { align: 'center' });
+      addTextUTF8(averageScore.toString(), pageWidth / 2, 195, { align: 'center' });
       
       pdf.setFontSize(14);
       pdf.setTextColor(...gray);
-      pdf.text('/100', pageWidth / 2 + 22, 190);
+      addTextUTF8('/100', pageWidth / 2 + 22, 190);
       
       // Etiquetas del score
       pdf.setTextColor(...white);
       pdf.setFontSize(14);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('PUNTUACION GLOBAL', pageWidth / 2, 240, { align: 'center' });
+      addTextUTF8('PUNTUACIÓN GLOBAL', pageWidth / 2, 240, { align: 'center' });
       
       // Badge de etapa con colores
-      const stageColor = businessStage.stage === 'Expansion' ? green :
+      const stageColor = businessStage.stage === 'Expansión' ? green :
                         businessStage.stage === 'Crecimiento' ? secondaryBlue : 
                         [255, 193, 7] as [number, number, number];
       
@@ -419,11 +463,11 @@ export function ResultsDashboard({
       pdf.setTextColor(...white);
       pdf.setFontSize(16);
       pdf.setFont('helvetica', 'bold');
-      pdf.text(businessStage.stage.toUpperCase(), pageWidth / 2, 255, { align: 'center' });
+      addTextUTF8(businessStage.stage.toUpperCase(), pageWidth / 2, 255, { align: 'center' });
       
       pdf.setFontSize(13);
       pdf.setFont('helvetica', 'normal');
-      pdf.text(cleanText(businessStage.description), pageWidth / 2, 265, { align: 'center' });
+      addTextUTF8(businessStage.description, pageWidth / 2, 265, { align: 'center' });
       
       // Footer elegante
       pdf.setTextColor(255, 255, 255, 0.7);
@@ -433,11 +477,11 @@ export function ResultsDashboard({
         month: 'long', 
         day: 'numeric' 
       });
-      pdf.text(`Generado el ${currentDate}`, pageWidth / 2, 275, { align: 'center' });
+      addTextUTF8(`Generado el ${currentDate}`, pageWidth / 2, 275, { align: 'center' });
       
       pdf.setTextColor(255, 255, 255, 0.5);
       pdf.setFontSize(9);
-      pdf.text('www.tuimpulsalab.com | contacto@tuimpulsalab.com | +57 311 266 9878', pageWidth / 2, 285, { align: 'center' });
+      addTextUTF8('www.tuimpulsalab.com | contacto@tuimpulsalab.com | +57 311 266 9878', pageWidth / 2, 285, { align: 'center' });
 
       // ===================
       // PÁGINA 2: RESUMEN EJECUTIVO
@@ -453,7 +497,7 @@ export function ResultsDashboard({
       pdf.setTextColor(...white);
       pdf.setFontSize(20);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('RESUMEN EJECUTIVO', 20, 22);
+      addTextUTF8('RESUMEN EJECUTIVO', 20, 22);
       
       let yPos = 50;
       
@@ -464,7 +508,7 @@ export function ResultsDashboard({
       pdf.setTextColor(...black);
       pdf.setFontSize(14);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('Informacion General', 20, yPos + 5);
+      addTextUTF8('Información General', 20, yPos + 5);
       
       yPos += 12;
       pdf.setFontSize(11);
@@ -473,20 +517,20 @@ export function ResultsDashboard({
       const infoItems = [
         `Empresa: ${companyName}`,
         `Contacto: ${contactName || 'No especificado'}`,
-        `Industria: ${cleanIndustry}`,
+        `Industria: ${industryName}`,
         `Fecha: ${currentDate}`,
         `Preguntas respondidas: ${responses.length}`
       ];
       
       infoItems.forEach(item => {
-        pdf.text(item, 25, yPos);
+        addTextUTF8(item, 25, yPos);
         yPos += 6;
       });
       
       yPos += 10;
 
       // Puntuaciones con barras visuales mejoradas
-      yPos = addSectionHeader('Puntuaciones por Dimension', yPos);
+      yPos = addSectionHeader('Puntuaciones por Dimensión', yPos);
       yPos += 5;
       
       yPos = drawProgressBar('Finanzas', finalScores.finance, secondaryBlue, yPos);
@@ -496,12 +540,12 @@ export function ResultsDashboard({
       yPos += 10;
 
       // Comparación con industria en tabla
-      yPos = addSectionHeader('Comparacion con Industria', yPos);
+      yPos = addSectionHeader('Comparación con Industria', yPos);
       yPos += 5;
       
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(11);
-      pdf.text(`Benchmark promedio en ${cleanIndustry}:`, 25, yPos);
+      addTextUTF8(`Benchmark promedio en ${industryName}:`, 25, yPos);
       yPos += 8;
       
       // Crear tabla de comparación
@@ -537,7 +581,7 @@ export function ResultsDashboard({
         pdf.circle(28, yPos - 2, 2, 'F');
         
         pdf.setTextColor(...black);
-        pdf.text(`${comp.name}: ${comp.benchmark} pts`, 35, yPos);
+        addTextUTF8(`${comp.name}: ${comp.benchmark} pts`, 35, yPos);
         
         // Badge de status
         pdf.setFillColor(...statusColor);
@@ -545,13 +589,13 @@ export function ResultsDashboard({
         pdf.setTextColor(...white);
         pdf.setFontSize(9);
         pdf.setFont('helvetica', 'bold');
-        pdf.text(status, 117, yPos - 0.5, { align: 'center' });
+        addTextUTF8(status, 117, yPos - 0.5, { align: 'center' });
         
         // Diferencia
         pdf.setTextColor(...black);
         pdf.setFont('helvetica', 'normal');
         pdf.setFontSize(11);
-        pdf.text(`(${diff >= 0 ? '+' : ''}${diff} pts)`, 140, yPos);
+        addTextUTF8(`(${diff >= 0 ? '+' : ''}${diff} pts)`, 140, yPos);
         
         yPos += 8;
       });
@@ -559,7 +603,7 @@ export function ResultsDashboard({
       yPos += 10;
 
       // Insights clave con iconos
-      yPos = addSectionHeader('Insights Clave del Diagnostico', yPos);
+      yPos = addSectionHeader('Insights Clave del Diagnóstico', yPos);
       yPos += 5;
       
       const strongAxis = strongestAxis.key === 'finance' ? 'Finanzas' : 
@@ -576,7 +620,7 @@ export function ResultsDashboard({
         {
           icon: '!',
           color: [239, 68, 68] as [number, number, number],
-          text: `Area critica: ${weakAxis} (${weakestAxis.value} puntos)`
+          text: `Área crítica: ${weakAxis} (${weakestAxis.value} puntos)`
         },
         {
           icon: '>',
@@ -602,13 +646,13 @@ export function ResultsDashboard({
         pdf.setTextColor(...white);
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(10);
-        pdf.text(insight.icon, 29, yPos, { align: 'center' });
+        addTextUTF8(insight.icon, 29, yPos, { align: 'center' });
         
         // Text
         pdf.setTextColor(...black);
         pdf.setFont('helvetica', 'normal');
         pdf.setFontSize(11);
-        pdf.text(insight.text, 37, yPos);
+        addTextUTF8(insight.text, 37, yPos);
         yPos += 9;
       });
 
@@ -624,12 +668,12 @@ export function ResultsDashboard({
       pdf.setTextColor(...white);
       pdf.setFontSize(20);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('ANALISIS DETALLADO POR DIMENSION', 20, 22);
+      addTextUTF8('ANÁLISIS DETALLADO POR DIMENSIÓN', 20, 22);
       
       yPos = 50;
       
       // Análisis de Finanzas
-      yPos = addSectionHeader('DIMENSION: FINANZAS', yPos, secondaryBlue);
+      yPos = addSectionHeader('DIMENSIÓN: FINANZAS', yPos, secondaryBlue);
       
       // Score card
       pdf.setFillColor(59, 130, 246, 0.1);
@@ -638,10 +682,10 @@ export function ResultsDashboard({
       pdf.setFontSize(14);
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(...secondaryBlue);
-      pdf.text(`Score: ${finalScores.finance}/100`, 30, yPos + 10);
+      addTextUTF8(`Score: ${finalScores.finance}/100`, 30, yPos + 10);
       
       pdf.setTextColor(...black);
-      pdf.text(`Benchmark ${cleanIndustry}: ${benchmarks.finance}`, 90, yPos + 10);
+      addTextUTF8(`Benchmark ${industryName}: ${benchmarks.finance}`, 90, yPos + 10);
       
       const financeDiff = finalScores.finance - benchmarks.finance;
       const financeStatus = financeDiff >= 0 ? 'SUPERIOR' : 'POR MEJORAR';
@@ -650,7 +694,7 @@ export function ResultsDashboard({
       } else {
         pdf.setTextColor(239, 68, 68);
       }
-      pdf.text(`${financeStatus} (${financeDiff >= 0 ? '+' : ''}${financeDiff})`, 30, yPos + 18);
+      addTextUTF8(`${financeStatus} (${financeDiff >= 0 ? '+' : ''}${financeDiff})`, 30, yPos + 18);
       
       yPos += 30;
       
@@ -661,12 +705,12 @@ export function ResultsDashboard({
       
       const financeAnalysis = 
         finalScores.finance >= 80 ? 
-          `Excelente gestion financiera. ${companyName} demuestra control excepcional con sistemas maduros de planificacion y seguimiento. El score de ${finalScores.finance} supera ampliamente el promedio de ${benchmarks.finance} en ${cleanIndustry}, posicionando a la empresa en el top 10% del sector.` :
+          `Excelente gestión financiera. ${companyName} demuestra control excepcional con sistemas maduros de planificación y seguimiento. El score de ${finalScores.finance} supera ampliamente el promedio de ${benchmarks.finance} en ${industryName}, posicionando a la empresa en el top 10% del sector.` :
         finalScores.finance >= 60 ?
-          `Control financiero solido con oportunidades de optimizacion. Con ${finalScores.finance} puntos, la empresa ${financeDiff >= 0 ? 'supera' : 'se aproxima al'} benchmark de la industria. Implementar dashboards en tiempo real y automatizacion de reportes puede elevar el score 15-20 puntos adicionales.` :
+          `Control financiero sólido con oportunidades de optimización. Con ${finalScores.finance} puntos, la empresa ${financeDiff >= 0 ? 'supera' : 'se aproxima al'} benchmark de la industria. Implementar dashboards en tiempo real y automatización de reportes puede elevar el score 15-20 puntos adicionales.` :
         finalScores.finance >= 40 ?
-          `Control financiero basico que requiere fortalecimiento. El score de ${finalScores.finance} indica sistemas fundamentales implementados pero con brechas en visibilidad y predictibilidad. La industria ${cleanIndustry} promedia ${benchmarks.finance} puntos, representando una oportunidad de mejora del ${Math.round(((benchmarks.finance - finalScores.finance) / finalScores.finance) * 100)}%.` :
-          `Gestion financiera reactiva que limita el crecimiento. Con ${finalScores.finance} puntos, existe una brecha critica de ${benchmarks.finance - finalScores.finance} puntos respecto al estandar industrial. Esta situacion requiere intervencion inmediata para evitar riesgos de liquidez y perdida de oportunidades.`;
+          `Control financiero básico que requiere fortalecimiento. El score de ${finalScores.finance} indica sistemas fundamentales implementados pero con brechas en visibilidad y predictibilidad. La industria ${industryName} promedia ${benchmarks.finance} puntos, representando una oportunidad de mejora del ${Math.round(((benchmarks.finance - finalScores.finance) / finalScores.finance) * 100)}%.` :
+          `Gestión financiera reactiva que limita el crecimiento. Con ${finalScores.finance} puntos, existe una brecha crítica de ${benchmarks.finance - finalScores.finance} puntos respecto al estándar industrial. Esta situación requiere intervención inmediata para evitar riesgos de liquidez y pérdida de oportunidades.`;
       
       yPos = addWrappedText(financeAnalysis, 25, yPos, pageWidth - 50, 6) + 8;
       
@@ -677,24 +721,24 @@ export function ResultsDashboard({
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(10);
       pdf.setTextColor(...secondaryBlue);
-      pdf.text('ROI Esperado:', 25, yPos + 3);
+      addTextUTF8('ROI Esperado:', 25, yPos + 3);
       pdf.setTextColor(...black);
-      pdf.text(`${finalScores.finance < 60 ? '250-400%' : '150-200%'} en 12 meses`, 60, yPos + 3);
+      addTextUTF8(`${finalScores.finance < 60 ? '250-400%' : '150-200%'} en 12 meses`, 60, yPos + 3);
       
       pdf.setTextColor(...secondaryBlue);
-      pdf.text('Tiempo:', 25, yPos + 10);
+      addTextUTF8('Tiempo:', 25, yPos + 10);
       pdf.setTextColor(...black);
-      pdf.text(`${finalScores.finance < 60 ? '30-45' : '15-30'} dias para primeros resultados`, 50, yPos + 10);
+      addTextUTF8(`${finalScores.finance < 60 ? '30-45' : '15-30'} días para primeros resultados`, 50, yPos + 10);
       
       pdf.setTextColor(...secondaryBlue);
-      pdf.text('Inversion:', 100, yPos + 10);
+      addTextUTF8('Inversión:', 100, yPos + 10);
       pdf.setTextColor(...black);
-      pdf.text(`${finalScores.finance < 60 ? 'Media-Alta' : 'Baja-Media'}`, 130, yPos + 10);
+      addTextUTF8(`${finalScores.finance < 60 ? 'Media-Alta' : 'Baja-Media'}`, 130, yPos + 10);
       
       yPos += 25;
 
       // Análisis de Operaciones
-      yPos = addSectionHeader('DIMENSION: OPERACIONES', yPos, green);
+      yPos = addSectionHeader('DIMENSIÓN: OPERACIONES', yPos, green);
       
       // Score card
       pdf.setFillColor(16, 185, 129, 0.1);
@@ -703,10 +747,10 @@ export function ResultsDashboard({
       pdf.setFontSize(14);
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(...green);
-      pdf.text(`Score: ${finalScores.operations}/100`, 30, yPos + 10);
+      addTextUTF8(`Score: ${finalScores.operations}/100`, 30, yPos + 10);
       
       pdf.setTextColor(...black);
-      pdf.text(`Benchmark ${cleanIndustry}: ${benchmarks.operations}`, 90, yPos + 10);
+      addTextUTF8(`Benchmark ${industryName}: ${benchmarks.operations}`, 90, yPos + 10);
       
       const opsDiff = finalScores.operations - benchmarks.operations;
       const opsStatus = opsDiff >= 0 ? 'SUPERIOR' : 'POR MEJORAR';
@@ -715,7 +759,7 @@ export function ResultsDashboard({
       } else {
         pdf.setTextColor(239, 68, 68);
       }
-      pdf.text(`${opsStatus} (${opsDiff >= 0 ? '+' : ''}${opsDiff})`, 30, yPos + 18);
+      addTextUTF8(`${opsStatus} (${opsDiff >= 0 ? '+' : ''}${opsDiff})`, 30, yPos + 18);
       
       yPos += 30;
       
@@ -726,12 +770,12 @@ export function ResultsDashboard({
       
       const operationsAnalysis = 
         finalScores.operations >= 80 ?
-          `Operaciones de clase mundial con procesos optimizados. El score de ${finalScores.operations} supera el benchmark de ${benchmarks.operations}, demostrando excelencia operacional. Los procesos estan documentados, automatizados y permiten escalabilidad sin incremento proporcional de recursos.` :
+          `Operaciones de clase mundial con procesos optimizados. El score de ${finalScores.operations} supera el benchmark de ${benchmarks.operations}, demostrando excelencia operacional. Los procesos están documentados, automatizados y permiten escalabilidad sin incremento proporcional de recursos.` :
         finalScores.operations >= 60 ?
-          `Operaciones eficientes con potencial de automatizacion. Con ${finalScores.operations} puntos, la empresa ${opsDiff >= 0 ? 'supera' : 'se acerca al'} promedio industrial. Automatizar 2-3 procesos clave adicionales puede liberar 15-20 horas semanales del equipo para actividades estrategicas.` :
+          `Operaciones eficientes con potencial de automatización. Con ${finalScores.operations} puntos, la empresa ${opsDiff >= 0 ? 'supera' : 'se acerca al'} promedio industrial. Automatizar 2-3 procesos clave adicionales puede liberar 15-20 horas semanales del equipo para actividades estratégicas.` :
         finalScores.operations >= 40 ?
-          `Operaciones funcionales pero manuales. El score de ${finalScores.operations} revela dependencia de procesos manuales que limitan la escalabilidad. Con el benchmark de ${benchmarks.operations} en ${cleanIndustry}, existe oportunidad de duplicar la capacidad operativa mediante automatizacion selectiva.` :
-          `Operaciones reactivas que requieren reestructuracion. Con ${finalScores.operations} puntos, la empresa esta ${benchmarks.operations - finalScores.operations} puntos bajo el estandar. Se estima que 60-70% del tiempo se dedica a tareas repetitivas automatizables, representando perdida de competitividad.`;
+          `Operaciones funcionales pero manuales. El score de ${finalScores.operations} revela dependencia de procesos manuales que limitan la escalabilidad. Con el benchmark de ${benchmarks.operations} en ${industryName}, existe oportunidad de duplicar la capacidad operativa mediante automatización selectiva.` :
+          `Operaciones reactivas que requieren reestructuración. Con ${finalScores.operations} puntos, la empresa está ${benchmarks.operations - finalScores.operations} puntos bajo el estándar. Se estima que 60-70% del tiempo se dedica a tareas repetitivas automatizables, representando pérdida de competitividad.`;
       
       yPos = addWrappedText(operationsAnalysis, 25, yPos, pageWidth - 50, 6) + 8;
       
@@ -742,24 +786,24 @@ export function ResultsDashboard({
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(10);
       pdf.setTextColor(...green);
-      pdf.text('Ahorro:', 25, yPos + 3);
+      addTextUTF8('Ahorro:', 25, yPos + 3);
       pdf.setTextColor(...black);
-      pdf.text(`${finalScores.operations < 60 ? '20-30' : '10-15'} hrs/semana`, 50, yPos + 3);
+      addTextUTF8(`${finalScores.operations < 60 ? '20-30' : '10-15'} hrs/semana`, 50, yPos + 3);
       
       pdf.setTextColor(...green);
-      pdf.text('Capacidad:', 100, yPos + 3);
+      addTextUTF8('Capacidad:', 100, yPos + 3);
       pdf.setTextColor(...black);
-      pdf.text(`+${finalScores.operations < 60 ? '200-300%' : '150-200%'}`, 135, yPos + 3);
+      addTextUTF8(`+${finalScores.operations < 60 ? '200-300%' : '150-200%'}`, 135, yPos + 3);
       
       pdf.setTextColor(...green);
-      pdf.text('Eficiencia:', 25, yPos + 10);
+      addTextUTF8('Eficiencia:', 25, yPos + 10);
       pdf.setTextColor(...black);
-      pdf.text(`${finalScores.operations < 60 ? '35-50%' : '20-30%'} mejora`, 60, yPos + 10);
+      addTextUTF8(`${finalScores.operations < 60 ? '35-50%' : '20-30%'} mejora`, 60, yPos + 10);
       
       pdf.setTextColor(...green);
-      pdf.text('Errores:', 110, yPos + 10);
+      addTextUTF8('Errores:', 110, yPos + 10);
       pdf.setTextColor(...black);
-      pdf.text(`-${finalScores.operations < 60 ? '70-80%' : '40-50%'}`, 135, yPos + 10);
+      addTextUTF8(`-${finalScores.operations < 60 ? '70-80%' : '40-50%'}`, 135, yPos + 10);
       
       yPos += 25;
 
@@ -767,10 +811,11 @@ export function ResultsDashboard({
       if (yPos > 200) {
         pdf.addPage();
         yPos = 30;
+        addPageNumber(pdf.getCurrentPageInfo().pageNumber, 7);
       }
       
       // Análisis de Marketing
-      yPos = addSectionHeader('DIMENSION: MARKETING', yPos, purple);
+      yPos = addSectionHeader('DIMENSIÓN: MARKETING', yPos, purple);
       
       // Score card
       pdf.setFillColor(139, 92, 246, 0.1);
@@ -779,15 +824,15 @@ export function ResultsDashboard({
       pdf.setFontSize(14);
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(...purple);
-      pdf.text(`Score: ${finalScores.marketing}/100`, 30, yPos + 10);
+      addTextUTF8(`Score: ${finalScores.marketing}/100`, 30, yPos + 10);
       
       pdf.setTextColor(...black);
-      pdf.text(`Benchmark ${cleanIndustry}: ${benchmarks.marketing}`, 90, yPos + 10);
+      addTextUTF8(`Benchmark ${industryName}: ${benchmarks.marketing}`, 90, yPos + 10);
       
       const mktDiff = finalScores.marketing - benchmarks.marketing;
       const mktStatus = mktDiff >= 0 ? 'SUPERIOR' : 'POR MEJORAR';
       pdf.setTextColor(...(mktDiff >= 0 ? green : [239, 68, 68] as [number, number, number]));
-      pdf.text(`${mktStatus} (${mktDiff >= 0 ? '+' : ''}${mktDiff})`, 30, yPos + 18);
+      addTextUTF8(`${mktStatus} (${mktDiff >= 0 ? '+' : ''}${mktDiff})`, 30, yPos + 18);
       
       yPos += 30;
       
@@ -798,12 +843,12 @@ export function ResultsDashboard({
       
       const marketingAnalysis = 
         finalScores.marketing >= 80 ?
-          `Marketing de alto rendimiento con estrategia digital madura. Con ${finalScores.marketing} puntos, la empresa supera el benchmark de ${benchmarks.marketing}, demostrando dominio en generacion de demanda. El CAC optimizado y LTV/CAC superior a 3:1 indican sostenibilidad en adquisicion.` :
+          `Marketing de alto rendimiento con estrategia digital madura. Con ${finalScores.marketing} puntos, la empresa supera el benchmark de ${benchmarks.marketing}, demostrando dominio en generación de demanda. El CAC optimizado y LTV/CAC superior a 3:1 indican sostenibilidad en adquisición.` :
         finalScores.marketing >= 60 ?
-          `Estrategia de marketing efectiva con oportunidades digitales. El score de ${finalScores.marketing} ${mktDiff >= 0 ? 'supera' : 'se acerca al'} promedio industrial. Optimizar canales digitales y automatizar nurturing puede reducir CAC 20-30% y duplicar conversion de leads.` :
+          `Estrategia de marketing efectiva con oportunidades digitales. El score de ${finalScores.marketing} ${mktDiff >= 0 ? 'supera' : 'se acerca al'} promedio industrial. Optimizar canales digitales y automatizar nurturing puede reducir CAC 20-30% y duplicar conversión de leads.` :
         finalScores.marketing >= 40 ?
-          `Marketing basico con potencial sin explotar. Con ${finalScores.marketing} puntos vs ${benchmarks.marketing} del benchmark, existe brecha significativa en posicionamiento digital. La competencia esta capturando market share mediante estrategias omnicanal mas efectivas.` :
-          `Marketing reactivo que limita el crecimiento. El score de ${finalScores.marketing} esta ${benchmarks.marketing - finalScores.marketing} puntos bajo el estandar, indicando perdida de oportunidades. Sin presencia digital efectiva, la empresa depende de referencias limitando su potencial de expansion.`;
+          `Marketing básico con potencial sin explotar. Con ${finalScores.marketing} puntos vs ${benchmarks.marketing} del benchmark, existe brecha significativa en posicionamiento digital. La competencia está capturando market share mediante estrategias omnicanal más efectivas.` :
+          `Marketing reactivo que limita el crecimiento. El score de ${finalScores.marketing} está ${benchmarks.marketing - finalScores.marketing} puntos bajo el estándar, indicando pérdida de oportunidades. Sin presencia digital efectiva, la empresa depende de referencias limitando su potencial de expansión.`;
       
       yPos = addWrappedText(marketingAnalysis, 25, yPos, pageWidth - 50, 6) + 8;
       
@@ -814,24 +859,24 @@ export function ResultsDashboard({
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(10);
       pdf.setTextColor(...purple);
-      pdf.text('Leads:', 25, yPos + 3);
+      addTextUTF8('Leads:', 25, yPos + 3);
       pdf.setTextColor(...black);
-      pdf.text(`+${finalScores.marketing < 60 ? '300-500%' : '200-300%'}`, 50, yPos + 3);
+      addTextUTF8(`+${finalScores.marketing < 60 ? '300-500%' : '200-300%'}`, 50, yPos + 3);
       
       pdf.setTextColor(...purple);
-      pdf.text('CAC:', 95, yPos + 3);
+      addTextUTF8('CAC:', 95, yPos + 3);
       pdf.setTextColor(...black);
-      pdf.text(`-${finalScores.marketing < 60 ? '40-60%' : '20-30%'}`, 115, yPos + 3);
+      addTextUTF8(`-${finalScores.marketing < 60 ? '40-60%' : '20-30%'}`, 115, yPos + 3);
       
       pdf.setTextColor(...purple);
-      pdf.text('Conversion:', 25, yPos + 10);
+      addTextUTF8('Conversión:', 25, yPos + 10);
       pdf.setTextColor(...black);
-      pdf.text(`+${finalScores.marketing < 60 ? '3-5X' : '2-3X'}`, 70, yPos + 10);
+      addTextUTF8(`+${finalScores.marketing < 60 ? '3-5X' : '2-3X'}`, 70, yPos + 10);
       
       pdf.setTextColor(...purple);
-      pdf.text('ROI:', 110, yPos + 10);
+      addTextUTF8('ROI:', 110, yPos + 10);
       pdf.setTextColor(...black);
-      pdf.text(`${finalScores.marketing < 60 ? '400-600%' : '200-400%'}`, 130, yPos + 10);
+      addTextUTF8(`${finalScores.marketing < 60 ? '400-600%' : '200-400%'}`, 130, yPos + 10);
 
       addPageNumber(3, 7);
 
@@ -845,14 +890,14 @@ export function ResultsDashboard({
       pdf.setTextColor(...white);
       pdf.setFontSize(20);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('PLAN DE ACCION PERSONALIZADO CON IA', 20, 22);
+      addTextUTF8('PLAN DE ACCIÓN PERSONALIZADO CON IA', 20, 22);
       
       yPos = 50;
       
       // Determinar acción prioritaria
       const weakAxisName = weakestAxis.key === 'finance' ? 'Sistema Financiero Inteligente' : 
-                          weakestAxis.key === 'operations' ? 'Automatizacion Operativa' : 
-                          'Marketing Digital Estrategico';
+                          weakestAxis.key === 'operations' ? 'Automatización Operativa' : 
+                          'Marketing Digital Estratégico';
       
       const weakAxisLabel = weakestAxis.key === 'finance' ? 'Finanzas' : 
                            weakestAxis.key === 'operations' ? 'Operaciones' : 
@@ -867,11 +912,11 @@ export function ResultsDashboard({
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(220, 38, 127);
-      pdf.text('ACCION CRITICA PRIORITARIA', pageWidth / 2, yPos + 5, { align: 'center' });
+      addTextUTF8('ACCIÓN CRÍTICA PRIORITARIA', pageWidth / 2, yPos + 5, { align: 'center' });
       
       pdf.setFontSize(16);
       pdf.setTextColor(...black);
-      pdf.text(weakAxisName, pageWidth / 2, yPos + 15, { align: 'center' });
+      addTextUTF8(weakAxisName, pageWidth / 2, yPos + 15, { align: 'center' });
       
       yPos += 35;
       
@@ -882,11 +927,11 @@ export function ResultsDashboard({
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(11);
       pdf.setTextColor(...black);
-      pdf.text('Por que actuar AHORA es critico para tu negocio?', 25, yPos + 8);
+      addTextUTF8('¿Por qué actuar AHORA es crítico para tu negocio?', 25, yPos + 8);
       
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(10);
-      const whyText = `Tu puntuacion de ${weakestAxis.value} en ${weakAxisLabel} representa el cuello de botella principal que esta limitando el crecimiento exponencial de tu negocio. Esta brecha de ${benchmarks[weakestAxis.key as keyof typeof benchmarks] - weakestAxis.value} puntos respecto al benchmark te esta costando oportunidades diarias y ventaja competitiva.`;
+      const whyText = `Tu puntuación de ${weakestAxis.value} en ${weakAxisLabel} representa el cuello de botella principal que está limitando el crecimiento exponencial de tu negocio. Esta brecha de ${benchmarks[weakestAxis.key as keyof typeof benchmarks] - weakestAxis.value} puntos respecto al benchmark te está costando oportunidades diarias y ventaja competitiva.`;
       yPos = addWrappedText(whyText, 25, yPos + 15, pageWidth - 50, 5, 10) + 5;
       
       // Impacto esperado
@@ -896,27 +941,27 @@ export function ResultsDashboard({
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(11);
       pdf.setTextColor(...green);
-      pdf.text('Impacto esperado en tu negocio:', 25, yPos + 8);
+      addTextUTF8('Impacto esperado en tu negocio:', 25, yPos + 8);
       
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(10);
       pdf.setTextColor(...black);
-      const impactText = `Mejora del 35-50% en ${weakAxisLabel} en 90 dias, con impacto directo en rentabilidad (+20-30%), eficiencia operativa (+40%) y capacidad de crecimiento (2-3X). ROI esperado: 250-400% en el primer ano.`;
+      const impactText = `Mejora del 35-50% en ${weakAxisLabel} en 90 días, con impacto directo en rentabilidad (+20-30%), eficiencia operativa (+40%) y capacidad de crecimiento (2-3X). ROI esperado: 250-400% en el primer año.`;
       yPos = addWrappedText(impactText, 25, yPos + 15, pageWidth - 50, 5, 10) + 10;
       
       // Plan de acción paso a paso
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(12);
       pdf.setTextColor(...primaryBlue);
-      pdf.text('Plan de Implementacion - 5 Pasos Clave:', 25, yPos);
+      addTextUTF8('Plan de Implementación - 5 Pasos Clave:', 25, yPos);
       yPos += 10;
       
       const actions = [
-        'Auditoria profunda y mapeo de procesos actuales para identificar quick wins',
-        'Implementacion de sistema de monitoreo con dashboards en tiempo real',
-        'Automatizacion de procesos criticos usando IA y herramientas no-code',
-        'Establecimiento de KPIs especificos con alertas automaticas',
-        'Creacion de cultura de mejora continua basada en datos'
+        'Auditoría profunda y mapeo de procesos actuales para identificar quick wins',
+        'Implementación de sistema de monitoreo con dashboards en tiempo real',
+        'Automatización de procesos críticos usando IA y herramientas no-code',
+        'Establecimiento de KPIs específicos con alertas automáticas',
+        'Creación de cultura de mejora continua basada en datos'
       ];
       
       actions.forEach((action, index) => {
@@ -926,7 +971,7 @@ export function ResultsDashboard({
         pdf.setTextColor(...white);
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(9);
-        pdf.text((index + 1).toString(), 28, yPos, { align: 'center' });
+        addTextUTF8((index + 1).toString(), 28, yPos, { align: 'center' });
         
         // Texto de la acción
         pdf.setTextColor(...black);
@@ -946,11 +991,11 @@ export function ResultsDashboard({
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(12);
       pdf.setTextColor(...black);
-      pdf.text('QUICK WIN - Accion para HOY:', 25, yPos + 10);
+      addTextUTF8('QUICK WIN - Acción para HOY:', 25, yPos + 10);
       
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(10);
-      const quickWinText = 'Implementa inmediatamente un dashboard basico de seguimiento con las 3-5 metricas mas criticas de tu negocio. Esto te dara visibilidad instantanea y control desde el dia 1.';
+      const quickWinText = 'Implementa inmediatamente un dashboard básico de seguimiento con las 3-5 métricas más críticas de tu negocio. Esto te dará visibilidad instantánea y control desde el día 1.';
       yPos = addWrappedText(quickWinText, 25, yPos + 17, pageWidth - 50, 5, 10) + 10;
       
       // Timeline y recursos
@@ -959,12 +1004,12 @@ export function ResultsDashboard({
       
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(10);
-      pdf.text('Timeline: 4-8 semanas', 25, yPos + 8);
-      pdf.text('Inversion: Media', 90, yPos + 8);
-      pdf.text('Equipo: 2-3 personas', 140, yPos + 8);
+      addTextUTF8('Timeline: 4-8 semanas', 25, yPos + 8);
+      addTextUTF8('Inversión: Media', 90, yPos + 8);
+      addTextUTF8('Equipo: 2-3 personas', 140, yPos + 8);
       
       pdf.setFont('helvetica', 'normal');
-      pdf.text('Herramientas: BI Platform, Automation Tools, AI Analytics', 25, yPos + 15);
+      addTextUTF8('Herramientas: BI Platform, Automation Tools, AI Analytics', 25, yPos + 15);
 
       addPageNumber(4, 7);
 
@@ -978,11 +1023,11 @@ export function ResultsDashboard({
       pdf.setTextColor(...white);
       pdf.setFontSize(20);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('ROADMAP DE TRANSFORMACION - 90 DIAS', 20, 22);
+      addTextUTF8('ROADMAP DE TRANSFORMACIÓN - 90 DÍAS', 20, 22);
       
       yPos = 50;
       
-      // Timeline visual (CORREGIDO)
+      // Timeline visual
       pdf.setDrawColor(...lightGray);
       pdf.setLineWidth(3);
       pdf.line(30, yPos, pageWidth - 30, yPos);
@@ -1001,17 +1046,17 @@ export function ResultsDashboard({
         pdf.setTextColor(...black);
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(9);
-        pdf.text(phase.label, phase.x, yPos - 10, { align: 'center' });
+        addTextUTF8(phase.label, phase.x, yPos - 10, { align: 'center' });
         pdf.setFont('helvetica', 'normal');
         pdf.setFontSize(8);
-        pdf.text(`Dia ${phase.day}`, phase.x, yPos + 12, { align: 'center' });
+        addTextUTF8(`Día ${phase.day}`, phase.x, yPos + 12, { align: 'center' });
       });
       
       yPos += 30;
       
       // FASE 1: Fundamentos
       const phase1Color = secondaryBlue;
-      yPos = addSectionHeader('FASE 1: FUNDAMENTOS (Dias 1-30)', yPos, phase1Color);
+      yPos = addSectionHeader('FASE 1: FUNDAMENTOS (Días 1-30)', yPos, phase1Color);
       
       pdf.setFillColor(59, 130, 246, 0.05);
       pdf.roundedRect(20, yPos, pageWidth - 40, 55, 3, 3, 'F');
@@ -1019,34 +1064,34 @@ export function ResultsDashboard({
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(11);
       pdf.setTextColor(...phase1Color);
-      pdf.text('Objetivo: Establecer las bases solidas', 25, yPos + 8);
+      addTextUTF8('Objetivo: Establecer las bases sólidas', 25, yPos + 8);
       
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(10);
       pdf.setTextColor(...black);
       
       const phase1Actions = [
-        'Auditoria completa de sistemas y procesos actuales',
-        'Implementacion de quick wins identificados (10-15% mejora inmediata)',
-        'Configuracion de herramientas basicas de monitoreo y control',
-        'Capacitacion inicial del equipo en nuevas metodologias'
+        'Auditoría completa de sistemas y procesos actuales',
+        'Implementación de quick wins identificados (10-15% mejora inmediata)',
+        'Configuración de herramientas básicas de monitoreo y control',
+        'Capacitación inicial del equipo en nuevas metodologías'
       ];
       
       let tempY = yPos + 15;
       phase1Actions.forEach(action => {
-        pdf.text(`• ${action}`, 30, tempY);
+        addTextUTF8(`• ${action}`, 30, tempY);
         tempY += 6;
       });
       
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(...green);
-      pdf.text('Resultado: Sistema basico operativo con 40% mas visibilidad', 25, tempY + 3);
+      addTextUTF8('Resultado: Sistema básico operativo con 40% más visibilidad', 25, tempY + 3);
       
       yPos += 65;
       
       // FASE 2: Optimización
       const phase2Color = purple;
-      yPos = addSectionHeader('FASE 2: OPTIMIZACION (Dias 31-60)', yPos, phase2Color);
+      yPos = addSectionHeader('FASE 2: OPTIMIZACIÓN (Días 31-60)', yPos, phase2Color);
       
       pdf.setFillColor(139, 92, 246, 0.05);
       pdf.roundedRect(20, yPos, pageWidth - 40, 55, 3, 3, 'F');
@@ -1054,34 +1099,34 @@ export function ResultsDashboard({
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(11);
       pdf.setTextColor(...phase2Color);
-      pdf.text('Objetivo: Automatizar y optimizar procesos clave', 25, yPos + 8);
+      addTextUTF8('Objetivo: Automatizar y optimizar procesos clave', 25, yPos + 8);
       
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(10);
       pdf.setTextColor(...black);
       
       const phase2Actions = [
-        'Automatizacion de 3-5 procesos criticos identificados',
-        'Implementacion de dashboards avanzados con IA predictiva',
-        'Optimizacion de flujos de trabajo y eliminacion de cuellos de botella',
-        'Establecimiento de metricas de rendimiento automatizadas'
+        'Automatización de 3-5 procesos críticos identificados',
+        'Implementación de dashboards avanzados con IA predictiva',
+        'Optimización de flujos de trabajo y eliminación de cuellos de botella',
+        'Establecimiento de métricas de rendimiento automatizadas'
       ];
       
       tempY = yPos + 15;
       phase2Actions.forEach(action => {
-        pdf.text(`• ${action}`, 30, tempY);
+        addTextUTF8(`• ${action}`, 30, tempY);
         tempY += 6;
       });
       
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(...green);
-      pdf.text('Resultado: Eficiencia operativa mejorada 35-45% con procesos automatizados', 25, tempY + 3);
+      addTextUTF8('Resultado: Eficiencia operativa mejorada 35-45% con procesos automatizados', 25, tempY + 3);
       
       yPos += 65;
       
       // FASE 3: Escalamiento
       const phase3Color = green;
-      yPos = addSectionHeader('FASE 3: ESCALAMIENTO (Dias 61-90)', yPos, phase3Color);
+      yPos = addSectionHeader('FASE 3: ESCALAMIENTO (Días 61-90)', yPos, phase3Color);
       
       pdf.setFillColor(16, 185, 129, 0.05);
       pdf.roundedRect(20, yPos, pageWidth - 40, 55, 3, 3, 'F');
@@ -1089,28 +1134,28 @@ export function ResultsDashboard({
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(11);
       pdf.setTextColor(...phase3Color);
-      pdf.text('Objetivo: Escalar el sistema y preparar crecimiento exponencial', 25, yPos + 8);
+      addTextUTF8('Objetivo: Escalar el sistema y preparar crecimiento exponencial', 25, yPos + 8);
       
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(10);
       pdf.setTextColor(...black);
       
       const phase3Actions = [
-        'Expansion del sistema a todas las areas del negocio',
-        'Implementacion de analytics predictivos y machine learning',
-        'Optimizacion continua basada en datos reales',
-        'Preparacion para la siguiente fase de crecimiento (scaling 2-3X)'
+        'Expansión del sistema a todas las áreas del negocio',
+        'Implementación de analytics predictivos y machine learning',
+        'Optimización continua basada en datos reales',
+        'Preparación para la siguiente fase de crecimiento (scaling 2-3X)'
       ];
       
       tempY = yPos + 15;
       phase3Actions.forEach(action => {
-        pdf.text(`• ${action}`, 30, tempY);
+        addTextUTF8(`• ${action}`, 30, tempY);
         tempY += 6;
       });
       
       pdf.setFont('helvetica', 'bold');
       pdf.setTextColor(...green);
-      pdf.text('Resultado: Sistema completo con capacidad de escalar 2-3X sin friccion', 25, tempY + 3);
+      addTextUTF8('Resultado: Sistema completo con capacidad de escalar 2-3X sin fricción', 25, tempY + 3);
 
       addPageNumber(5, 7);
 
@@ -1124,54 +1169,54 @@ export function ResultsDashboard({
       pdf.setTextColor(...white);
       pdf.setFontSize(20);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('METRICAS DE EXITO Y RETORNO DE INVERSION', 20, 22);
+      addTextUTF8('MÉTRICAS DE ÉXITO Y RETORNO DE INVERSIÓN', 20, 22);
       
       yPos = 50;
       
       // KPIs principales
-      yPos = addSectionHeader('INDICADORES CLAVE DE EXITO (KPIs)', yPos, green);
+      yPos = addSectionHeader('INDICADORES CLAVE DE ÉXITO (KPIs)', yPos, green);
       
       const kpis = [
         {
           metric: `Score ${weakAxisLabel}`,
           current: weakestAxis.value,
           target: Math.min(weakestAxis.value + 35, 100),
-          timeline: '90 dias',
+          timeline: '90 días',
           impact: 'ALTO'
         },
         {
           metric: 'Eficiencia Operativa',
           current: '100%',
           target: '145%',
-          timeline: '60 dias',
+          timeline: '60 días',
           impact: 'ALTO'
         },
         {
           metric: 'Tiempo en Tareas Manuales',
           current: '100%',
           target: '60%',
-          timeline: '30 dias',
+          timeline: '30 días',
           impact: 'MEDIO'
         },
         {
           metric: 'Visibilidad de Datos',
           current: 'Reactiva',
           target: 'Proactiva',
-          timeline: '45 dias',
+          timeline: '45 días',
           impact: 'ALTO'
         },
         {
           metric: 'Capacidad de Procesamiento',
           current: '1X',
           target: '2.5X',
-          timeline: '90 dias',
+          timeline: '90 días',
           impact: 'ALTO'
         },
         {
           metric: 'Tiempo de Respuesta',
           current: '100%',
           target: '30%',
-          timeline: '60 dias',
+          timeline: '60 días',
           impact: 'MEDIO'
         }
       ];
@@ -1183,11 +1228,11 @@ export function ResultsDashboard({
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(10);
       pdf.setTextColor(...black);
-      pdf.text('Metrica', 25, yPos + 7);
-      pdf.text('Actual', 70, yPos + 7);
-      pdf.text('Objetivo', 100, yPos + 7);
-      pdf.text('Plazo', 135, yPos + 7);
-      pdf.text('Impacto', 165, yPos + 7);
+      addTextUTF8('Métrica', 25, yPos + 7);
+      addTextUTF8('Actual', 70, yPos + 7);
+      addTextUTF8('Objetivo', 100, yPos + 7);
+      addTextUTF8('Plazo', 135, yPos + 7);
+      addTextUTF8('Impacto', 165, yPos + 7);
       
       yPos += 12;
       
@@ -1199,21 +1244,21 @@ export function ResultsDashboard({
         
         pdf.setFont('helvetica', 'normal');
         pdf.setFontSize(9);
-        pdf.text(kpi.metric, 25, yPos + 2);
-        pdf.text(kpi.current.toString(), 70, yPos + 2);
+        addTextUTF8(kpi.metric, 25, yPos + 2);
+        addTextUTF8(kpi.current.toString(), 70, yPos + 2);
         
         pdf.setFont('helvetica', 'bold');
         pdf.setTextColor(...green);
-        pdf.text(kpi.target.toString(), 100, yPos + 2);
+        addTextUTF8(kpi.target.toString(), 100, yPos + 2);
         
         pdf.setTextColor(...black);
         pdf.setFont('helvetica', 'normal');
-        pdf.text(kpi.timeline, 135, yPos + 2);
+        addTextUTF8(kpi.timeline, 135, yPos + 2);
         
         const impactColor = kpi.impact === 'ALTO' ? green : [255, 193, 7] as [number, number, number];
         pdf.setTextColor(...impactColor);
         pdf.setFont('helvetica', 'bold');
-        pdf.text(kpi.impact, 165, yPos + 2);
+        addTextUTF8(kpi.impact, 165, yPos + 2);
         
         pdf.setTextColor(...black);
         yPos += 8;
@@ -1222,7 +1267,7 @@ export function ResultsDashboard({
       yPos += 15;
       
       // ROI Proyectado
-      yPos = addSectionHeader('RETORNO DE INVERSION PROYECTADO', yPos, secondaryBlue);
+      yPos = addSectionHeader('RETORNO DE INVERSIÓN PROYECTADO', yPos, secondaryBlue);
       
       // Cards de ROI
       const roiCards = [
@@ -1230,19 +1275,19 @@ export function ResultsDashboard({
           title: 'ROI Año 1',
           value: '250-350%',
           color: green,
-          detail: 'Recuperacion total + ganancias'
+          detail: 'Recuperación total + ganancias'
         },
         {
           title: 'Payback',
           value: '3-4 meses',
           color: secondaryBlue,
-          detail: 'Tiempo de recuperacion'
+          detail: 'Tiempo de recuperación'
         },
         {
           title: 'Ahorro Anual',
           value: '$50-150K',
           color: purple,
-          detail: 'En eficiencias y automatizacion'
+          detail: 'En eficiencias y automatización'
         }
       ];
       
@@ -1256,14 +1301,14 @@ export function ResultsDashboard({
         pdf.setTextColor(...white);
         pdf.setFont('helvetica', 'bold');
         pdf.setFontSize(10);
-        pdf.text(card.title, xPos + cardWidth/2, yPos + 10, { align: 'center' });
+        addTextUTF8(card.title, xPos + cardWidth/2, yPos + 10, { align: 'center' });
         
         pdf.setFontSize(16);
-        pdf.text(card.value, xPos + cardWidth/2, yPos + 20, { align: 'center' });
+        addTextUTF8(card.value, xPos + cardWidth/2, yPos + 20, { align: 'center' });
         
         pdf.setFont('helvetica', 'normal');
         pdf.setFontSize(8);
-        pdf.text(card.detail, xPos + cardWidth/2, yPos + 28, { align: 'center' });
+        addTextUTF8(card.detail, xPos + cardWidth/2, yPos + 28, { align: 'center' });
       });
       
       yPos += 45;
@@ -1274,10 +1319,10 @@ export function ResultsDashboard({
       const benefits = [
         'Mayor agilidad para responder a cambios del mercado',
         'Mejora en la moral y productividad del equipo',
-        'Posicionamiento como lider innovador en tu industria',
+        'Posicionamiento como líder innovador en tu industria',
         'Capacidad de tomar decisiones basadas en datos reales',
-        'Reduccion del estres operativo y burnout del equipo',
-        'Preparacion para oportunidades de inversion o expansion'
+        'Reducción del estrés operativo y burnout del equipo',
+        'Preparación para oportunidades de inversión o expansión'
       ];
       
       pdf.setFont('helvetica', 'normal');
@@ -1286,7 +1331,7 @@ export function ResultsDashboard({
         pdf.setFillColor(...green);
         pdf.circle(25, yPos - 1, 2, 'F');
         pdf.setTextColor(...black);
-        pdf.text(benefit, 30, yPos);
+        addTextUTF8(benefit, 30, yPos);
         yPos += 7;
       });
 
@@ -1302,40 +1347,40 @@ export function ResultsDashboard({
       pdf.setTextColor(...white);
       pdf.setFontSize(20);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('CONCLUSIONES Y PROXIMOS PASOS', 20, 22);
+      addTextUTF8('CONCLUSIONES Y PRÓXIMOS PASOS', 20, 22);
       
       yPos = 50;
       
       // Resumen ejecutivo final
-      yPos = addSectionHeader('RESUMEN DE TU SITUACION ACTUAL', yPos);
+      yPos = addSectionHeader('RESUMEN DE TU SITUACIÓN ACTUAL', yPos);
       
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(11);
-      const summaryText = `${companyName} ha completado el Diagnostico 3D Impulsa obteniendo una puntuacion global de ${averageScore}/100, ubicandose en la etapa de "${businessStage.stage}". El analisis integral de ${responses.length} puntos criticos revela un perfil empresarial con fortalezas notables en ${strongAxis} (${strongestAxis.value} puntos) y oportunidades significativas de mejora en ${weakAxis} (${weakestAxis.value} puntos).
+      const summaryText = `${companyName} ha completado el Diagnóstico 3D Impulsa obteniendo una puntuación global de ${averageScore}/100, ubicándose en la etapa de "${businessStage.stage}". El análisis integral de ${responses.length} puntos críticos revela un perfil empresarial con fortalezas notables en ${strongAxis} (${strongestAxis.value} puntos) y oportunidades significativas de mejora en ${weakAxis} (${weakestAxis.value} puntos).
 
-La brecha de ${Math.round((benchmarks.finance + benchmarks.operations + benchmarks.marketing)/3 - averageScore)} puntos respecto al promedio de la industria ${cleanIndustry} representa tanto un desafio como una oportunidad extraordinaria de crecimiento y diferenciacion competitiva.`;
+La brecha de ${Math.round((benchmarks.finance + benchmarks.operations + benchmarks.marketing)/3 - averageScore)} puntos respecto al promedio de la industria ${industryName} representa tanto un desafío como una oportunidad extraordinaria de crecimiento y diferenciación competitiva.`;
       
       yPos = addWrappedText(summaryText, 25, yPos, pageWidth - 50, 6) + 10;
       
       // Potencial identificado
       yPos = addSectionHeader('TU POTENCIAL DE CRECIMIENTO', yPos, green);
       
-      const potentialText = `El analisis detallado revela un potencial de mejora del ${Math.round(totalImprovementPotential/3)}% promedio en las tres dimensiones evaluadas. La implementacion del plan de accion recomendado puede posicionar a ${companyName} en el percentil superior de la industria ${cleanIndustry} en los proximos 90 dias.
+      const potentialText = `El análisis detallado revela un potencial de mejora del ${Math.round(totalImprovementPotential/3)}% promedio en las tres dimensiones evaluadas. La implementación del plan de acción recomendado puede posicionar a ${companyName} en el percentil superior de la industria ${industryName} en los próximos 90 días.
 
-Con las estrategias correctas y el acompanamiento experto, tu empresa puede lograr:
+Con las estrategias correctas y el acompañamiento experto, tu empresa puede lograr:
 • Incremento del 35-50% en eficiencia operativa
-• Reduccion del 40-60% en costos operativos
+• Reducción del 40-60% en costos operativos
 • Aumento del 200-300% en capacidad sin contratar personal adicional
-• ROI del 250-350% en el primer ano de implementacion`;
+• ROI del 250-350% en el primer año de implementación`;
       
       yPos = addWrappedText(potentialText, 25, yPos, pageWidth - 50, 6) + 10;
       
       // Recomendación final
-      yPos = addSectionHeader('RECOMENDACION ESTRATEGICA', yPos, [220, 38, 127]);
+      yPos = addSectionHeader('RECOMENDACIÓN ESTRATÉGICA', yPos, [220, 38, 127]);
       
-      const recommendationText = `Basado en el diagnostico integral, la recomendacion prioritaria es iniciar inmediatamente con la transformacion de ${weakAxisLabel} mediante la implementacion del ${weakAxisName}. Esta intervencion estrategica abordara el cuello de botella principal que limita tu crecimiento y generara el mayor impacto en el menor tiempo posible.
+      const recommendationText = `Basado en el diagnóstico integral, la recomendación prioritaria es iniciar inmediatamente con la transformación de ${weakAxisLabel} mediante la implementación del ${weakAxisName}. Esta intervención estratégica abordará el cuello de botella principal que limita tu crecimiento y generará el mayor impacto en el menor tiempo posible.
 
-El momento de actuar es AHORA. Cada dia que pasa sin optimizar representa oportunidades perdidas y ventaja competitiva cedida a la competencia.`;
+El momento de actuar es AHORA. Cada día que pasa sin optimizar representa oportunidades perdidas y ventaja competitiva cedida a la competencia.`;
       
       yPos = addWrappedText(recommendationText, 25, yPos, pageWidth - 50, 6) + 15;
       
@@ -1346,12 +1391,12 @@ El momento de actuar es AHORA. Cada dia que pasa sin optimizar representa oportu
       pdf.setTextColor(...white);
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(16);
-      pdf.text('TU PROXIMO PASO', pageWidth / 2, yPos + 12, { align: 'center' });
+      addTextUTF8('TU PRÓXIMO PASO', pageWidth / 2, yPos + 12, { align: 'center' });
       
       pdf.setFontSize(13);
       pdf.setFont('helvetica', 'normal');
-      pdf.text('Agenda tu sesion estrategica GRATUITA de 30 minutos', pageWidth / 2, yPos + 22, { align: 'center' });
-      pdf.text('para disenar tu plan de implementacion personalizado', pageWidth / 2, yPos + 28, { align: 'center' });
+      addTextUTF8('Agenda tu sesión estratégica GRATUITA de 30 minutos', pageWidth / 2, yPos + 22, { align: 'center' });
+      addTextUTF8('para diseñar tu plan de implementación personalizado', pageWidth / 2, yPos + 28, { align: 'center' });
       
       yPos += 45;
       
@@ -1362,21 +1407,21 @@ El momento de actuar es AHORA. Cada dia que pasa sin optimizar representa oportu
       pdf.setTextColor(...black);
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(11);
-      pdf.text('En tu sesion estrategica gratuita recibiras:', 25, yPos + 8);
+      addTextUTF8('En tu sesión estratégica gratuita recibirás:', 25, yPos + 8);
       
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(10);
       const sessionBenefits = [
-        '• Analisis detallado de tus resultados con un experto',
-        '• Plan de accion personalizado para tu situacion especifica',
-        '• Identificacion de 3-5 quick wins para implementar inmediatamente',
-        '• Estimacion de ROI y timeline especifico para tu empresa',
+        '• Análisis detallado de tus resultados con un experto',
+        '• Plan de acción personalizado para tu situación específica',
+        '• Identificación de 3-5 quick wins para implementar inmediatamente',
+        '• Estimación de ROI y timeline específico para tu empresa',
         '• Acceso a herramientas y recursos exclusivos'
       ];
       
       let benefitY = yPos + 16;
       sessionBenefits.forEach(benefit => {
-        pdf.text(benefit, 30, benefitY);
+        addTextUTF8(benefit, 30, benefitY);
         benefitY += 6;
       });
       
@@ -1391,13 +1436,13 @@ El momento de actuar es AHORA. Cada dia que pasa sin optimizar representa oportu
       pdf.setTextColor(...green);
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(11);
-      pdf.text('GARANTIA IMPULSA LAB', pageWidth / 2, yPos + 8, { align: 'center' });
+      addTextUTF8('GARANTÍA IMPULSA LAB', pageWidth / 2, yPos + 8, { align: 'center' });
       
       pdf.setTextColor(...black);
       pdf.setFont('helvetica', 'normal');
       pdf.setFontSize(10);
-      pdf.text('Si no encuentras valor en la sesion estrategica, te compensamos con', pageWidth / 2, yPos + 15, { align: 'center' });
-      pdf.text('1 hora adicional de consultoria sin costo. Sin riesgos, solo resultados.', pageWidth / 2, yPos + 20, { align: 'center' });
+      addTextUTF8('Si no encuentras valor en la sesión estratégica, te compensamos con', pageWidth / 2, yPos + 15, { align: 'center' });
+      addTextUTF8('1 hora adicional de consultoría sin costo. Sin riesgos, solo resultados.', pageWidth / 2, yPos + 20, { align: 'center' });
       
       // Footer final profesional
       pdf.setFillColor(...primaryBlue);
@@ -1406,22 +1451,22 @@ El momento de actuar es AHORA. Cada dia que pasa sin optimizar representa oportu
       pdf.setTextColor(...white);
       pdf.setFont('helvetica', 'bold');
       pdf.setFontSize(12);
-      pdf.text('IMPULSA LAB', 20, pageHeight - 25);
+      addTextUTF8('IMPULSA LAB', 20, pageHeight - 25);
       pdf.setFontSize(10);
       pdf.setFont('helvetica', 'normal');
-      pdf.text('Business Intelligence & Digital Transformation', 20, pageHeight - 20);
+      addTextUTF8('Business Intelligence & Digital Transformation', 20, pageHeight - 20);
       
       pdf.setFontSize(9);
-      pdf.text('Este diagnostico es confidencial y propiedad de tu organizacion', 20, pageHeight - 13);
-      pdf.text(`Validez: 30 dias desde ${currentDate}`, 20, pageHeight - 8);
+      addTextUTF8('Este diagnóstico es confidencial y propiedad de tu organización', 20, pageHeight - 13);
+      addTextUTF8(`Validez: 30 días desde ${currentDate}`, 20, pageHeight - 8);
       
       // Información de contacto
       pdf.setFont('helvetica', 'bold');
-      pdf.text('Contacto Directo:', pageWidth - 80, pageHeight - 25);
+      addTextUTF8('Contacto Directo:', pageWidth - 80, pageHeight - 25);
       pdf.setFont('helvetica', 'normal');
-      pdf.text('contacto@tuimpulsalab.com', pageWidth - 80, pageHeight - 20);
-      pdf.text('+57 311 266 9878', pageWidth - 80, pageHeight - 15);
-      pdf.text('www.tuimpulsalab.com', pageWidth - 80, pageHeight - 10);
+      addTextUTF8('contacto@tuimpulsalab.com', pageWidth - 80, pageHeight - 20);
+      addTextUTF8('+57 311 266 9878', pageWidth - 80, pageHeight - 15);
+      addTextUTF8('www.tuimpulsalab.com', pageWidth - 80, pageHeight - 10);
       
       addPageNumber(7, 7);
       
@@ -1430,11 +1475,13 @@ El momento de actuar es AHORA. Cada dia que pasa sin optimizar representa oportu
       // ===================
       
       // Generar nombre de archivo descriptivo
-      const safeCompanyName = companyName
-        .replace(/[^a-z0-9]/gi, '-')
+      const safeCompanyName = (companyName || 'Empresa')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Eliminar diacríticos
+        .replace(/[^a-zA-Z0-9]/g, '-')
         .replace(/-+/g, '-')
         .replace(/^-|-$/g, '')
-        .substring(0, 30);
+        .substring(0, 30) || 'empresa';
       
       const dateStr = new Date().toISOString().split('T')[0];
       const fileName = `Diagnostico-3D-Impulsa-${safeCompanyName}-${dateStr}.pdf`;
@@ -1445,7 +1492,7 @@ El momento de actuar es AHORA. Cada dia que pasa sin optimizar representa oportu
       // Opcional: Guardar metadata en localStorage para referencia futura
       const pdfMetadata = {
         fileName,
-        companyName,
+        companyName: companyName || 'Tu Empresa',
         score: averageScore,
         scores: finalScores,
         generatedAt: new Date().toISOString(),
@@ -1453,20 +1500,27 @@ El momento de actuar es AHORA. Cada dia que pasa sin optimizar representa oportu
       };
       
       // Guardar historial de PDFs generados
-      const pdfHistory = JSON.parse(localStorage.getItem('diagnostico-pdf-history') || '[]');
-      pdfHistory.unshift(pdfMetadata);
-      // Mantener solo los últimos 10 PDFs en el historial
-      if (pdfHistory.length > 10) {
-        pdfHistory.pop();
+      try {
+        const pdfHistory = JSON.parse(localStorage.getItem('diagnostico-pdf-history') || '[]');
+        pdfHistory.unshift(pdfMetadata);
+        // Mantener solo los últimos 10 PDFs en el historial
+        if (pdfHistory.length > 10) {
+          pdfHistory.pop();
+        }
+        localStorage.setItem('diagnostico-pdf-history', JSON.stringify(pdfHistory));
+      } catch (storageError) {
+        console.warn('No se pudo guardar el historial en localStorage:', storageError);
       }
-      localStorage.setItem('diagnostico-pdf-history', JSON.stringify(pdfHistory));
       
       // Opcional: Si necesitas integración con Firebase
       // await saveDiagnosticToFirebase(pdfMetadata, responses, clientInfo);
       
+      // Notificación de éxito (opcional)
+      console.log('PDF generado exitosamente:', fileName);
+      
     } catch (error) {
       console.error('Error generando PDF:', error);
-      alert('Hubo un error al generar el PDF. Por favor intenta de nuevo.');
+      alert('Hubo un error al generar el PDF. Por favor intenta de nuevo o contacta soporte.');
     } finally {
       setGeneratingPDF(false);
     }

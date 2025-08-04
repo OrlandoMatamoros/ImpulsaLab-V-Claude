@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react'
 import { db } from '@/lib/firebase'
 import { collection, query, orderBy, getDocs, limit, where, Timestamp } from 'firebase/firestore'
-import { Calendar, MessageCircle, Clock, Users, Download, Filter, ChevronDown, ChevronRight, ExternalLink } from 'lucide-react'
+import { Calendar, MessageCircle, Clock, Users, Download, Filter, ChevronDown, ChevronRight } from 'lucide-react'
+import AdminAuthWrapper from './components/AdminAuthWrapper'
 
 interface ChatSession {
   id: string
@@ -41,18 +42,6 @@ export default function AdminDashboard() {
   })
   const [expandedSession, setExpandedSession] = useState<string | null>(null)
   const [filterDate, setFilterDate] = useState<'all' | 'today' | 'week' | 'month'>('all')
-  const [password, setPassword] = useState('')
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-
-  // Autenticación simple
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (password === process.env.NEXT_PUBLIC_ADMIN_PASSWORD) {
-      setIsAuthenticated(true)
-    } else {
-      alert('Contraseña incorrecta')
-    }
-  }
 
   // Cargar sesiones de chat
   const loadSessions = async () => {
@@ -137,10 +126,8 @@ export default function AdminDashboard() {
   }
 
   useEffect(() => {
-    if (isAuthenticated) {
-      loadSessions()
-    }
-  }, [filterDate, isAuthenticated])
+    loadSessions()
+  }, [filterDate])
 
   // Exportar a CSV
   const exportToCSV = () => {
@@ -165,52 +152,16 @@ export default function AdminDashboard() {
     a.click()
   }
 
-  // Pantalla de login
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-        <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-          <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-            Admin Dashboard - Impulsa Lab
-          </h1>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Contraseña
-              </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg 
-                         focus:outline-none focus:border-blue-500"
-                placeholder="Ingresa la contraseña"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white py-2 rounded-lg 
-                       hover:bg-blue-700 transition-colors font-semibold"
-            >
-              Ingresar
-            </button>
-          </form>
-        </div>
-      </div>
-    )
-  }
-
-  // Dashboard principal
+  // Dashboard principal con wrapper de autenticación
   return (
-    <div className="min-h-screen bg-gray-50">
+    <AdminAuthWrapper title="Dashboard de Interacciones - Chatbot">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="bg-white shadow-sm border-b border-gray-200 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+        <div className="py-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">
-              Dashboard de Conversaciones
-            </h1>
+            <h2 className="text-xl font-semibold text-gray-900">
+              Conversaciones del Chatbot
+            </h2>
             <button
               onClick={exportToCSV}
               className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 
@@ -224,7 +175,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Estadísticas */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="mt-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100">
             <div className="flex items-center justify-between">
@@ -518,6 +469,6 @@ export default function AdminDashboard() {
           )}
         </div>
       </div>
-    </div>
+    </AdminAuthWrapper>
   )
 }

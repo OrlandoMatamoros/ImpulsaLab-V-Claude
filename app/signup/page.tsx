@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/contexts/FirebaseAuthContext'
@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Loader2, Info, CheckCircle } from 'lucide-react'
 
-export default function SignupPage() {
+function SignupPageContent() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -278,5 +278,17 @@ export default function SignupPage() {
         </form>
       </Card>
     </div>
+  )
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#002D62]"></div>
+      </div>
+    }>
+      <SignupPageContent />
+    </Suspense>
   )
 }

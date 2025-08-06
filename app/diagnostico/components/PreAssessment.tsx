@@ -3,255 +3,177 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/index';
 
-interface ClientInfoStepProps {
-  clientInfo: any;
-  onUpdate: (info: any) => void;
-  onNext: () => void;
+interface PreAssessmentProps {
+  onComplete: (scores: { finance: number; operations: number; marketing: number }) => void;
 }
 
-export function ClientInfoStep({ clientInfo, onUpdate, onNext }: ClientInfoStepProps) {
-  const [formData, setFormData] = useState({
-    companyName: clientInfo?.companyName || '',
-    contactName: clientInfo?.contactName || '',
-    industry: clientInfo?.industry || '',
-    employeeCount: clientInfo?.employeeCount || '',
-    annualRevenue: clientInfo?.annualRevenue || '',
-    email: clientInfo?.email || '',
-    phone: clientInfo?.phone || '',
+export function PreAssessment({ onComplete }: PreAssessmentProps) {
+  const [answers, setAnswers] = useState({
+    finance: 0,
+    operations: 0,
+    marketing: 0
   });
 
-  const [errors, setErrors] = useState<any>({});
-
-  const industries = [
-    'Tecnología',
-    'Retail',
-    'Servicios',
-    'Manufactura',
-    'Salud',
-    'Educación',
-    'Alimentos',
-    'Otro'
+  const questions = [
+    {
+      id: 'finance',
+      icon: '💰',
+      title: '¿Qué tan en control te sientes de las finanzas de tu negocio?',
+      description: 'Considera tu capacidad para conocer tu rentabilidad, flujo de caja y métricas clave.',
+      options: [
+        { value: 20, label: 'Sin control', description: 'No tengo claridad de mis números' },
+        { value: 50, label: 'Control básico', description: 'Reviso ocasionalmente' },
+        { value: 80, label: 'Buen control', description: 'Monitoreo regular con reportes' }
+      ]
+    },
+    {
+      id: 'operations',
+      icon: '⚙️',
+      title: '¿Cuánto tiempo dedicas a tareas repetitivas y manuales?',
+      description: 'Piensa en procesos que haces una y otra vez que podrían automatizarse.',
+      options: [
+        { value: 20, label: 'Demasiado tiempo', description: 'La mayoría de mi día' },
+        { value: 50, label: 'Tiempo moderado', description: 'Varias horas a la semana' },
+        { value: 80, label: 'Poco tiempo', description: 'Casi todo está automatizado' }
+      ]
+    },
+    {
+      id: 'marketing',
+      icon: '📈',
+      title: '¿Qué tan efectiva es tu presencia digital y atracción de clientes?',
+      description: 'Evalúa tu capacidad para ser encontrado online y convertir visitantes en clientes.',
+      options: [
+        { value: 20, label: 'Muy básica', description: 'Poca o nula presencia online' },
+        { value: 50, label: 'Presencia moderada', description: 'Tengo web y redes pero sin estrategia' },
+        { value: 80, label: 'Presencia fuerte', description: 'Estrategia digital activa y efectiva' }
+      ]
+    }
   ];
 
-  const validateForm = () => {
-    const newErrors: any = {};
-    
-    if (!formData.companyName) newErrors.companyName = 'El nombre de la empresa es requerido';
-    if (!formData.contactName) newErrors.contactName = 'El nombre de contacto es requerido';
-    if (!formData.industry) newErrors.industry = 'Selecciona una industria';
-    if (!formData.email) newErrors.email = 'El email es requerido';
-    if (!formData.employeeCount || formData.employeeCount === '0') {
-      newErrors.employeeCount = 'Ingresa el número de empleados';
-    }
-    
-    // Validar email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (formData.email && !emailRegex.test(formData.email)) {
-      newErrors.email = 'Email inválido';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+  const handleAnswer = (questionId: string, value: number) => {
+    setAnswers(prev => ({
+      ...prev,
+      [questionId]: value
+    }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (validateForm()) {
-      onUpdate({
-        ...formData,
-        employeeCount: parseInt(formData.employeeCount),
-        annualRevenue: formData.annualRevenue ? parseFloat(formData.annualRevenue) : undefined
-      });
-      onNext();
-    }
-  };
+  const isComplete = answers.finance > 0 && answers.operations > 0 && answers.marketing > 0;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    // Limpiar error del campo cuando el usuario empieza a escribir
-    if (errors[name]) {
-      setErrors((prev: any) => ({ ...prev, [name]: undefined }));
+  const handleContinue = () => {
+    if (isComplete) {
+      onComplete(answers);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-      {/* Nombre de la Empresa */}
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">
-          Nombre de la Empresa *
-        </label>
-        <input
-          type="text"
-          name="companyName"
-          value={formData.companyName}
-          onChange={handleChange}
-          className={`w-full px-3 py-3 sm:px-4 sm:py-2 text-base sm:text-sm border-2 rounded-lg 
-            focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900
-            transition-all duration-200 ${
-            errors.companyName ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
-          }`}
-          placeholder="Ej: Mesón Centroamericano"
-          autoComplete="organization"
-        />
-        {errors.companyName && (
-          <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.companyName}</p>
-        )}
+    <div className="space-y-6 sm:space-y-8">
+      {/* Header responsive */}
+      <div className="text-center mb-4 sm:mb-6">
+        <p className="text-sm sm:text-base text-gray-600 px-4">
+          Responde estas 3 preguntas rápidas para personalizar tu diagnóstico
+        </p>
       </div>
 
-      {/* Nombre del Contacto */}
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">
-          Nombre del Contacto *
-        </label>
-        <input
-          type="text"
-          name="contactName"
-          value={formData.contactName}
-          onChange={handleChange}
-          className={`w-full px-3 py-3 sm:px-4 sm:py-2 text-base sm:text-sm border-2 rounded-lg 
-            focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900
-            transition-all duration-200 ${
-            errors.contactName ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
-          }`}
-          placeholder="Ej: Juan Pérez"
-          autoComplete="name"
-        />
-        {errors.contactName && (
-          <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.contactName}</p>
-        )}
-      </div>
-
-      {/* Industria */}
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">
-          Industria *
-        </label>
-        <select
-          name="industry"
-          value={formData.industry}
-          onChange={handleChange}
-          className={`w-full px-3 py-3 sm:px-4 sm:py-2 text-base sm:text-sm border-2 rounded-lg 
-            focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900
-            transition-all duration-200 appearance-none ${
-            errors.industry ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
-          }`}
-        >
-          <option value="">Selecciona una industria</option>
-          {industries.map(ind => (
-            <option key={ind} value={ind}>{ind}</option>
-          ))}
-        </select>
-        {errors.industry && (
-          <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.industry}</p>
-        )}
-      </div>
-
-      {/* Grid responsive para empleados e ingresos */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* Número de Empleados */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Número de Empleados *
-          </label>
-          <input
-            type="number"
-            name="employeeCount"
-            value={formData.employeeCount}
-            onChange={handleChange}
-            className={`w-full px-3 py-3 sm:px-4 sm:py-2 text-base sm:text-sm border-2 rounded-lg 
-              focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900
-              transition-all duration-200 ${
-              errors.employeeCount ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
-            }`}
-            placeholder="Ej: 10"
-            min="1"
-            inputMode="numeric"
-          />
-          {errors.employeeCount && (
-            <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.employeeCount}</p>
-          )}
+      {/* Preguntas con diseño touch-friendly */}
+      {questions.map((question, index) => (
+        <div key={question.id} className="space-y-4">
+          {/* Pregunta header */}
+          <div className="flex items-start space-x-3">
+            <span className="text-2xl sm:text-3xl flex-shrink-0 mt-1">{question.icon}</span>
+            <div className="flex-1 space-y-2">
+              <h3 className="text-base sm:text-lg font-semibold">
+                {index + 1}. {question.title}
+              </h3>
+              <p className="text-xs sm:text-sm text-gray-600">{question.description}</p>
+            </div>
+          </div>
+          
+          {/* Opciones touch-optimized */}
+          <div className="grid gap-3 pl-0 sm:pl-11">
+            {question.options.map(option => (
+              <button
+                key={option.value}
+                onClick={() => handleAnswer(question.id, option.value)}
+                className={`
+                  relative text-left p-4 rounded-lg border-2 transition-all 
+                  min-h-[60px] sm:min-h-[auto]
+                  ${answers[question.id as keyof typeof answers] === option.value
+                    ? 'border-blue-500 bg-blue-50 shadow-md scale-[1.02]'
+                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 active:scale-[0.98]'
+                  }
+                `}
+                style={{ WebkitTapHighlightColor: 'transparent' }}
+              >
+                {/* Radio indicator */}
+                <div className="absolute left-4 top-1/2 -translate-y-1/2">
+                  <div className={`
+                    w-5 h-5 rounded-full border-2 transition-all
+                    ${answers[question.id as keyof typeof answers] === option.value
+                      ? 'border-blue-500 bg-blue-500'
+                      : 'border-gray-400'
+                    }
+                  `}>
+                    {answers[question.id as keyof typeof answers] === option.value && (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Contenido */}
+                <div className="pl-8">
+                  <div className="font-medium text-base sm:text-sm text-gray-900">
+                    {option.label}
+                  </div>
+                  <div className="text-xs sm:text-sm text-gray-600 mt-1">
+                    {option.description}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
+      ))}
 
-        {/* Ingresos Anuales */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700">
-            Ingresos Anuales (USD)
-          </label>
-          <input
-            type="number"
-            name="annualRevenue"
-            value={formData.annualRevenue}
-            onChange={handleChange}
-            className={`w-full px-3 py-3 sm:px-4 sm:py-2 text-base sm:text-sm border-2 rounded-lg 
-              focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900
-              transition-all duration-200 ${
-              errors.annualRevenue ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
-            }`}
-            placeholder="Ej: 500000"
-            min="0"
-            inputMode="numeric"
-          />
-        </div>
-      </div>
-
-      {/* Email */}
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">
-          Email de Contacto *
-        </label>
-        <input
-          type="email"
-          name="email"
-          value={formData.email}
-          onChange={handleChange}
-          className={`w-full px-3 py-3 sm:px-4 sm:py-2 text-base sm:text-sm border-2 rounded-lg 
-            focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900
-            transition-all duration-200 ${
-            errors.email ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
-          }`}
-          placeholder="contacto@empresa.com"
-          autoComplete="email"
-          inputMode="email"
-        />
-        {errors.email && (
-          <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.email}</p>
-        )}
-      </div>
-
-      {/* Teléfono */}
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-gray-700">
-          Teléfono
-        </label>
-        <input
-          type="tel"
-          name="phone"
-          value={formData.phone}
-          onChange={handleChange}
-          className={`w-full px-3 py-3 sm:px-4 sm:py-2 text-base sm:text-sm border-2 rounded-lg 
-            focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900
-            transition-all duration-200 ${
-            errors.phone ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
-          }`}
-          placeholder="+1 234 567 8900"
-          autoComplete="tel"
-          inputMode="tel"
-        />
-      </div>
-
-      {/* Botón de submit - full width en móvil */}
-      <div className="pt-4">
+      {/* Botón continuar - responsive */}
+      <div className="flex justify-center sm:justify-end pt-6">
         <Button 
-          type="submit" 
+          onClick={handleContinue}
+          disabled={!isComplete}
           size="lg"
-          className="w-full sm:w-auto min-h-[48px] text-base font-medium"
+          className={`
+            w-full sm:w-auto min-h-[48px] text-base font-medium
+            transition-all duration-200
+            ${!isComplete ? 'opacity-50' : 'hover:scale-105'}
+          `}
         >
-          Continuar al Diagnóstico
+          Continuar con el Diagnóstico Detallado
         </Button>
       </div>
-    </form>
+
+      {/* Indicador de progreso móvil */}
+      <div className="sm:hidden fixed bottom-4 left-4 right-4 bg-white rounded-lg shadow-lg p-3 border z-50">
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-gray-600">Preguntas respondidas:</span>
+          <div className="flex gap-2">
+            {questions.map((q) => (
+              <div
+                key={q.id}
+                className={`
+                  w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium
+                  ${answers[q.id as keyof typeof answers] > 0
+                    ? 'bg-green-500 text-white'
+                    : 'bg-gray-200 text-gray-500'
+                  }
+                `}
+              >
+                {answers[q.id as keyof typeof answers] > 0 ? '✓' : (questions.findIndex(x => x.id === q.id) + 1)}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

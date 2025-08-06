@@ -1,180 +1,381 @@
 'use client';
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/index';
+import { useState, useEffect } from 'react';
+import { Button, Card, CardContent, CardHeader, CardTitle, Progress } from '@/components/ui/index';
+import { useDiagnosticStore } from '@/store/diagnosticStore';
+import { ClientInfoStep } from './ClientInfoStep';
+[{
+	"resource": "/workspaces/ImpulsaLab-V-Claude/app/diagnostico/components/DiagnosticWizard.tsx",
+	"owner": "typescript",
+	"code": "1192",
+	"severity": 8,
+	"message": "El módulo '\"/workspaces/ImpulsaLab-V-Claude/app/diagnostico/components/PreAssessment\"' no tiene ninguna exportación predeterminada.",
+	"source": "ts",
+	"startLineNumber": 7,
+	"startColumn": 8,
+	"endLineNumber": 7,
+	"endColumn": 21,
+	"origin": "extHost2"
+}]
+import { AdaptiveQuestions } from './AdaptiveQuestions';
+import { ResultsDashboard } from './ResultsDashboard';
 
-interface PreAssessmentProps {
-  onComplete: (scores: { finance: number; operations: number; marketing: number }) => void;
+// Configuración de links directamente aquí
+const LINKS = {
+  calendly: 'https://calendly.com/orlando-tuimpulsalab/30min',
+  email: 'contacto@tuimpulsalab.com',
+};
+
+interface DiagnosticWizardProps {
+  consultantId: string;
+  isInternalMode?: boolean;
 }
 
-// CAMBIA ESTO: de "export function PreAssessment" a "export default function PreAssessment"
-export default function PreAssessment({ onComplete }: PreAssessmentProps) {
-  // ... resto del código igual ...
-  const [answers, setAnswers] = useState({
-    finance: 0,
-    operations: 0,
-    marketing: 0
-  });
+const STEPS = [
+  { id: 'client-info', title: 'Información del Cliente', icon: '📋' },
+  { id: 'pre-assessment', title: 'Evaluación Inicial', icon: '🎯' },
+  { id: 'finance', title: 'Diagnóstico Financiero', icon: '💰' },
+  { id: 'operations', title: 'Diagnóstico Operacional', icon: '⚙️' },
+  { id: 'marketing', title: 'Diagnóstico de Marketing', icon: '📈' },
+  { id: 'results', title: 'Resultados y Análisis', icon: '📊' }
+];
 
-  const questions = [
-    {
-      id: 'finance',
-      icon: '💰',
-      title: '¿Qué tan en control te sientes de las finanzas de tu negocio?',
-      description: 'Considera tu capacidad para conocer tu rentabilidad, flujo de caja y métricas clave.',
-      options: [
-        { value: 20, label: 'Sin control', description: 'No tengo claridad de mis números' },
-        { value: 50, label: 'Control básico', description: 'Reviso ocasionalmente' },
-        { value: 80, label: 'Buen control', description: 'Monitoreo regular con reportes' }
-      ]
-    },
-    {
-      id: 'operations',
-      icon: '⚙️',
-      title: '¿Cuánto tiempo dedicas a tareas repetitivas y manuales?',
-      description: 'Piensa en procesos que haces una y otra vez que podrían automatizarse.',
-      options: [
-        { value: 20, label: 'Demasiado tiempo', description: 'La mayoría de mi día' },
-        { value: 50, label: 'Tiempo moderado', description: 'Varias horas a la semana' },
-        { value: 80, label: 'Poco tiempo', description: 'Casi todo está automatizado' }
-      ]
-    },
-    {
-      id: 'marketing',
-      icon: '📈',
-      title: '¿Qué tan efectiva es tu presencia digital y atracción de clientes?',
-      description: 'Evalúa tu capacidad para ser encontrado online y convertir visitantes en clientes.',
-      options: [
-        { value: 20, label: 'Muy básica', description: 'Poca o nula presencia online' },
-        { value: 50, label: 'Presencia moderada', description: 'Tengo web y redes pero sin estrategia' },
-        { value: 80, label: 'Presencia fuerte', description: 'Estrategia digital activa y efectiva' }
-      ]
+export default function DiagnosticWizard({ consultantId, isInternalMode = false }: DiagnosticWizardProps) {
+  const [currentStep, setCurrentStep] = useState(0);
+  const [financeResponses, setFinanceResponses] = useState<any[]>([]);
+  const [operationsResponses, setOperationsResponses] = useState<any[]>([]);
+  const [marketingResponses, setMarketingResponses] = useState<any[]>([]);
+  const [calculatedScores, setCalculatedScores] = useState<any>(null);
+  const { clientInfo, setClientInfo } = useDiagnosticStore();
+
+  // Cargar progreso guardado al iniciar
+  useEffect(() => {
+    const savedData = localStorage.getItem('diagnostico-3d-progress');
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        setCurrentStep(parsed.currentStep || 0);
+        setClientInfo(parsed.clientInfo || {});
+        setFinanceResponses(parsed.financeResponses || []);
+        setOperationsResponses(parsed.operationsResponses || []);
+        setMarketingResponses(parsed.marketingResponses || []);
+        setCalculatedScores(parsed.calculatedScores || null);
+      } catch (error) {
+        console.error('Error loading saved progress:', error);
+      }
     }
-  ];
+  }, [setClientInfo]);
 
-  const handleAnswer = (questionId: string, value: number) => {
-    setAnswers(prev => ({
-      ...prev,
-      [questionId]: value
-    }));
+  // Guardar progreso automáticamente
+  useEffect(() => {
+    const dataToSave = {
+      currentStep,
+      clientInfo,
+      financeResponses,
+      operationsResponses,
+      marketingResponses,
+      calculatedScores,
+      timestamp: new Date().toISOString()
+    };
+    localStorage.setItem('diagnostico-3d-progress', JSON.stringify(dataToSave));
+  }, [currentStep, clientInfo, financeResponses, operationsResponses, marketingResponses, calculatedScores]);
+
+  const calculateProgress = () => {
+    return Math.round((currentStep / (STEPS.length - 1)) * 100);
   };
 
-  const isComplete = answers.finance > 0 && answers.operations > 0 && answers.marketing > 0;
-
-  const handleContinue = () => {
-    if (isComplete) {
-      onComplete(answers);
+  const handleNext = () => {
+    if (currentStep < STEPS.length - 1) {
+      setCurrentStep(currentStep + 1);
     }
   };
 
-  return (
-    <div className="space-y-6 sm:space-y-8">
-      {/* Header responsive */}
-      <div className="text-center mb-4 sm:mb-6">
-        <p className="text-sm sm:text-base text-gray-600 px-4">
-          Responde estas 3 preguntas rápidas para personalizar tu diagnóstico
-        </p>
-      </div>
+  const handlePrevious = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
 
-      {/* Preguntas con diseño touch-friendly */}
-      {questions.map((question, index) => (
-        <div key={question.id} className="space-y-4">
-          {/* Pregunta header */}
-          <div className="flex items-start space-x-3">
-            <span className="text-2xl sm:text-3xl flex-shrink-0 mt-1">{question.icon}</span>
-            <div className="flex-1 space-y-2">
-              <h3 className="text-base sm:text-lg font-semibold">
-                {index + 1}. {question.title}
-              </h3>
-              <p className="text-xs sm:text-sm text-gray-600">{question.description}</p>
+  const calculateFinalScores = () => {
+    console.log('=== CALCULANDO PUNTUACIONES FINALES ===');
+    console.log('Respuestas finance:', financeResponses.length, financeResponses);
+    console.log('Respuestas operations:', operationsResponses.length, operationsResponses);
+    console.log('Respuestas marketing:', marketingResponses.length, marketingResponses);
+    
+    const calculateAxisScore = (responses: any[]) => {
+      if (responses.length === 0) return 0;
+      const totalWeight = responses.reduce((sum, r) => sum + (r.weight || 1), 0);
+      const weightedSum = responses.reduce((sum, r) => sum + (r.score * (r.weight || 1)), 0);
+      const score = Math.round(weightedSum / totalWeight);
+      console.log(`Cálculo - Total weight: ${totalWeight}, Weighted sum: ${weightedSum}, Score: ${score}`);
+      return score;
+    };
+    
+    const scores = {
+      finance: calculateAxisScore(financeResponses),
+      operations: calculateAxisScore(operationsResponses),
+      marketing: calculateAxisScore(marketingResponses)
+    };
+    
+    console.log('PUNTUACIONES FINALES:', scores);
+    setCalculatedScores(scores);
+  };
+
+  const resetDiagnostic = () => {
+    if (confirm('¿Deseas iniciar un nuevo diagnóstico? Se perderán los datos actuales.')) {
+      localStorage.removeItem('diagnostico-3d-progress');
+      setCurrentStep(0);
+      setClientInfo({});
+      setFinanceResponses([]);
+      setOperationsResponses([]);
+      setMarketingResponses([]);
+      setCalculatedScores(null);
+      window.location.reload();
+    }
+  };
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('new') === 'true') {
+      localStorage.removeItem('diagnostico-3d-progress');
+      window.location.href = window.location.pathname;
+    }
+  }, []);
+
+  const handleScheduleConsultation = () => {
+    const calendlyUrl = new URL(LINKS.calendly);
+    const contactName = (clientInfo as any).contactName || '';
+    const email = (clientInfo as any).email || '';
+    
+    if (contactName) {
+      calendlyUrl.searchParams.append('name', contactName);
+    }
+    if (email) {
+      calendlyUrl.searchParams.append('email', email);
+    }
+    
+    const avgScore = calculatedScores ? 
+      Math.round((calculatedScores.finance + calculatedScores.operations + calculatedScores.marketing) / 3) : 
+      'N/A';
+    
+    const message = isInternalMode ? 
+      `Implementación Impulsa 3D - Score: ${avgScore}` : 
+      `Diagnóstico 3D - Score: ${avgScore}`;
+    
+    calendlyUrl.searchParams.append('a1', message);
+    window.open(calendlyUrl.toString(), '_blank');
+  };
+
+  const getTotalQuestions = () => {
+    return financeResponses.length + operationsResponses.length + marketingResponses.length;
+  };
+
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 0:
+        return (
+          <ClientInfoStep
+            clientInfo={clientInfo}
+            onUpdate={setClientInfo}
+            onNext={handleNext}
+          />
+        );
+      
+      case 1:
+        return (
+          <PreAssessment
+            onComplete={(scores: { finance: number; operations: number; marketing: number }) => {
+              console.log('Pre-assessment scores:', scores);
+              handleNext();
+            }}
+          />
+        );
+        
+      case 2: // Finanzas
+        return (
+          <AdaptiveQuestions
+            key="finance-questions"
+            axis="finance"
+            onResponse={(question, response) => {
+              console.log('Agregando respuesta finance:', response);
+              setFinanceResponses(prev => {
+                const newResponses = [...prev, { ...response, axis: 'finance', weight: question.weight }];
+                console.log('Total respuestas finance:', newResponses.length);
+                return newResponses;
+              });
+            }}
+            onComplete={handleNext}
+          />
+        );
+        
+      case 3: // Operaciones
+        return (
+          <AdaptiveQuestions
+            key="operations-questions"
+            axis="operations"
+            onResponse={(question, response) => {
+              console.log('Agregando respuesta operations:', response);
+              setOperationsResponses(prev => {
+                const newResponses = [...prev, { ...response, axis: 'operations', weight: question.weight }];
+                console.log('Total respuestas operations:', newResponses.length);
+                return newResponses;
+              });
+            }}
+            onComplete={handleNext}
+          />
+        );
+        
+      case 4: // Marketing
+        return (
+          <AdaptiveQuestions
+            key="marketing-questions"
+            axis="marketing"
+            onResponse={(question, response) => {
+              console.log('Agregando respuesta marketing:', response);
+              setMarketingResponses(prev => {
+                const newResponses = [...prev, { ...response, axis: 'marketing', weight: question.weight }];
+                console.log('Total respuestas marketing:', newResponses.length);
+                return newResponses;
+              });
+            }}
+            onComplete={() => {
+              setTimeout(() => {
+                calculateFinalScores();
+                handleNext();
+              }, 100);
+            }}
+          />
+        );
+        
+      case STEPS.length - 1:
+        if (!calculatedScores) {
+          calculateFinalScores();
+        }
+
+        const allResponses = [
+          ...financeResponses,
+          ...operationsResponses,
+          ...marketingResponses
+        ];
+        
+        return (
+          <div className="space-y-6">
+            <ResultsDashboard
+              scores={calculatedScores || { finance: 0, operations: 0, marketing: 0 }}
+              responses={allResponses}
+              clientInfo={clientInfo}
+              onScheduleConsultation={handleScheduleConsultation}
+              isInternalMode={isInternalMode}
+            />
+            <div className="text-center pt-4 border-t">
+              <Button
+                variant="outline"
+                onClick={resetDiagnostic}
+                className="w-full sm:w-auto"
+              >
+                🔄 Iniciar Nuevo Diagnóstico
+              </Button>
             </div>
           </div>
-          
-          {/* Opciones touch-optimized */}
-          <div className="grid gap-3 pl-0 sm:pl-11">
-            {question.options.map(option => (
-              <button
-                key={option.value}
-                onClick={() => handleAnswer(question.id, option.value)}
-                className={`
-                  relative text-left p-4 rounded-lg border-2 transition-all 
-                  min-h-[60px] sm:min-h-[auto]
-                  ${answers[question.id as keyof typeof answers] === option.value
-                    ? 'border-blue-500 bg-blue-50 shadow-md scale-[1.02]'
-                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 active:scale-[0.98]'
-                  }
-                `}
-                style={{ WebkitTapHighlightColor: 'transparent' }}
+        );
+        
+      default:
+        return (
+          <div className="space-y-4">
+            <p className="text-gray-600">
+              Contenido del paso {STEPS[currentStep].title} - Próximamente
+            </p>
+            <div className="flex flex-col sm:flex-row justify-between gap-3 mt-8">
+              <Button 
+                onClick={handlePrevious}
+                variant="outline"
+                className="w-full sm:w-auto"
               >
-                {/* Radio indicator */}
-                <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                  <div className={`
-                    w-5 h-5 rounded-full border-2 transition-all
-                    ${answers[question.id as keyof typeof answers] === option.value
-                      ? 'border-blue-500 bg-blue-500'
-                      : 'border-gray-400'
-                    }
-                  `}>
-                    {answers[question.id as keyof typeof answers] === option.value && (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <div className="w-2 h-2 bg-white rounded-full"></div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Contenido */}
-                <div className="pl-8">
-                  <div className="font-medium text-base sm:text-sm text-gray-900">
-                    {option.label}
-                  </div>
-                  <div className="text-xs sm:text-sm text-gray-600 mt-1">
-                    {option.description}
-                  </div>
-                </div>
-              </button>
-            ))}
+                Anterior
+              </Button>
+              <Button 
+                onClick={handleNext}
+                className="w-full sm:w-auto"
+              >
+                Siguiente
+              </Button>
+            </div>
           </div>
-        </div>
-      ))}
+        );
+    }
+  };
 
-      {/* Botón continuar - responsive */}
-      <div className="flex justify-center sm:justify-end pt-6">
-        <Button 
-          onClick={handleContinue}
-          disabled={!isComplete}
-          size="lg"
-          className={`
-            w-full sm:w-auto min-h-[48px] text-base font-medium
-            transition-all duration-200
-            ${!isComplete ? 'opacity-50' : 'hover:scale-105'}
-          `}
-        >
-          Continuar con el Diagnóstico Detallado
-        </Button>
+  // RETURN PRINCIPAL DEL COMPONENTE - VERSIÓN RESPONSIVE
+  return (
+    <div className="max-w-4xl mx-auto p-4 sm:p-6">
+      {/* Header responsive */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 sm:mb-8 gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold">
+          Diagnóstico 3D Impulsa™ 
+          {isInternalMode && (
+            <span className="text-xs sm:text-sm font-normal text-gray-600 block sm:inline ml-0 sm:ml-2">
+              (Modo Interno)
+            </span>
+          )}
+        </h1>
+      </div>
+        
+      {/* Barra de progreso responsive */}
+      <div className="mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row justify-between mb-2 gap-1">
+          <span className="text-sm font-medium">
+            Paso {currentStep + 1} de {STEPS.length}
+          </span>
+          <span className="text-sm text-gray-500">
+            {STEPS[currentStep].title}
+          </span>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-2">
+          <div 
+            className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+            style={{ width: `${calculateProgress()}%` }}
+          />
+        </div>
+        
+        {/* Mostrar contador de preguntas totales durante el diagnóstico */}
+        {currentStep >= 2 && currentStep <= 4 && (
+          <p className="text-xs text-gray-500 mt-2 text-center">
+            {getTotalQuestions()} de 15 preguntas completadas en total
+          </p>
+        )}
       </div>
 
-      {/* Indicador de progreso móvil */}
-      <div className="sm:hidden fixed bottom-4 left-4 right-4 bg-white rounded-lg shadow-lg p-3 border">
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-600">Preguntas respondidas:</span>
-          <div className="flex gap-2">
-            {questions.map((q) => (
-              <div
-                key={q.id}
-                className={`
-                  w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium
-                  ${answers[q.id as keyof typeof answers] > 0
-                    ? 'bg-green-500 text-white'
-                    : 'bg-gray-200 text-gray-500'
-                  }
-                `}
-              >
-                {answers[q.id as keyof typeof answers] > 0 ? '✓' : (questions.findIndex(x => x.id === q.id) + 1)}
-              </div>
-            ))}
-          </div>
+      {/* Steps verticales en móvil, horizontales en desktop */}
+      <div className="mb-6 overflow-x-auto pb-2">
+        <div className="flex flex-nowrap sm:justify-center gap-2 min-w-max sm:min-w-0">
+          {STEPS.map((step, index) => (
+            <div
+              key={step.id}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg whitespace-nowrap text-sm
+                ${index === currentStep 
+                  ? 'bg-blue-100 text-blue-700 font-medium' 
+                  : index < currentStep
+                  ? 'bg-green-50 text-green-700'
+                  : 'bg-gray-50 text-gray-500'
+                }`}
+            >
+              <span className="text-lg">{step.icon}</span>
+              <span className="hidden sm:inline">{step.title}</span>
+              <span className="sm:hidden">{index + 1}</span>
+            </div>
+          ))}
         </div>
+      </div>
+
+      {/* Contenido del paso actual - responsive */}
+      <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
+        <h2 className="text-xl sm:text-2xl font-semibold mb-4 flex items-center gap-2">
+          <span className="text-2xl">{STEPS[currentStep].icon}</span>
+          <span className="hidden sm:inline">{STEPS[currentStep].title}</span>
+          <span className="sm:hidden">Paso {currentStep + 1}</span>
+        </h2>
+        
+        {renderStepContent()}
       </div>
     </div>
   );

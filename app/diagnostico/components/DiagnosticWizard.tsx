@@ -4,19 +4,6 @@ import { useState, useEffect } from 'react';
 import { Button, Card, CardContent, CardHeader, CardTitle, Progress } from '@/components/ui/index';
 import { useDiagnosticStore } from '@/store/diagnosticStore';
 import { ClientInfoStep } from './ClientInfoStep';
-[{
-	"resource": "/workspaces/ImpulsaLab-V-Claude/app/diagnostico/components/DiagnosticWizard.tsx",
-	"owner": "typescript",
-	"code": "1192",
-	"severity": 8,
-	"message": "El módulo '\"/workspaces/ImpulsaLab-V-Claude/app/diagnostico/components/PreAssessment\"' no tiene ninguna exportación predeterminada.",
-	"source": "ts",
-	"startLineNumber": 7,
-	"startColumn": 8,
-	"endLineNumber": 7,
-	"endColumn": 21,
-	"origin": "extHost2"
-}]
 import { AdaptiveQuestions } from './AdaptiveQuestions';
 import { ResultsDashboard } from './ResultsDashboard';
 import { PreAssessment } from './PreAssessment';

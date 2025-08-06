@@ -16,11 +16,9 @@ export function AdaptiveQuestions({ axis, onResponse, onComplete }: AdaptiveQues
   const [answers, setAnswers] = useState<any[]>([]);
   const [selectedValue, setSelectedValue] = useState<any>(null);
   
-  // Por ahora usamos un score fijo, después lo obtendremos del pre-assessment
   const questions = selectAdaptiveQuestions(axis, 50, 5);
   const currentQuestion = questions[currentQuestionIndex];
   
-  // DEBUG: Ver qué preguntas se están cargando (solo una vez)
   useEffect(() => {
     console.log(`Preguntas para ${axis}:`, questions.length, questions);
   }, [axis]);
@@ -36,7 +34,6 @@ export function AdaptiveQuestions({ axis, onResponse, onComplete }: AdaptiveQues
 
   const handleNext = () => {
     if (selectedValue !== null) {
-      // Guardar respuesta
       const response = {
         questionId: currentQuestion.id,
         score: selectedValue,
@@ -50,7 +47,6 @@ export function AdaptiveQuestions({ axis, onResponse, onComplete }: AdaptiveQues
       const newAnswers = [...answers, response];
       setAnswers(newAnswers);
       
-      // Avanzar a la siguiente pregunta o completar
       if (currentQuestionIndex < questions.length - 1) {
         setCurrentQuestionIndex(currentQuestionIndex + 1);
         setSelectedValue(null);
@@ -67,7 +63,6 @@ export function AdaptiveQuestions({ axis, onResponse, onComplete }: AdaptiveQues
     }
   };
 
-  // Si no hay preguntas disponibles
   if (!currentQuestion) {
     return (
       <div className="text-center py-8">
@@ -77,72 +72,157 @@ export function AdaptiveQuestions({ axis, onResponse, onComplete }: AdaptiveQues
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header del eje */}
-      <div className="text-center mb-6">
+    <div className="space-y-4 sm:space-y-6">
+      {/* Header del eje - responsive */}
+      <div className="text-center mb-4 sm:mb-6">
         <div className="flex items-center justify-center space-x-2 mb-2">
-          <span className="text-3xl">{info.icon}</span>
-          <h3 className="text-xl font-semibold">{info.title}</h3>
+          <span className="text-2xl sm:text-3xl">{info.icon}</span>
+          <h3 className="text-lg sm:text-xl font-semibold">{info.title}</h3>
         </div>
         <Progress value={progress} className="h-2 max-w-md mx-auto" />
-        <p className="text-sm text-gray-600 mt-2">
+        <p className="text-xs sm:text-sm text-gray-600 mt-2">
           Pregunta {currentQuestionIndex + 1} de {questions.length}
         </p>
       </div>
 
-      {/* Pregunta actual */}
+      {/* Pregunta actual - responsive */}
       <div className="space-y-4">
-        <div>
-          <h4 className="text-lg font-medium mb-2">{currentQuestion.text}</h4>
+        <div className="px-2 sm:px-0">
+          <h4 className="text-base sm:text-lg font-medium mb-2">{currentQuestion.text}</h4>
           {currentQuestion.helpText && (
-            <p className="text-sm text-gray-600 mb-4">{currentQuestion.helpText}</p>
+            <p className="text-xs sm:text-sm text-gray-600 mb-4">{currentQuestion.helpText}</p>
           )}
         </div>
 
-        {/* Opciones de respuesta */}
+        {/* Opciones de respuesta - touch optimized */}
         {currentQuestion.type === 'multiple-choice' && currentQuestion.options && (
-          <div className="space-y-3">
+          <div className="space-y-3 px-2 sm:px-0">
             {currentQuestion.options.map((option: any) => (
               <button
                 key={option.value}
                 onClick={() => setSelectedValue(option.score)}
-                className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
-                  selectedValue === option.score
-                    ? `border-${info.color}-500 bg-${info.color}-50`
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
+                className={`
+                  w-full text-left p-4 rounded-lg border-2 transition-all
+                  min-h-[60px] active:scale-[0.98]
+                  ${selectedValue === option.score
+                    ? `border-${info.color}-500 bg-${info.color}-50 shadow-md`
+                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                  }
+                `}
+                style={{ WebkitTapHighlightColor: 'transparent' }}
               >
-                <div className="font-medium">{option.label}</div>
+                <div className="flex items-start gap-3">
+                  {/* Radio indicator mejorado */}
+                  <div className={`
+                    w-5 h-5 rounded-full border-2 mt-0.5 flex-shrink-0 transition-all
+                    ${selectedValue === option.score
+                      ? `border-${info.color}-500 bg-${info.color}-500`
+                      : 'border-gray-400'
+                    }
+                  `}>
+                    {selectedValue === option.score && (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      </div>
+                    )}
+                  </div>
+                  <div className="font-medium text-sm sm:text-base">{option.label}</div>
+                </div>
               </button>
             ))}
           </div>
         )}
 
-        {/* Slider para preguntas de tipo slider */}
+        {/* Slider mejorado para móvil */}
         {currentQuestion.type === 'slider' && (
-          <div className="space-y-4">
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={selectedValue || 50}
-              onChange={(e) => setSelectedValue(parseInt(e.target.value))}
-              className="w-full"
-            />
+          <div className="space-y-6 px-4 sm:px-0">
+            {/* Valor grande y centrado */}
             <div className="text-center">
-              <span className="text-2xl font-bold">{selectedValue || 50}</span>
-              <span className="text-gray-600"> / 100</span>
+              <div className="inline-flex items-baseline gap-2 bg-gray-100 px-6 py-3 rounded-lg">
+                <span className="text-3xl sm:text-4xl font-bold text-gray-900">
+                  {selectedValue || 50}
+                </span>
+                <span className="text-lg sm:text-xl text-gray-600">/ 100</span>
+              </div>
+            </div>
+            
+            {/* Slider con área táctil mejorada */}
+            <div className="relative py-4">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={selectedValue || 50}
+                onChange={(e) => setSelectedValue(parseInt(e.target.value))}
+                className={`
+                  w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer
+                  [&::-webkit-slider-thumb]:appearance-none
+                  [&::-webkit-slider-thumb]:w-8
+                  [&::-webkit-slider-thumb]:h-8
+                  [&::-webkit-slider-thumb]:bg-${info.color}-500
+                  [&::-webkit-slider-thumb]:rounded-full
+                  [&::-webkit-slider-thumb]:cursor-pointer
+                  [&::-webkit-slider-thumb]:shadow-lg
+                  [&::-webkit-slider-thumb]:transition-all
+                  [&::-webkit-slider-thumb]:hover:scale-110
+                  [&::-moz-range-thumb]:w-8
+                  [&::-moz-range-thumb]:h-8
+                  [&::-moz-range-thumb]:bg-${info.color}-500
+                  [&::-moz-range-thumb]:rounded-full
+                  [&::-moz-range-thumb]:cursor-pointer
+                  [&::-moz-range-thumb]:shadow-lg
+                  [&::-moz-range-thumb]:border-0
+                  [&::-moz-range-thumb]:transition-all
+                  [&::-moz-range-thumb]:hover:scale-110
+                `}
+                style={{
+                  background: `linear-gradient(to right, 
+                    var(--tw-gradient-from) 0%, 
+                    var(--tw-gradient-from) ${selectedValue || 50}%, 
+                    #e5e7eb ${selectedValue || 50}%, 
+                    #e5e7eb 100%)`,
+                  '--tw-gradient-from': info.color === 'blue' ? '#3b82f6' : 
+                                       info.color === 'green' ? '#10b981' : '#8b5cf6'
+                } as any}
+              />
+              
+              {/* Etiquetas de referencia */}
+              <div className="flex justify-between mt-2 text-xs text-gray-500">
+                <span>Bajo</span>
+                <span>Medio</span>
+                <span>Alto</span>
+              </div>
+            </div>
+            
+            {/* Botones de ajuste rápido */}
+            <div className="flex justify-center gap-2">
+              {[0, 25, 50, 75, 100].map(val => (
+                <button
+                  key={val}
+                  onClick={() => setSelectedValue(val)}
+                  className={`
+                    px-3 py-1 rounded-full text-xs font-medium transition-all
+                    ${selectedValue === val
+                      ? `bg-${info.color}-500 text-white`
+                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }
+                  `}
+                >
+                  {val}
+                </button>
+              ))}
             </div>
           </div>
         )}
       </div>
 
-      {/* Navegación */}
-      <div className="flex justify-between pt-6">
+      {/* Navegación - responsive y fixed en móvil */}
+      <div className="flex justify-between gap-3 pt-6 px-2 sm:px-0">
         <Button
           onClick={handlePrevious}
           variant="outline"
           disabled={currentQuestionIndex === 0}
+          className="flex-1 sm:flex-initial min-h-[48px]"
         >
           Anterior
         </Button>
@@ -150,9 +230,20 @@ export function AdaptiveQuestions({ axis, onResponse, onComplete }: AdaptiveQues
         <Button
           onClick={handleNext}
           disabled={selectedValue === null}
+          className="flex-1 sm:flex-initial min-h-[48px]"
         >
           {currentQuestionIndex === questions.length - 1 ? 'Completar' : 'Siguiente'}
         </Button>
+      </div>
+
+      {/* Indicador de progreso móvil flotante */}
+      <div className="sm:hidden fixed bottom-4 left-4 right-4 bg-white rounded-lg shadow-lg p-2 border">
+        <div className="flex items-center gap-3">
+          <Progress value={progress} className="h-2 flex-1" />
+          <span className="text-xs font-medium text-gray-600 whitespace-nowrap">
+            {currentQuestionIndex + 1}/{questions.length}
+          </span>
+        </div>
       </div>
     </div>
   );

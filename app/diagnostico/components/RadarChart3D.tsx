@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import {
   Chart as ChartJS,
   RadialLinearScale,
@@ -21,6 +22,40 @@ ChartJS.register(
   Legend
 );
 
+// Hook personalizado para detectar el tamaño de la ventana (incluido temporalmente aquí)
+function useWindowSize() {
+  const [windowSize, setWindowSize] = useState({
+    width: typeof window !== 'undefined' ? window.innerWidth : 1024,
+    height: typeof window !== 'undefined' ? window.innerHeight : 768,
+  });
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
+    const handleResize = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setWindowSize({
+          width: window.innerWidth,
+          height: window.innerHeight,
+        });
+      }, 150);
+    };
+
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('orientationchange', handleResize);
+    handleResize();
+
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
+  }, []);
+
+  return windowSize;
+}
+
 interface RadarChart3DProps {
   scores: {
     finance: number;
@@ -31,12 +66,65 @@ interface RadarChart3DProps {
 }
 
 export function RadarChart3D({ scores, companyName = 'Tu Empresa' }: RadarChart3DProps) {
+  const { width } = useWindowSize();
+  
+  // Determinar el tamaño del chart según el dispositivo
+  const getChartSize = () => {
+    if (width < 640) return 'mobile';      // < 640px
+    if (width < 1024) return 'tablet';     // 640px - 1024px
+    return 'desktop';                       // > 1024px
+  };
+
+  const chartSize = getChartSize();
+  
+  // Configuraciones responsivas
+  const responsiveConfig = {
+    mobile: {
+      fontSize: {
+        ticks: 9,
+        pointLabels: 11,
+        title: 14,
+        tooltip: 11
+      },
+      pointRadius: 6,
+      pointHoverRadius: 8,
+      padding: 10,
+      labelPadding: 8
+    },
+    tablet: {
+      fontSize: {
+        ticks: 10,
+        pointLabels: 12,
+        title: 14,
+        tooltip: 12
+      },
+      pointRadius: 8,
+      pointHoverRadius: 10,
+      padding: 15,
+      labelPadding: 12
+    },
+    desktop: {
+      fontSize: {
+        ticks: 11,
+        pointLabels: 13,
+        title: 14,
+        tooltip: 12
+      },
+      pointRadius: 10,
+      pointHoverRadius: 12,
+      padding: 20,
+      labelPadding: 15
+    }
+  };
+
+  const config = responsiveConfig[chartSize];
+
   const options: ChartOptions<'radar'> = {
     responsive: true,
     maintainAspectRatio: true,
-    aspectRatio: 1,
+    aspectRatio: chartSize === 'mobile' ? 1.2 : 1,
     layout: {
-      padding: 20
+      padding: config.padding
     },
     scales: {
       r: {
@@ -54,19 +142,21 @@ export function RadarChart3D({ scores, companyName = 'Tu Empresa' }: RadarChart3
         ticks: {
           stepSize: 20,
           font: {
-            size: 11,
+            size: config.fontSize.ticks,
             weight: 'bold' as const
           },
           color: '#ffffff',
-          backdropColor: 'transparent'
+          backdropColor: 'transparent',
+          display: chartSize !== 'mobile' // Ocultar ticks en móvil para más espacio
         },
         pointLabels: {
           font: {
-            size: 13,
+            size: config.fontSize.pointLabels,
             weight: 'bold' as const
           },
           color: '#ffffff',
-          padding: 15
+          padding: config.labelPadding,
+          centerPointLabels: true
         }
       }
     },
@@ -78,12 +168,12 @@ export function RadarChart3D({ scores, companyName = 'Tu Empresa' }: RadarChart3
         enabled: true,
         backgroundColor: 'rgba(0, 0, 0, 0.9)',
         titleFont: {
-          size: 14
+          size: config.fontSize.tooltip
         },
         bodyFont: {
-          size: 12
+          size: config.fontSize.tooltip
         },
-        padding: 10,
+        padding: 8,
         displayColors: false,
         callbacks: {
           label: function(context: any) {
@@ -95,25 +185,23 @@ export function RadarChart3D({ scores, companyName = 'Tu Empresa' }: RadarChart3
   };
 
   const data = {
-    labels: [
-      'FINANZAS',
-      'OPERACIONES',
-      'MARKETING'
-    ],
+    labels: chartSize === 'mobile' 
+      ? ['FIN', 'OPS', 'MKT'] // Labels cortos en móvil
+      : ['FINANZAS', 'OPERACIONES', 'MARKETING'],
     datasets: [
       {
         label: companyName,
         data: [scores.finance, scores.operations, scores.marketing],
         backgroundColor: 'rgba(255, 255, 255, 0.25)',
         borderColor: '#ffffff',
-        borderWidth: 3,
+        borderWidth: chartSize === 'mobile' ? 2 : 3,
         pointBackgroundColor: '#ffffff',
         pointBorderColor: ['#3b82f6', '#10b981', '#a855f7'],
         pointHoverBackgroundColor: ['#3b82f6', '#10b981', '#a855f7'],
         pointHoverBorderColor: '#ffffff',
-        pointRadius: 10,
-        pointHoverRadius: 12,
-        pointBorderWidth: 3
+        pointRadius: config.pointRadius,
+        pointHoverRadius: config.pointHoverRadius,
+        pointBorderWidth: chartSize === 'mobile' ? 2 : 3
       },
       // Zona de Expansión (70+)
       {
@@ -159,10 +247,37 @@ export function RadarChart3D({ scores, companyName = 'Tu Empresa' }: RadarChart3
         }}
       />
       
-      {/* Gráfico */}
-      <div className="relative z-10 w-full h-full">
+      {/* Indicador de tamaño actual (solo en desarrollo) */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
+          {chartSize} ({width}px)
+        </div>
+      )}
+      
+      {/* Gráfico con contenedor responsive */}
+      <div className="relative z-10 w-full h-full p-2 sm:p-4">
         <Radar options={options} data={data} />
       </div>
+      
+      {/* Leyenda móvil optimizada */}
+      {chartSize === 'mobile' && (
+        <div className="absolute bottom-2 left-2 right-2 bg-black/50 backdrop-blur-sm rounded p-2">
+          <div className="flex justify-around text-xs text-white">
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+              <span>FIN: {scores.finance}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+              <span>OPS: {scores.operations}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+              <span>MKT: {scores.marketing}</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

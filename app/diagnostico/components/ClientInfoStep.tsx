@@ -77,9 +77,10 @@ export function ClientInfoStep({ clientInfo, onUpdate, onNext }: ClientInfoStepP
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label className="block text-sm font-medium mb-2">
+    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+      {/* Nombre de la Empresa */}
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">
           Nombre de la Empresa *
         </label>
         <input
@@ -87,16 +88,22 @@ export function ClientInfoStep({ clientInfo, onUpdate, onNext }: ClientInfoStepP
           name="companyName"
           value={formData.companyName}
           onChange={handleChange}
-          className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 ${
-            errors.companyName ? 'border-red-500' : 'border-gray-300'
+          className={`w-full px-3 py-3 sm:px-4 sm:py-2 text-base sm:text-sm border-2 rounded-lg 
+            focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900
+            transition-all duration-200 ${
+            errors.companyName ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
           }`}
           placeholder="Ej: Mesón Centroamericano"
+          autoComplete="organization"
         />
-        {errors.companyName && <p className="text-red-500 text-sm mt-1">{errors.companyName}</p>}
+        {errors.companyName && (
+          <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.companyName}</p>
+        )}
       </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-2">
+      {/* Nombre del Contacto */}
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">
           Nombre del Contacto *
         </label>
         <input
@@ -104,24 +111,32 @@ export function ClientInfoStep({ clientInfo, onUpdate, onNext }: ClientInfoStepP
           name="contactName"
           value={formData.contactName}
           onChange={handleChange}
-          className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 ${
-            errors.contactName ? 'border-red-500' : 'border-gray-300'
+          className={`w-full px-3 py-3 sm:px-4 sm:py-2 text-base sm:text-sm border-2 rounded-lg 
+            focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900
+            transition-all duration-200 ${
+            errors.contactName ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
           }`}
           placeholder="Ej: Juan Pérez"
+          autoComplete="name"
         />
-        {errors.contactName && <p className="text-red-500 text-sm mt-1">{errors.contactName}</p>}
+        {errors.contactName && (
+          <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.contactName}</p>
+        )}
       </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-2">
+      {/* Industria */}
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">
           Industria *
         </label>
         <select
           name="industry"
           value={formData.industry}
           onChange={handleChange}
-          className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 ${
-            errors.industry ? 'border-red-500' : 'border-gray-300'
+          className={`w-full px-3 py-3 sm:px-4 sm:py-2 text-base sm:text-sm border-2 rounded-lg 
+            focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900
+            transition-all duration-200 appearance-none ${
+            errors.industry ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
           }`}
         >
           <option value="">Selecciona una industria</option>
@@ -129,12 +144,16 @@ export function ClientInfoStep({ clientInfo, onUpdate, onNext }: ClientInfoStepP
             <option key={ind} value={ind}>{ind}</option>
           ))}
         </select>
-        {errors.industry && <p className="text-red-500 text-sm mt-1">{errors.industry}</p>}
+        {errors.industry && (
+          <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.industry}</p>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium mb-2">
+      {/* Grid responsive para empleados e ingresos */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Número de Empleados */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">
             Número de Empleados *
           </label>
           <input
@@ -142,17 +161,23 @@ export function ClientInfoStep({ clientInfo, onUpdate, onNext }: ClientInfoStepP
             name="employeeCount"
             value={formData.employeeCount}
             onChange={handleChange}
-            className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 ${
-              errors.employeeCount ? 'border-red-500' : 'border-gray-300'
+            className={`w-full px-3 py-3 sm:px-4 sm:py-2 text-base sm:text-sm border-2 rounded-lg 
+              focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900
+              transition-all duration-200 ${
+              errors.employeeCount ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
             }`}
             placeholder="Ej: 10"
             min="1"
+            inputMode="numeric"
           />
-          {errors.employeeCount && <p className="text-red-500 text-sm mt-1">{errors.employeeCount}</p>}
+          {errors.employeeCount && (
+            <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.employeeCount}</p>
+          )}
         </div>
 
-        <div>
-          <label className="block text-sm font-medium mb-2">
+        {/* Ingresos Anuales */}
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700">
             Ingresos Anuales (USD)
           </label>
           <input
@@ -160,17 +185,21 @@ export function ClientInfoStep({ clientInfo, onUpdate, onNext }: ClientInfoStepP
             name="annualRevenue"
             value={formData.annualRevenue}
             onChange={handleChange}
-           className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 ${
-            errors.annualRevenue ? 'border-red-500' : 'border-gray-300'
-          }`}
+            className={`w-full px-3 py-3 sm:px-4 sm:py-2 text-base sm:text-sm border-2 rounded-lg 
+              focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900
+              transition-all duration-200 ${
+              errors.annualRevenue ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
+            }`}
             placeholder="Ej: 500000"
             min="0"
+            inputMode="numeric"
           />
         </div>
       </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-2">
+      {/* Email */}
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">
           Email de Contacto *
         </label>
         <input
@@ -178,17 +207,23 @@ export function ClientInfoStep({ clientInfo, onUpdate, onNext }: ClientInfoStepP
           name="email"
           value={formData.email}
           onChange={handleChange}
-          className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 ${
-            errors.email ? 'border-red-500' : 'border-gray-300'
+          className={`w-full px-3 py-3 sm:px-4 sm:py-2 text-base sm:text-sm border-2 rounded-lg 
+            focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900
+            transition-all duration-200 ${
+            errors.email ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
           }`}
-          
           placeholder="contacto@empresa.com"
+          autoComplete="email"
+          inputMode="email"
         />
-        {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+        {errors.email && (
+          <p className="text-red-500 text-xs sm:text-sm mt-1">{errors.email}</p>
+        )}
       </div>
 
-      <div>
-        <label className="block text-sm font-medium mb-2">
+      {/* Teléfono */}
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700">
           Teléfono
         </label>
         <input
@@ -196,15 +231,24 @@ export function ClientInfoStep({ clientInfo, onUpdate, onNext }: ClientInfoStepP
           name="phone"
           value={formData.phone}
           onChange={handleChange}
-          className={`w-full px-4 py-2 border-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900 ${
-            errors.phone ? 'border-red-500' : 'border-gray-300'
+          className={`w-full px-3 py-3 sm:px-4 sm:py-2 text-base sm:text-sm border-2 rounded-lg 
+            focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900
+            transition-all duration-200 ${
+            errors.phone ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
           }`}
           placeholder="+1 234 567 8900"
+          autoComplete="tel"
+          inputMode="tel"
         />
       </div>
 
-      <div className="flex justify-end pt-4">
-        <Button type="submit" size="lg">
+      {/* Botón de submit - full width en móvil */}
+      <div className="pt-4">
+        <Button 
+          type="submit" 
+          size="lg"
+          className="w-full sm:w-auto min-h-[48px] text-base font-medium"
+        >
           Continuar al Diagnóstico
         </Button>
       </div>

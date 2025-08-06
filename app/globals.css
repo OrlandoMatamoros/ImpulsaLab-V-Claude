@@ -1,445 +1,140 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import './responsive-utilities.css';
+/* app/globals.css */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@custom-variant dark (&:is(.dark *));
+/* Tu CSS existente aquí... */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+/* UTILIDADES RESPONSIVE - Agregar al final del archivo */
+@layer utilities {
+  /* Textos responsivos */
+  .text-responsive-xs {
+    @apply text-xs sm:text-sm;
+  }
+  
+  .text-responsive-sm {
+    @apply text-sm sm:text-base;
+  }
+  
+  .text-responsive-base {
+    @apply text-base sm:text-lg;
+  }
+  
+  .text-responsive-lg {
+    @apply text-lg sm:text-xl lg:text-2xl;
+  }
+  
+  .text-responsive-xl {
+    @apply text-xl sm:text-2xl lg:text-3xl;
+  }
+  
+  .text-responsive-title {
+    @apply text-2xl sm:text-3xl lg:text-4xl;
+  }
+  
+  /* Spacing responsivo */
+  .padding-responsive-xs {
+    @apply p-2 sm:p-3 lg:p-4;
+  }
+  
+  .padding-responsive-sm {
+    @apply p-3 sm:p-4 lg:p-5;
+  }
+  
+  .padding-responsive {
+    @apply p-4 sm:p-6 lg:p-8;
+  }
+  
+  .padding-responsive-lg {
+    @apply p-6 sm:p-8 lg:p-10;
+  }
+  
+  /* Buttons móvil-first */
+  .btn-responsive {
+    @apply w-full sm:w-auto px-4 py-3 text-base min-h-[48px] touch-manipulation 
+           transition-all duration-200 active:scale-95 focus:outline-none 
+           focus:ring-2 focus:ring-offset-2;
+  }
+  
+  .btn-responsive-sm {
+    @apply w-full sm:w-auto px-3 py-2 text-sm min-h-[40px];
+  }
+  
+  /* Cards responsive */
+  .card-responsive {
+    @apply rounded-lg shadow-sm sm:shadow-md p-4 sm:p-6 bg-white border border-gray-200;
+  }
+  
+  /* Forms responsive */
+  .input-responsive {
+    @apply w-full px-3 py-3 sm:px-4 sm:py-2 text-base sm:text-sm border-2 rounded-lg 
+           min-h-[48px] sm:min-h-[40px] focus:outline-none focus:ring-2 
+           focus:ring-blue-500 transition-all duration-200;
+  }
+  
+  .label-responsive {
+    @apply block text-sm font-medium text-gray-700 mb-2;
+  }
+  
+  /* Grid responsive */
+  .grid-responsive {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6;
+  }
+  
+  /* Touch targets */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+  }
+  
+  /* Utilities para ocultar/mostrar */
+  .mobile-only {
+    @apply block sm:hidden;
+  }
+  
+  .desktop-only {
+    @apply hidden sm:block;
+  }
+  
+  /* Safe areas para iOS */
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
 }
 
-/* Reset y prevención de overflow */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html {
-  overflow-x: hidden;
-  scroll-behavior: smooth;
-}
-
-body {
-  overflow-x: hidden;
-  max-width: 100vw;
-  position: relative;
-  margin: 0;
-  padding: 0;
-}
-
-/* Prevenir desbordamiento en elementos principales */
-main, section, div {
-  max-width: 100vw;
-  overflow-x: hidden;
-}
-
-/* Fix específico para móviles */
-@media (max-width: 768px) {
+/* Animations for mobile */
+@media (max-width: 640px) {
+  /* Reduce motion on mobile for better performance */
+  * {
+    animation-duration: 0.2s !important;
+    transition-duration: 0.2s !important;
+  }
+  
+  /* Improve tap targets */
+  button, a, input, select, textarea {
+    min-height: 44px;
+  }
+  
+  /* Prevent horizontal scroll */
   body {
-    width: 100%;
     overflow-x: hidden;
   }
+}
 
-  .container {
-    padding-left: 1rem;
-    padding-right: 1rem;
+/* Print styles for PDF */
+@media print {
+  .no-print {
+    display: none !important;
   }
-}
-
-/* Asegurar que los placeholders sean visibles EN TODOS LOS NAVEGADORES */
-input::placeholder,
-textarea::placeholder {
-  color: #6b7280 !important; /* gray-500 */
-  opacity: 1 !important;
-}
-
-/* Para navegadores webkit (Safari, Chrome en iOS) */
-input::-webkit-input-placeholder,
-textarea::-webkit-input-placeholder {
-  color: #6b7280 !important;
-  opacity: 1 !important;
-}
-
-/* Para Firefox */
-input::-moz-placeholder,
-textarea::-moz-placeholder {
-  color: #6b7280 !important;
-  opacity: 1 !important;
-}
-
-/* Para Edge e Internet Explorer */
-input::-ms-input-placeholder,
-textarea::-ms-input-placeholder {
-  color: #6b7280 !important;
-  opacity: 1 !important;
-}
-
-/* Animaciones para VerticalTechTicker */
-@keyframes slideUp {
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(-50%);
-  }
-}
-
-@keyframes slideDown {
-  0% {
-    transform: translateY(-50%);
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
-
-.animate-slide-up {
-  animation: slideUp 40s linear infinite;
-}
-
-.animate-slide-down {
-  animation: slideDown 40s linear infinite;
-}
-
-/* Ajuste de velocidad para móviles */
-@media (max-width: 768px) {
-  .animate-slide-up,
-  .animate-slide-down {
-    animation-duration: 60s; /* Más lento en móviles */
-  }
-}
-
-/* Fix adicional para prevenir scroll horizontal */
-#__next {
-  overflow-x: hidden;
-}
-
-/* Animaciones para WhatsApp Widget */
-@keyframes bounce {
-  0%, 60%, 100% {
-    transform: translateY(0);
-  }
-  30% {
-    transform: translateY(-10px);
-  }
-}
-
-.animate-bounce {
-  animation: bounce 1.4s infinite;
-}
-
-.delay-100 {
-  animation-delay: 0.1s;
-}
-
-.delay-200 {
-  animation-delay: 0.2s;
-}
-
-/* Fix para inputs en móviles - mejor contraste */
-input[type="text"],
-input[type="email"],
-textarea {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  -webkit-text-fill-color: #111827 !important; /* gray-900 */
-  color: #111827 !important;
-  opacity: 1 !important;
-}
-
-/* Dark mode override prevention */
-@media (prefers-color-scheme: dark) {
-  input[type="text"],
-  input[type="email"],
-  textarea {
-    background-color: white !important;
-    color: #111827 !important;
-    -webkit-text-fill-color: #111827 !important;
-  }
-}
-
-/* Fix específico para el chat widget */
-.chat-input {
-  background-color: white !important;
-  color: #111827 !important;
-  -webkit-text-fill-color: #111827 !important;
-}
-
-/* =============================================== */
-/* ANIMACIÓN HORIZONTAL PARA HorizontalTechTicker */
-/* =============================================== */
-@keyframes scroll-horizontal {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-/* Optimización con aceleración por hardware */
-@-webkit-keyframes scroll-horizontal {
-  0% { 
-    -webkit-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0);
-  }
-  100% { 
-    -webkit-transform: translate3d(-50%, 0, 0);
-    transform: translate3d(-50%, 0, 0);
-  }
-}
-
-@-moz-keyframes scroll-horizontal {
-  0% { 
-    -moz-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0);
-  }
-  100% { 
-    -moz-transform: translate3d(-50%, 0, 0);
-    transform: translate3d(-50%, 0, 0);
-  }
-}
-
-/* Clase principal de animación */
-.animate-scroll-horizontal {
-  animation: scroll-horizontal 30s linear infinite;
-  -webkit-animation: scroll-horizontal 30s linear infinite;
-  -moz-animation: scroll-horizontal 30s linear infinite;
-}
-
-/* Pausa la animación al hacer hover */
-.animate-scroll-horizontal:hover {
-  animation-play-state: paused;
-  -webkit-animation-play-state: paused;
-  -moz-animation-play-state: paused;
-}
-
-/* Responsivo: más lento en móviles */
-@media (max-width: 768px) {
-  .animate-scroll-horizontal {
-    animation-duration: 45s;
-    -webkit-animation-duration: 45s;
-    -moz-animation-duration: 45s;
-  }
-}
-
-/* Forzar aceleración por hardware para el ticker */
-.ticker-content {
-  -webkit-transform: translateZ(0);
-  -moz-transform: translateZ(0);
-  -ms-transform: translateZ(0);
-  -o-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-backface-visibility: hidden;
-  -moz-backface-visibility: hidden;
-  backface-visibility: hidden;
-  -webkit-perspective: 1000;
-  -moz-perspective: 1000;
-  perspective: 1000;
-  will-change: transform;
-}
-
-/* Asegurar que la animación funcione correctamente */
-.ticker-container * {
-  animation-play-state: running !important;
-  -webkit-animation-play-state: running !important;
-}
-/* Animaciones para RiskShieldSection */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: .8;
-  }
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.6s ease-out;
-}
-
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-/* Animación para el modal */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out;
-}
-
-/* Animaciones del hero (si no las tienes ya) */
-@keyframes blob {
-  0% {
-    transform: translate(0px, 0px) scale(1);
-  }
-  33% {
-    transform: translate(30px, -50px) scale(1.1);
-  }
-  66% {
-    transform: translate(-20px, 20px) scale(0.9);
-  }
-  100% {
-    transform: translate(0px, 0px) scale(1);
-  }
-}
-
-.animate-blob {
-  animation: blob 7s infinite;
-}
-
-.animation-delay-2000 {
-  animation-delay: 2s;
-}
-
-.animation-delay-4000 {
-  animation-delay: 4s;
-}
-
-:root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
-}
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
+  
   body {
-    @apply bg-background text-foreground;
+    font-size: 12pt;
   }
-}/* Vercel sync fix Wed Aug  6 17:05:47 UTC 2025 */
+  
+  .page-break {
+    page-break-after: always;
+  }
+}

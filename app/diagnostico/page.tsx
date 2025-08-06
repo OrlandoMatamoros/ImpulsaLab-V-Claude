@@ -76,4 +76,4 @@ export default function DiagnosticoPage() {
       isInternalMode={isInternalMode}
     />
   )
-}
+}// Force rebuild Wed Aug  6 13:32:29 UTC 2025

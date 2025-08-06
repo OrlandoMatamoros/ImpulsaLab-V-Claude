@@ -189,16 +189,27 @@ export default function ArsenalPage() {
           </div>
         </div>
 
+        {/* Botón flotante para mostrar filtros en móvil */}
+        <button
+          onClick={() => setShowFilters(true)}
+          className="fixed bottom-4 right-4 sm:hidden bg-blue-500 text-white rounded-full p-3 shadow-lg z-30"
+        >
+          <Filter className="w-6 h-6" />
+        </button>
+
         {/* Lista de herramientas */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
           {viewMode === 'grid' ? (
             <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
-              {filteredTools.slice(0, 8).map((tool, index) => {
+              {filteredTools.map((tool, index) => {
                 const ToolIcon = tool.logo;
                 return (
-                  <div 
-                    key={index} 
-                    className="group bg-white rounded-lg sm:rounded-xl shadow-md sm:shadow-lg hover:shadow-xl sm:hover:shadow-2xl transition-all duration-300 p-4 sm:p-6 relative overflow-hidden cursor-pointer"
+                  <a
+                    key={index}
+                    href={tool.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group bg-white rounded-lg sm:rounded-xl shadow-md sm:shadow-lg hover:shadow-xl sm:hover:shadow-2xl transition-all duration-300 p-4 sm:p-6 relative overflow-hidden cursor-pointer block"
                   >
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block"></div>
                     
@@ -211,7 +222,7 @@ export default function ArsenalPage() {
                           <ToolIcon className="w-full h-full" />
                         </div>
                         
-                        <ExternalLink className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+                        <ExternalLink className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
                       </div>
                       
                       <h3 className="text-sm sm:text-lg font-semibold text-gray-900 mb-2 line-clamp-1">
@@ -224,11 +235,11 @@ export default function ArsenalPage() {
                         </span>
                       </div>
 
-                      <button className="block w-full text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white py-1.5 sm:py-2 rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all font-medium text-sm sm:text-base">
+                      <div className="block w-full text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white py-1.5 sm:py-2 rounded-lg group-hover:from-blue-700 group-hover:to-purple-700 transition-all font-medium text-sm sm:text-base">
                         Acceder
-                      </button>
+                      </div>
                     </div>
-                  </div>
+                  </a>
                 );
               })}
             </div>
@@ -249,10 +260,10 @@ export default function ArsenalPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {filteredTools.slice(0, 8).map((tool, index) => {
+                  {filteredTools.map((tool, index) => {
                     const ToolIcon = tool.logo;
                     return (
-                      <tr key={index} className="hover:bg-gray-50 cursor-pointer">
+                      <tr key={index} className="hover:bg-gray-50">
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div 
@@ -273,9 +284,14 @@ export default function ArsenalPage() {
                           </span>
                         </td>
                         <td className="px-4 sm:px-6 py-3 sm:py-4 text-center whitespace-nowrap">
-                          <button className="text-blue-600 hover:text-blue-800 inline-flex items-center">
+                          <a
+                            href={tool.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 inline-flex items-center transition-colors"
+                          >
                             <ExternalLink className="h-4 w-4" />
-                          </button>
+                          </a>
                         </td>
                       </tr>
                     );

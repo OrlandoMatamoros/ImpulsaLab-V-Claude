@@ -19,6 +19,7 @@ import { ClientInfoStep } from './ClientInfoStep';
 }]
 import { AdaptiveQuestions } from './AdaptiveQuestions';
 import { ResultsDashboard } from './ResultsDashboard';
+import { PreAssessment } from './PreAssessment';
 
 // Configuración de links directamente aquí
 const LINKS = {
@@ -182,14 +183,14 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
         );
       
       case 1:
-        return (
-          <PreAssessment
-            onComplete={(scores: { finance: number; operations: number; marketing: number }) => {
-              console.log('Pre-assessment scores:', scores);
-              handleNext();
-            }}
-          />
-        );
+  return (
+    <PreAssessment
+      onComplete={(scores: { finance: number; operations: number; marketing: number }) => {
+        console.log('Pre-assessment scores:', scores);
+        handleNext();
+      }}
+    />
+  );
         
       case 2: // Finanzas
         return (

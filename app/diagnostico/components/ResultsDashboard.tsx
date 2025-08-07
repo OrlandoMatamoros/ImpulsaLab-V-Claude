@@ -1465,7 +1465,7 @@ El momento de actuar es AHORA. Cada día que pasa sin optimizar representa oport
       addTextUTF8('Contacto Directo:', pageWidth - 80, pageHeight - 25);
       pdf.setFont('helvetica', 'normal');
       addTextUTF8('contacto@tuimpulsalab.com', pageWidth - 80, pageHeight - 20);
-      addTextUTF8('+57 311 266 9878', pageWidth - 80, pageHeight - 15);
+      addTextUTF8('+1 (929) 500-1850', pageWidth - 80, pageHeight - 15);
       addTextUTF8('www.tuimpulsalab.com', pageWidth - 80, pageHeight - 10);
       
       addPageNumber(7, 7);

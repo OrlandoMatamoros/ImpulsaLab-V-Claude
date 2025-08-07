@@ -93,7 +93,7 @@ export function ClientInfoStep({ clientInfo, onUpdate, onNext }: ClientInfoStepP
             transition-all duration-200 ${
             errors.companyName ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
           }`}
-          placeholder="Ej: Mesón Centroamericano"
+          placeholder="Ej: Antology Restaurante"
           autoComplete="organization"
         />
         {errors.companyName && (

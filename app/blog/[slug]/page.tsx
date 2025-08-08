@@ -1,174 +1,131 @@
 import Link from 'next/link';
 import { FaArrowLeft, FaPencilAlt, FaBell, FaRocket } from 'react-icons/fa';
 
-export default function BlogPostEnDesarrollo({ params }: { params: { slug: string } }) {
+interface PageProps {
+  params: Promise<{ slug: string }>
+}
+
+export default async function BlogPostEnDesarrollo({ params }: PageProps) {
+  const { slug } = await params;
+  
   // Convertir el slug en un título más legible
-  const tituloTemporal = params.slug
+  const titulo = slug
     .split('-')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
-      {/* Header */}
-      <div className="bg-white border-b">
+      {/* Header simple */}
+      <div className="bg-white shadow-sm">
         <div className="container mx-auto px-4 py-4">
-          <nav className="flex items-center gap-2 text-sm">
-            <Link href="/" className="text-gray-500 hover:text-gray-700">
-              Inicio
-            </Link>
-            <span className="text-gray-400">/</span>
-            <Link href="/blog" className="text-gray-500 hover:text-gray-700">
-              Blog
-            </Link>
-            <span className="text-gray-400">/</span>
-            <span className="text-gray-900">Próximamente</span>
-          </nav>
+          <Link 
+            href="/blog" 
+            className="inline-flex items-center text-gray-600 hover:text-blue-600 transition-colors"
+          >
+            <FaArrowLeft className="mr-2" />
+            Volver al Blog
+          </Link>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-4xl mx-auto">
-          {/* Back button */}
-          <Link 
-            href="/blog"
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-8"
-          >
-            <FaArrowLeft />
-            Volver al Blog
-          </Link>
-
-          <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 text-center">
-            {/* Icon */}
-            <div className="mb-8 relative inline-block">
-              <div className="w-32 h-32 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full mx-auto flex items-center justify-center">
-                <FaPencilAlt className="text-white text-5xl" />
-              </div>
-              <div className="absolute -top-2 -right-2 w-12 h-12 bg-yellow-400 rounded-full flex items-center justify-center animate-bounce">
-                <FaBell className="text-white text-xl" />
-              </div>
-            </div>
-
-            {/* Message */}
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              ¡Este Artículo Está en Camino!
-            </h1>
-            
-            <div className="text-lg text-gray-600 mb-6">
-              <p className="mb-2">Estamos trabajando en:</p>
-              <p className="text-2xl font-semibold text-blue-600">"{tituloTemporal}"</p>
-            </div>
-
-            <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
-              Nuestro equipo de expertos está preparando contenido valioso sobre este tema. 
-              Mientras tanto, te invitamos a explorar otros recursos que pueden ayudarte 
-              a transformar tu negocio con IA.
-            </p>
-
-            {/* Alternative actions */}
-            <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-xl p-6 mb-8">
-              <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                Mientras esperas, puedes:
-              </h2>
-              <div className="grid md:grid-cols-3 gap-4 text-left">
-                <Link href="/casos-de-exito" className="group">
-                  <div className="bg-white rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <h3 className="font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
-                      Casos de Éxito
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      Descubre cómo otras empresas se transformaron
-                    </p>
-                  </div>
-                </Link>
-                
-                <Link href="/herramientas" className="group">
-                  <div className="bg-white rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <h3 className="font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
-                      Herramientas IA
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      Explora nuestro arsenal tecnológico
-                    </p>
-                  </div>
-                </Link>
-                
-                <Link href="/diagnostico" className="group">
-                  <div className="bg-white rounded-lg p-4 hover:shadow-md transition-shadow">
-                    <h3 className="font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
-                      Diagnóstico 3D
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      Evalúa el potencial de tu negocio
-                    </p>
-                  </div>
-                </Link>
-              </div>
-            </div>
-
-            {/* Newsletter signup */}
-            <div className="border-t pt-8">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                🔔 Sé el primero en leer este artículo
-              </h3>
-              <p className="text-gray-600 mb-4">
-                Suscríbete y te notificaremos cuando esté disponible
-              </p>
-              <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-                <input
-                  type="email"
-                  placeholder="tu@email.com"
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <button
-                  type="submit"
-                  className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all"
-                >
-                  Notificarme
-                </button>
-              </form>
-            </div>
-
-            {/* CTA buttons */}
-            <div className="mt-8 pt-8 border-t flex flex-col sm:flex-row gap-4 justify-center">
-              <Link
-                href="/blog"
-                className="inline-flex items-center justify-center gap-2 bg-gray-200 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
-              >
-                <FaArrowLeft />
-                Ver Otros Artículos
-              </Link>
-              <Link
-                href="/contacto"
-                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105"
-              >
-                Hablar con un Experto
-                <FaRocket />
-              </Link>
+      {/* Contenido principal */}
+      <div className="flex items-center justify-center py-20">
+        <div className="max-w-2xl mx-auto px-4 text-center">
+          {/* Icono principal */}
+          <div className="mb-8 flex justify-center">
+            <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-8 rounded-full shadow-2xl">
+              <FaPencilAlt className="text-6xl text-white animate-pulse" />
             </div>
           </div>
 
-          {/* Fun fact */}
-          <p className="text-center mt-8 text-gray-500 text-sm">
-            💡 Dato curioso: Publicamos nuevo contenido cada semana para ayudarte a 
-            dominar la IA en tu negocio
+          {/* Mensaje principal */}
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+            Artículo en Desarrollo
+          </h1>
+          
+          <div className="bg-white rounded-lg shadow-md p-4 mb-6 inline-block">
+            <p className="text-lg text-gray-600">
+              <span className="font-semibold">{titulo}</span>
+            </p>
+          </div>
+
+          <p className="text-xl text-gray-600 mb-8">
+            Estamos trabajando en este contenido para brindarte información valiosa 
+            sobre inteligencia artificial y transformación digital.
           </p>
+
+          {/* Features próximas */}
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
+            <div className="bg-white rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
+              <FaRocket className="text-3xl text-blue-500 mb-3 mx-auto" />
+              <h3 className="font-semibold mb-2">Contenido Premium</h3>
+              <p className="text-sm text-gray-600">
+                Casos reales y estrategias probadas
+              </p>
+            </div>
+            
+            <div className="bg-white rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
+              <FaPencilAlt className="text-3xl text-purple-500 mb-3 mx-auto" />
+              <h3 className="font-semibold mb-2">Guías Prácticas</h3>
+              <p className="text-sm text-gray-600">
+                Paso a paso para implementar IA
+              </p>
+            </div>
+            
+            <div className="bg-white rounded-lg p-6 shadow-lg hover:shadow-xl transition-shadow">
+              <FaBell className="text-3xl text-green-500 mb-3 mx-auto" />
+              <h3 className="font-semibold mb-2">Actualizaciones</h3>
+              <p className="text-sm text-gray-600">
+                Las últimas tendencias del sector
+              </p>
+            </div>
+          </div>
+
+          {/* Newsletter CTA */}
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl p-8 text-white mb-8">
+            <h2 className="text-2xl font-bold mb-4">
+              ¿Quieres ser el primero en leer este artículo?
+            </h2>
+            <p className="mb-6">
+              Suscríbete y te notificaremos cuando esté disponible
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+              <input
+                type="email"
+                placeholder="tu@email.com"
+                className="flex-1 px-4 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
+              />
+              <button className="px-6 py-3 bg-white text-blue-600 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                Notificarme
+              </button>
+            </div>
+          </div>
+
+          {/* CTAs alternativos */}
+          <div className="space-y-4">
+            <p className="text-gray-600 mb-4">Mientras tanto, te invitamos a:</p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link 
+                href="/blog" 
+                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <FaArrowLeft className="mr-2" />
+                Explorar otros artículos
+              </Link>
+              
+              <Link 
+                href="/diagnostico" 
+                className="inline-flex items-center px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Hacer diagnóstico gratuito
+                <FaRocket className="ml-2" />
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
-}
-
-// Metadata genérica
-export async function generateMetadata({ params }: { params: { slug: string } }) {
-  const titulo = params.slug
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-
-  return {
-    title: `${titulo} - Próximamente | Blog Impulsa Lab`,
-    description: 'Este artículo estará disponible pronto. Suscríbete para ser el primero en leerlo.',
-  };
 }

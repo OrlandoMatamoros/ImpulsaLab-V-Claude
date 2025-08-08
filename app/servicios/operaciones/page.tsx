@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { LINKS } from '@/lib/constants'
 import ProtectedSection from '@/components/ProtectedSection'
+import OperationsEnhancedSection from '@/components/operations/OperationsEnhancedSection'
 
 export default function OperacionesPage() {
   return (

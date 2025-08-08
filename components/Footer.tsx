@@ -1,8 +1,6 @@
 'use client';
 
 // components/Footer.tsx
-
-
 import Link from 'next/link';
 import Image from 'next/image';
 import { 
@@ -29,7 +27,6 @@ const Footer = () => {
     setIsSubscribing(true);
     
     // TODO: Implementar lógica de suscripción
-    // Por ahora solo simulamos
     setTimeout(() => {
       alert('¡Gracias por suscribirte! Pronto recibirás nuestros insights.');
       setEmail('');
@@ -82,23 +79,23 @@ const Footer = () => {
             <Link href="/" className="inline-block mb-6">
               <div className="flex items-center space-x-2">
                 <Image
-                  src="/images/logo negro.jpg"
+                  src="/images/logo-fondo-negro.png"  // ✅ Usa el logo #3
                   alt="Impulsa Lab"
                   width={40}
                   height={40}
-                  className="brightness-0 invert"
+                  // Sin filtros CSS porque el logo ya es blanco
                 />
                 <span className="text-xl font-bold">IMPULSA LAB</span>
               </div>
             </Link>
             <p className="text-gray-400 mb-6 text-sm leading-relaxed">
-              {COMPANY_INFO.tagline}
+              {COMPANY_INFO.tagline || 'Transformamos negocios con inteligencia artificial y datos'}
             </p>
             
             {/* Social Links */}
             <div className="flex gap-4 mb-6">
               <a 
-                href="https://linkedin.com/company/impulsa-lab" 
+                href="https://www.linkedin.com/company/tuimpulsalab/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-white transition-colors"
@@ -107,7 +104,7 @@ const Footer = () => {
                 <FaLinkedin size={24} />
               </a>
               <a 
-                href="https://instagram.com/impulsalab" 
+                href="https://www.instagram.com/tuimpulsalabny/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-gray-400 hover:text-white transition-colors"
@@ -115,24 +112,20 @@ const Footer = () => {
               >
                 <FaInstagram size={24} />
               </a>
-              <a 
-                href="https://facebook.com/impulsalab" 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-white transition-colors"
-                aria-label="Facebook"
+              <span 
+                className="text-gray-600 cursor-not-allowed"
+                aria-label="Facebook (Próximamente)"
+                title="Próximamente"
               >
                 <FaFacebook size={24} />
-              </a>
-              <a 
-                href="https://youtube.com/@impulsalab" 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-400 hover:text-white transition-colors"
-                aria-label="YouTube"
+              </span>
+              <span 
+                className="text-gray-600 cursor-not-allowed"
+                aria-label="YouTube (Próximamente)"
+                title="Próximamente"
               >
                 <FaYoutube size={24} />
-              </a>
+              </span>
             </div>
 
             {/* Contact Info */}
@@ -151,7 +144,9 @@ const Footer = () => {
               </a>
               <div className="flex items-start gap-2">
                 <FaMapMarkerAlt className="mt-1 flex-shrink-0" />
-                <span>Brooklyn, NY<br />Estados Unidos</span>
+                <div>
+                  <span>118-35 Queens Blvd #400<br />Forest Hills, NY 11375</span>
+                </div>
               </div>
             </div>
           </div>
@@ -269,7 +264,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link 
-                  href="/nosotros#equipo"
+                  href="/#equipo"
                   className="text-gray-400 hover:text-white transition-colors"
                 >
                   Equipo

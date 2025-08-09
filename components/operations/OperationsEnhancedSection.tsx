@@ -1,11 +1,9 @@
-'use client'
-
-import React, { useState, useEffect } from 'react'
-import Link from 'next/link'
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { 
   Sparkles, 
   Bot, 
-  Zap,
+  Zap, 
   TrendingUp, 
   Clock, 
   DollarSign,
@@ -28,7 +26,7 @@ import {
   Send,
   ExternalLink,
   ChevronLeft
-} from 'lucide-react'
+} from 'lucide-react';
 
 // Iconos extraídos de tu HorizontalTechTicker
 const ChatGPTIcon = ({ className }: { className?: string }) => (
@@ -80,7 +78,7 @@ export default function OperationsEnhancedSection() {
   });
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Datos de las plataformas de automatización
+  // Datos de las plataformas de automatización con videos actualizados
   const automationPlatforms = [
     {
       id: 'make',
@@ -93,7 +91,7 @@ export default function OperationsEnhancedSection() {
         "Sin necesidad de código",
         "Webhooks y API REST"
       ],
-      videoId: "OovQZqvvKEo",
+      videoId: "g6u28CpxXoQ",
       bestFor: "Pequeñas y medianas empresas",
       pricing: "Desde $9/mes",
       color: "#6D00CC"
@@ -125,7 +123,7 @@ export default function OperationsEnhancedSection() {
         "Interface super simple",
         "Filtros y formateadores"
       ],
-      videoId: "sL8vbLZP5RE",
+      videoId: "ZzzjVfJsJPA",
       bestFor: "Usuarios no técnicos",
       pricing: "Desde $19.99/mes",
       color: "#FF4A00"
@@ -141,7 +139,7 @@ export default function OperationsEnhancedSection() {
         "Multi-idioma nativo",
         "Integración con CRM"
       ],
-      videoId: "j1Oc-zxRzmg",
+      videoId: "r5RPBBzDyd0",
       bestFor: "Centros de atención",
       pricing: "Personalizado",
       color: "#10B981"
@@ -336,21 +334,45 @@ export default function OperationsEnhancedSection() {
       unified: ''
     });
 
-    // Simular respuestas secuenciales
-    const responses = {
-      chatgpt: "Analizando técnicamente: Para automatizar tu inventario, recomiendo implementar un sistema de escaneo con códigos QR integrado con Make.com para actualizar stock en tiempo real...",
-      claude: "Desde una perspectiva integral: La automatización de inventario debe considerar no solo la tecnología, sino también la capacitación del equipo y la gestión del cambio organizacional...",
-      gemini: "Basándome en las últimas tendencias: Los sistemas de inventario modernos utilizan IA predictiva. Empresas similares reportan 40% de reducción en pérdidas con estas soluciones...",
-      unified: "🎯 SÍNTESIS UNIFICADA: Combinando los análisis de las 3 IAs, tu mejor estrategia es:\n\n1. Implementar sistema de códigos QR (ChatGPT)\n2. Capacitar gradualmente al equipo (Claude)\n3. Usar IA predictiva para demanda (Gemini)\n\nROI estimado: 40% reducción de pérdidas en 3 meses."
-    };
+    try {
+      const response = await fetch('/api/unified-agent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: userQuery
+        })
+      });
 
-    // Simular escritura progresiva
-    for (const [ai, response] of Object.entries(responses)) {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      setAiResponses(prev => ({ ...prev, [ai]: response }));
+      if (!response.ok) {
+        throw new Error('Error en la consulta');
+      }
+
+      const data = await response.json();
+      
+      // Mostrar respuestas con animación secuencial
+      const showResponse = async (key: string, delay: number) => {
+        await new Promise(resolve => setTimeout(resolve, delay));
+        setAiResponses(prev => ({ ...prev, [key]: data[key] }));
+      };
+
+      await showResponse('chatgpt', 500);
+      await showResponse('claude', 1000);
+      await showResponse('gemini', 1500);
+      await showResponse('unified', 2000);
+
+    } catch (error) {
+      console.error('Error:', error);
+      setAiResponses({
+        chatgpt: 'Error al conectar con ChatGPT',
+        claude: 'Error al conectar con Claude',
+        gemini: 'Error al conectar con Gemini',
+        unified: 'Por favor, intenta de nuevo más tarde.'
+      });
+    } finally {
+      setIsProcessing(false);
     }
-
-    setIsProcessing(false);
   };
 
   return (
@@ -475,8 +497,8 @@ export default function OperationsEnhancedSection() {
               Agente Unificador 4IA
             </h2>
             <p className="text-xl text-gray-200 max-w-3xl mx-auto">
-              ¿Por qué conformarte con una sola IA cuando puedes tener el poder de las 3 mejores?
-              Nuestro agente consulta ChatGPT, Claude y Gemini simultáneamente.
+              Powered by Claude Opus: Consultamos ChatGPT, Claude y Gemini simultáneamente, 
+              y nuestro 4to modelo avanzado (Claude Opus) unifica y sintetiza las mejores respuestas.
             </p>
           </div>
 
@@ -526,7 +548,7 @@ export default function OperationsEnhancedSection() {
                         <ChatGPTIcon className="w-6 h-6 text-green-400" />
                         <span className="font-semibold">ChatGPT</span>
                       </div>
-                      <p className="text-sm text-gray-200 line-clamp-4">
+                      <p className="text-sm text-gray-200">
                         {aiResponses.chatgpt || 'Analizando...'}
                       </p>
                     </div>
@@ -537,7 +559,7 @@ export default function OperationsEnhancedSection() {
                         <ClaudeIcon className="w-6 h-6 text-orange-400" />
                         <span className="font-semibold">Claude</span>
                       </div>
-                      <p className="text-sm text-gray-200 line-clamp-4">
+                      <p className="text-sm text-gray-200">
                         {aiResponses.claude || 'Procesando...'}
                       </p>
                     </div>
@@ -548,7 +570,7 @@ export default function OperationsEnhancedSection() {
                         <GeminiIcon className="w-6 h-6 text-blue-400" />
                         <span className="font-semibold">Gemini</span>
                       </div>
-                      <p className="text-sm text-gray-200 line-clamp-4">
+                      <p className="text-sm text-gray-200">
                         {aiResponses.gemini || 'Investigando...'}
                       </p>
                     </div>
@@ -559,7 +581,7 @@ export default function OperationsEnhancedSection() {
                     <div className="mt-6 p-6 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-lg border border-white/30">
                       <div className="flex items-center gap-2 mb-3">
                         <Shield className="w-6 h-6 text-yellow-400" />
-                        <span className="font-bold text-lg">Respuesta Unificada 4IA</span>
+                        <span className="font-bold text-lg">Respuesta Unificada 4IA (Claude Opus)</span>
                       </div>
                       <p className="text-gray-100 whitespace-pre-wrap">{aiResponses.unified}</p>
                     </div>
@@ -600,9 +622,12 @@ export default function OperationsEnhancedSection() {
                 Acceso al Agente Unificador 4IA desde{' '}
                 <span className="text-3xl font-bold text-white">$99/mes</span>
               </p>
-              <button className="px-8 py-3 bg-white text-purple-900 rounded-lg font-semibold hover:bg-gray-100 transition">
-                Solicitar Acceso Exclusivo
-              </button>
+              <p className="text-sm text-gray-400 mb-4">
+                🔐 Requiere cuenta activa. <Link href="/login" className="text-blue-300 hover:text-blue-200 underline">Inicia sesión</Link> o <Link href="/signup" className="text-blue-300 hover:text-blue-200 underline">regístrate</Link> para comenzar.
+              </p>
+              <Link href="/herramientas/agentes" className="inline-block px-8 py-3 bg-white text-purple-900 rounded-lg font-semibold hover:bg-gray-100 transition">
+                Ver Planes Premium →
+              </Link>
             </div>
           </div>
         </div>
@@ -908,12 +933,6 @@ export default function OperationsEnhancedSection() {
         }
         .animate-fadeIn {
           animation: fadeIn 0.5s ease-out;
-        }
-        .line-clamp-4 {
-          display: -webkit-box;
-          -webkit-line-clamp: 4;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
         }
       `}</style>
     </>

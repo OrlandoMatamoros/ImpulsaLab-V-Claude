@@ -116,9 +116,6 @@ export default function OperacionesPage() {
         </div>
       </section>
 
-      {/* ===== NUEVA SECCIÓN DE AGENTES Y AUTOMATIZACIÓN ===== */}
-      <OperationsEnhancedSection />
-
       {/* CONTENIDO PROTEGIDO - Proceso detallado y Planes */}
       <ProtectedSection
         message="Regístrate gratis para acceder a nuestra metodología completa de automatización, casos de éxito y planes personalizados para tu negocio"

@@ -257,7 +257,7 @@ export default function ChatbotWidget() {
         }
       }, 1500)
     } else if (action === 'whatsapp') {
-      const phoneNumber = '+13479043196'
+      const phoneNumber = '+13479043169'
       const text = encodeURIComponent('Hola, vengo del chatbot de Impulsa Lab')
       window.open(`https://wa.me/${phoneNumber}?text=${text}`, '_blank')
     }

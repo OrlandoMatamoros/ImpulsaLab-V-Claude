@@ -32,7 +32,7 @@ export default function WhatsAppWidget() {
   const [mounted, setMounted] = useState(false)
   const [businessOpen, setBusinessOpen] = useState(true)
 
-  const phoneNumber = '+13479043196'
+  const phoneNumber = '+13479043169'
   const businessHours = {
     weekdays: '9:00 AM - 8:00 PM EST',
     saturday: '9:00 AM - 2:00 PM EST',

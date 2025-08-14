@@ -3,7 +3,7 @@
 import { MessageCircle } from 'lucide-react'
 
 export default function WhatsAppWidgetSimple() {
-  const phoneNumber = '+13479043196'
+  const phoneNumber = '+13479043169'
   const message = '¡Hola! Me gustaría obtener más información sobre Impulsa Lab.'
 
   const handleWhatsAppClick = () => {

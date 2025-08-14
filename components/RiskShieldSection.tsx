@@ -133,7 +133,7 @@ export default function RiskShieldSection() {
         {/* CTA adicional en la sección */}
         <div className="mt-12 text-center">
           <a 
-            href="https://wa.me/13479043196?text=Quiero%20agendar%20mi%20Diagnóstico%203D"
+            href="https://wa.me/13479043169?text=Quiero%20agendar%20mi%20Diagnóstico%203D"
             className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-105"
           >
             <span className="text-lg">Agenda tu Diagnóstico 3D Gratis</span>
@@ -146,7 +146,7 @@ export default function RiskShieldSection() {
 
       {/* Botón de WhatsApp flotante - más pequeño */}
       <a 
-        href="https://wa.me/13479043196?text=Quiero%20agendar%20mi%20Diagnóstico%203D"
+        href="https://wa.me/13479043169?text=Quiero%20agendar%20mi%20Diagnóstico%203D"
         className="fixed bottom-6 right-20 md:right-24 z-40 bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-110"
         target="_blank"
         rel="noopener noreferrer"

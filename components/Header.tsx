@@ -4,18 +4,6 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { COMPANY_INFO, IMAGES } from '@/lib/constants'
-import { useAuth } from '@/contexts/FirebaseAuthContext'
-import { useRouter } from 'next/navigation'
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Button } from '@/components/ui/button'
-import { User, LogOut, LayoutDashboard, Shield } from 'lucide-react'
 
 type Language = 'ES' | 'EN'
 
@@ -23,8 +11,6 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [showMobileTools, setShowMobileTools] = useState(false)
   const [currentLang, setCurrentLang] = useState<Language>('ES')
-  const { user, userData, signOut } = useAuth()
-  const router = useRouter()
 
   useEffect(() => {
     const savedLang = localStorage.getItem('language') as Language
@@ -37,11 +23,6 @@ export default function Header() {
     const newLang = currentLang === 'ES' ? 'EN' : 'ES'
     setCurrentLang(newLang)
     localStorage.setItem('language', newLang)
-  }
-
-  const handleSignOut = async () => {
-    await signOut()
-    router.push('/')
   }
 
   const toolsItems = [
@@ -76,6 +57,35 @@ export default function Header() {
     <>
       {/* CSS puro para el dropdown */}
       <style jsx global>{`
+        /* Fix para dropdown de usuario en fondos oscuros */
+        [data-radix-popper-content-wrapper] {
+          z-index: 100 !important;
+        }
+        
+        /* Mejorar contraste del dropdown de usuario */
+        [role="menu"] {
+          background: white !important;
+          border: 1px solid rgba(0, 0, 0, 0.1) !important;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15) !important;
+        }
+        
+        [role="menuitem"] {
+          color: #111827 !important;
+        }
+        
+        [role="menuitem"]:hover {
+          background: #f3f4f6 !important;
+          color: #111827 !important;
+        }
+        
+        [role="menuitem"] svg {
+          color: #6b7280 !important;
+        }
+        
+        [role="menuitem"]:hover svg {
+          color: #111827 !important;
+        }
+        
         /* Dropdown Container */
         .tools-dropdown-container {
           position: relative;
@@ -175,9 +185,6 @@ export default function Header() {
           text-decoration: none;
           padding: 8px 4px;
           transition: color 0.2s ease;
-          -webkit-appearance: none;
-          -moz-appearance: none;
-          appearance: none;
         }
 
         .tools-link:hover {
@@ -209,20 +216,6 @@ export default function Header() {
           left: 0;
           right: 0;
           height: 10px;
-        }
-
-        /* Quitar indicadores de dropdown del navegador */
-        .tools-dropdown-container a,
-        .tools-dropdown-container {
-          -webkit-appearance: none !important;
-          -moz-appearance: none !important;
-          appearance: none !important;
-        }
-
-        /* Remover cualquier pseudo-elemento del navegador */
-        .tools-link::marker,
-        .tools-link::-webkit-details-marker {
-          display: none !important;
         }
       `}</style>
 
@@ -310,50 +303,18 @@ export default function Header() {
                   )}
                 </button>
                 
-                {user ? (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="flex items-center gap-2">
-                        <User className="h-4 w-4" />
-                        <span>{userData?.name ? userData.name : (user?.email?.split('@')[0] || 'Usuario')}</span>
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => router.push('/dashboard')}>
-                        <LayoutDashboard className="h-4 w-4 mr-2" />
-                        Mis Diagnósticos
-                      </DropdownMenuItem>
-                      {userData?.role === 'consultant' && (
-                        <DropdownMenuItem onClick={() => router.push('/admin')}>
-                          <Shield className="h-4 w-4 mr-2" />
-                          Panel Consultor
-                        </DropdownMenuItem>
-                      )}
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={handleSignOut}>
-                        <LogOut className="h-4 w-4 mr-2" />
-                        Cerrar Sesión
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                ) : (
-                  <>
-                    <Link 
-                      href="/login"
-                      className="px-5 py-2 text-sm font-medium text-[#002D62] border-2 border-[#002D62] rounded-lg hover:bg-[#002D62] hover:text-white transition-all duration-300"
-                    >
-                      {currentLang === 'ES' ? 'Iniciar sesión' : 'Login'}
-                    </Link>
-                    <Link 
-                      href="/signup"
-                      className="px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-[#002D62] to-blue-600 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300"
-                    >
-                      {currentLang === 'ES' ? 'Crear cuenta' : 'Sign up'}
-                    </Link>
-                  </>
-                )}
+                <Link 
+                  href="/login"
+                  className="px-5 py-2 text-sm font-medium text-[#002D62] border-2 border-[#002D62] rounded-lg hover:bg-[#002D62] hover:text-white transition-all duration-300"
+                >
+                  {currentLang === 'ES' ? 'Iniciar sesión' : 'Login'}
+                </Link>
+                <Link 
+                  href="/signup"
+                  className="px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-[#002D62] to-blue-600 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                >
+                  {currentLang === 'ES' ? 'Crear cuenta' : 'Sign up'}
+                </Link>
               </div>
             </div>
 
@@ -387,43 +348,20 @@ export default function Header() {
             <nav className="px-4 py-4 space-y-1">
               {/* Auth buttons móvil */}
               <div className="flex gap-3 pb-4 mb-4 border-b border-gray-100">
-                {user ? (
-                  <div className="w-full">
-                    <p className="text-sm text-gray-600 mb-2">Hola, {userData?.name || 'Usuario'}</p>
-                    <div className="space-y-2">
-                      <Link 
-                        href="/dashboard"
-                        className="block w-full px-4 py-2 text-sm text-center bg-gray-100 rounded-lg"
-                        onClick={() => setIsMenuOpen(false)}
-                      >
-                        Mis Diagnósticos
-                      </Link>
-                      <button 
-                        onClick={handleSignOut}
-                        className="block w-full px-4 py-2 text-sm text-center text-red-600 border border-red-600 rounded-lg"
-                      >
-                        Cerrar Sesión
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <Link 
-                      href="/login"
-                      className="flex-1 px-4 py-3 text-sm font-medium text-[#002D62] border-2 border-[#002D62] rounded-lg text-center"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      {currentLang === 'ES' ? 'Iniciar sesión' : 'Login'}
-                    </Link>
-                    <Link 
-                      href="/signup"
-                      className="flex-1 px-4 py-3 text-sm font-medium text-white bg-gradient-to-r from-[#002D62] to-blue-600 rounded-lg text-center"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      {currentLang === 'ES' ? 'Crear cuenta' : 'Sign up'}
-                    </Link>
-                  </>
-                )}
+                <Link 
+                  href="/login"
+                  className="flex-1 px-4 py-3 text-sm font-medium text-[#002D62] border-2 border-[#002D62] rounded-lg text-center"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {currentLang === 'ES' ? 'Iniciar sesión' : 'Login'}
+                </Link>
+                <Link 
+                  href="/signup"
+                  className="flex-1 px-4 py-3 text-sm font-medium text-white bg-gradient-to-r from-[#002D62] to-blue-600 rounded-lg text-center"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {currentLang === 'ES' ? 'Crear cuenta' : 'Sign up'}
+                </Link>
               </div>
 
               <Link 

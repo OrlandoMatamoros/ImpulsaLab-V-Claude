@@ -4,6 +4,18 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { COMPANY_INFO, IMAGES } from '@/lib/constants'
+import { useAuth } from '@/contexts/FirebaseAuthContext'
+import { useRouter } from 'next/navigation'
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger 
+} from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
+import { User, Settings, LogOut, LayoutDashboard } from 'lucide-react'
 
 type Language = 'ES' | 'EN'
 
@@ -11,6 +23,8 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [showMobileTools, setShowMobileTools] = useState(false)
   const [currentLang, setCurrentLang] = useState<Language>('ES')
+  const { user, userData, signOut } = useAuth()
+  const router = useRouter()
 
   useEffect(() => {
     const savedLang = localStorage.getItem('language') as Language
@@ -23,6 +37,15 @@ export default function Header() {
     const newLang = currentLang === 'ES' ? 'EN' : 'ES'
     setCurrentLang(newLang)
     localStorage.setItem('language', newLang)
+  }
+
+  const handleSignOut = async () => {
+    try {
+      await signOut()
+      router.push('/')
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error)
+    }
   }
 
   const toolsItems = [
@@ -303,18 +326,52 @@ export default function Header() {
                   )}
                 </button>
                 
-                <Link 
-                  href="/login"
-                  className="px-5 py-2 text-sm font-medium text-[#002D62] border-2 border-[#002D62] rounded-lg hover:bg-[#002D62] hover:text-white transition-all duration-300"
-                >
-                  {currentLang === 'ES' ? 'Iniciar sesión' : 'Login'}
-                </Link>
-                <Link 
-                  href="/signup"
-                  className="px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-[#002D62] to-blue-600 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300"
-                >
-                  {currentLang === 'ES' ? 'Crear cuenta' : 'Sign up'}
-                </Link>
+                {user ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="flex items-center gap-2">
+                        <User className="h-4 w-4" />
+                        <span className="hidden sm:inline">{userData?.name || user.email}</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      
+                      <DropdownMenuItem onClick={() => router.push('/dashboard')}>
+                        <LayoutDashboard className="mr-2 h-4 w-4" />
+                        Dashboard
+                      </DropdownMenuItem>
+                      
+                      <DropdownMenuItem onClick={() => router.push('/dashboard/perfil')}>
+                        <Settings className="mr-2 h-4 w-4" />
+                        Configuración
+                      </DropdownMenuItem>
+                      
+                      <DropdownMenuSeparator />
+                      
+                      <DropdownMenuItem onClick={handleSignOut}>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Cerrar Sesión
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <>
+                    <Link 
+                      href="/login"
+                      className="px-5 py-2 text-sm font-medium text-[#002D62] border-2 border-[#002D62] rounded-lg hover:bg-[#002D62] hover:text-white transition-all duration-300"
+                    >
+                      {currentLang === 'ES' ? 'Iniciar sesión' : 'Login'}
+                    </Link>
+                    <Link 
+                      href="/signup"
+                      className="px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-[#002D62] to-blue-600 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                    >
+                      {currentLang === 'ES' ? 'Crear cuenta' : 'Sign up'}
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
 
@@ -346,22 +403,48 @@ export default function Header() {
         {isMenuOpen && (
           <div className="md:hidden bg-white border-t shadow-lg">
             <nav className="px-4 py-4 space-y-1">
-              {/* Auth buttons móvil */}
+              {/* Auth section móvil */}
               <div className="flex gap-3 pb-4 mb-4 border-b border-gray-100">
-                <Link 
-                  href="/login"
-                  className="flex-1 px-4 py-3 text-sm font-medium text-[#002D62] border-2 border-[#002D62] rounded-lg text-center"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {currentLang === 'ES' ? 'Iniciar sesión' : 'Login'}
-                </Link>
-                <Link 
-                  href="/signup"
-                  className="flex-1 px-4 py-3 text-sm font-medium text-white bg-gradient-to-r from-[#002D62] to-blue-600 rounded-lg text-center"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {currentLang === 'ES' ? 'Crear cuenta' : 'Sign up'}
-                </Link>
+                {user ? (
+                  <div className="w-full space-y-2">
+                    <div className="px-3 py-2 text-sm font-medium text-gray-900">
+                      {userData?.name || user.email}
+                    </div>
+                    <Link 
+                      href="/dashboard"
+                      className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
+                    <button
+                      onClick={() => {
+                        handleSignOut()
+                        setIsMenuOpen(false)
+                      }}
+                      className="block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded"
+                    >
+                      Cerrar Sesión
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <Link 
+                      href="/login"
+                      className="flex-1 px-4 py-3 text-sm font-medium text-[#002D62] border-2 border-[#002D62] rounded-lg text-center"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {currentLang === 'ES' ? 'Iniciar sesión' : 'Login'}
+                    </Link>
+                    <Link 
+                      href="/signup"
+                      className="flex-1 px-4 py-3 text-sm font-medium text-white bg-gradient-to-r from-[#002D62] to-blue-600 rounded-lg text-center"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {currentLang === 'ES' ? 'Crear cuenta' : 'Sign up'}
+                    </Link>
+                  </>
+                )}
               </div>
 
               <Link 

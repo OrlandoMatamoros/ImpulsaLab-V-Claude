@@ -70,11 +70,14 @@ function SignupPageContent() {
 
     try {
       await signUp(
-        formData.email, 
-        formData.password, 
-        formData.consultantCode || undefined
-      )
-      setSuccess(true)
+  formData.email, 
+  formData.password, 
+  formData.consultantCode || undefined,
+  {
+    name: formData.name,
+    phone: formData.phone
+  }
+)
       
       // Redirigir a la página principal después de 2 segundos
       setTimeout(() => {

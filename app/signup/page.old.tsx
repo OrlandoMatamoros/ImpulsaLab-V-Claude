@@ -8,8 +8,7 @@ export default function SignupPage() {
   const [formData, setFormData] = useState({
     email: '',
     name: '',
-    phone: '',
-    password: ''
+    phone: ''
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -17,29 +16,18 @@ export default function SignupPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
-    // Validación básica de contraseña
-    if (formData.password.length < 6) {
-      setError('La contraseña debe tener al menos 6 caracteres')
-      return
-    }
-    
     setLoading(true)
     setError('')
 
     try {
-      // Guardar datos temporalmente en sessionStorage
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('signupData', JSON.stringify({
-          email: formData.email,
-          name: formData.name,
-          phone: formData.phone,
-          password: formData.password
-        }))
-      }
+      // Solo redirigir a verificación, NO crear usuario en Firebase todavía
+      const params = new URLSearchParams({
+        email: formData.email,
+        name: formData.name,
+        phone: formData.phone
+      })
       
-      // Redirigir a verificación SIN crear usuario todavía
-      router.push(`/verification?email=${encodeURIComponent(formData.email)}`)
+      router.push(`/verification?${params.toString()}`)
       
     } catch (err) {
       setError('Error al procesar el registro')
@@ -48,7 +36,7 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-indigo-100 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-indigo-100">
       <div className="max-w-md w-full bg-white rounded-xl shadow-lg p-8">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-900">Crear Cuenta</h2>
@@ -64,7 +52,7 @@ export default function SignupPage() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nombre completo *
+              Nombre completo
             </label>
             <input
               type="text"
@@ -77,7 +65,7 @@ export default function SignupPage() {
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email *
+              Email
             </label>
             <input
               type="email"
@@ -85,21 +73,6 @@ export default function SignupPage() {
               onChange={(e) => setFormData({...formData, email: e.target.value})}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600"
               required
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Contraseña *
-            </label>
-            <input
-              type="password"
-              value={formData.password}
-              onChange={(e) => setFormData({...formData, password: e.target.value})}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600"
-              placeholder="Mínimo 6 caracteres"
-              required
-              minLength={6}
             />
           </div>
           
@@ -121,7 +94,7 @@ export default function SignupPage() {
             disabled={loading}
             className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 disabled:opacity-50 transition-colors"
           >
-            {loading ? 'Procesando...' : 'Continuar con verificación'}
+            {loading ? 'Procesando...' : 'Continuar'}
           </button>
         </form>
         
@@ -130,15 +103,6 @@ export default function SignupPage() {
             ¿Ya tienes cuenta?{' '}
             <Link href="/login" className="text-purple-600 hover:text-purple-700 font-medium">
               Iniciar sesión
-            </Link>
-          </p>
-        </div>
-        
-        <div className="mt-4 text-center">
-          <p className="text-xs text-gray-500">
-            Al registrarte, aceptas nuestros{' '}
-            <Link href="/legal/terminos" className="text-purple-600 hover:underline">
-              Términos de Servicio
             </Link>
           </p>
         </div>

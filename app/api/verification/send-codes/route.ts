@@ -1,136 +1,99 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { Resend } from 'resend';
-import twilio from 'twilio';
-import { customAlphabet } from 'nanoid';
-import { doc, setDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { NextRequest, NextResponse } from 'next/server'
+import { Resend } from 'resend'
+import { db } from '@/lib/firebase'
+import { collection, addDoc, query, where, getDocs } from 'firebase/firestore'
 
-const generateCode = customAlphabet('0123456789', 6);
+const resend = new Resend(process.env.RESEND_API_KEY!)
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-const twilioClient = twilio(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-);
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>()
 
-const getEmailTemplate = (name: string, code: string) => `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <title>Verificación de Email - Impulsa Lab</title>
-</head>
-<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
-  <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 40px; border-radius: 10px;">
-    <h1 style="color: #333; text-align: center;">Verifica tu Email</h1>
-    <p>Hola ${name || 'Usuario'},</p>
-    <p>Tu código de verificación es:</p>
-    <div style="background-color: #f8f9fa; padding: 20px; text-align: center; margin: 30px 0;">
-      <span style="font-size: 32px; font-weight: bold; color: #007bff; letter-spacing: 5px;">
-        ${code}
-      </span>
-    </div>
-    <p style="color: #666; font-size: 14px;">Este código expira en 10 minutos.</p>
-  </div>
-</body>
-</html>
-`;
+function checkRateLimit(identifier: string): boolean {
+  const now = Date.now()
+  const limit = rateLimitMap.get(identifier)
+  
+  if (!limit || now > limit.resetTime) {
+    rateLimitMap.set(identifier, {
+      count: 1,
+      resetTime: now + 15 * 60 * 1000
+    })
+    return true
+  }
+  
+  if (limit.count >= 5) {
+    return false
+  }
+  
+  limit.count++
+  return true
+}
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, phone, name } = await request.json();
+    const { email, phoneNumber, method } = await request.json()
+
+    if (!email && !phoneNumber) {
+      return NextResponse.json(
+        { success: false, error: 'Email o teléfono requerido' },
+        { status: 400 }
+      )
+    }
+
+    const identifier = email || phoneNumber
     
-    console.log('📧 Sending verification codes to:', email);
+    if (!checkRateLimit(identifier)) {
+      return NextResponse.json(
+        { success: false, error: 'Demasiados intentos. Intente en 15 minutos.' },
+        { status: 429 }
+      )
+    }
+
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString()
     
-    const emailCode = generateCode();
-    const smsCode = generateCode();
-    
-    // Guardar códigos en Firestore
-    const verificationData = {
-      email,
-      phone,
-      name,
-      emailCode,
-      smsCode,
+    await addDoc(collection(db, 'verification_codes'), {
+      identifier,
+      code: verificationCode,
+      method: method || 'email',
+      used: false,
       createdAt: new Date(),
-      expiresAt: new Date(Date.now() + 10 * 60 * 1000),
-      emailVerified: false,
-      phoneVerified: false,
-      attempts: 0
-    };
-    
-    const docId = email.replace(/[^a-zA-Z0-9]/g, '_');
-    await setDoc(doc(db, 'verifications', docId), verificationData);
-    
-    let emailSent = false;
-    let smsSent = false;
-    
-    // Enviar EMAIL con Resend
-    try {
-      const emailResult = await resend.emails.send({
-        from: 'Impulsa Lab <onboarding@resend.dev>', // TEMPORAL: Usa este mientras verificas tu dominio
-        // from: 'Impulsa Lab <noreply@tuimpulsalab.com>', // Usar cuando tu dominio esté verificado
-        to: email,
-        subject: `${emailCode} es tu código de verificación`,
-        html: getEmailTemplate(name, emailCode)
-      });
-      
-      emailSent = true;
-      console.log('✅ Email sent successfully');
-    } catch (emailError: any) {
-      console.error('❌ Email error:', emailError);
-      console.error('Details:', emailError.message);
-    }
-    
-    // Enviar SMS con Twilio (OPCIONAL por ahora)
-    try {
-      // Formatear número de teléfono
-      let formattedPhone = phone.replace(/\D/g, ''); // Quitar todo excepto números
-      if (!formattedPhone.startsWith('+')) {
-        formattedPhone = '+1' + formattedPhone; // Agregar código de país USA
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000)
+    })
+
+    if (email) {
+      const { data, error } = await resend.emails.send({
+        from: 'onboarding@resend.dev',
+        to: [email],
+        subject: 'Tu código de verificación - Impulsa Lab',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <h2>Tu código de verificación</h2>
+            <p>Usa este código para verificar tu cuenta:</p>
+            <h1 style="background: #f0f0f0; padding: 20px; text-align: center; letter-spacing: 5px;">
+              ${verificationCode}
+            </h1>
+            <p>Este código expirará en 10 minutos.</p>
+          </div>
+        `
+      })
+
+      if (error) {
+        console.error('Error enviando email:', error)
+        return NextResponse.json(
+          { success: false, error: 'Error enviando email' },
+          { status: 500 }
+        )
       }
-      
-      // COMENTADO POR AHORA - Descomentar cuando tengas A2P configurado
-      /*
-      const smsResult = await twilioClient.messages.create({
-        body: `Tu código de Impulsa Lab es: ${smsCode}. Válido por 10 minutos.`,
-        from: process.env.TWILIO_PHONE_NUMBER,
-        to: formattedPhone
-      });
-      
-      smsSent = true;
-      console.log('✅ SMS sent successfully');
-      */
-      
-      // Por ahora, solo mostrar en consola
-      console.log('📱 SMS Code (not sent - A2P pending):', smsCode);
-      console.log('Would send to:', formattedPhone);
-      
-    } catch (smsError: any) {
-      console.error('❌ SMS error:', smsError);
-      console.error('Details:', smsError.message);
     }
-    
-    // En desarrollo, mostrar códigos
-    console.log('🔐 VERIFICATION CODES:');
-    console.log('📧 Email Code:', emailCode);
-    console.log('📱 SMS Code:', smsCode);
-    
+
     return NextResponse.json({
       success: true,
-      emailSent,
-      smsSent,
-      // Para desarrollo
-      ...(process.env.NODE_ENV === 'development' && {
-        debugCodes: { emailCode, smsCode }
-      })
-    });
-    
-  } catch (error: any) {
-    console.error('Verification error:', error);
+      message: 'Código enviado exitosamente'
+    })
+
+  } catch (error) {
+    console.error('Error:', error)
     return NextResponse.json(
-      { success: false, error: error.message },
-      { status: 400 }
-    );
+      { success: false, error: 'Error interno' },
+      { status: 500 }
+    )
   }
 }

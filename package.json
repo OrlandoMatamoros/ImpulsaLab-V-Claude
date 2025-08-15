@@ -34,6 +34,7 @@
     "jose": "^6.0.12",
     "js-cookie": "^3.0.5",
     "jspdf": "^3.0.1",
+    "lru-cache": "^11.1.0",
     "lucide-react": "^0.523.0",
     "mailchimp-marketing": "^0.0.1-security",
     "nanoid": "^5.1.5",
@@ -57,6 +58,7 @@
     "zustand": "^5.0.7"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^3.0.0",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
     "@types/react": "^19.1.9",

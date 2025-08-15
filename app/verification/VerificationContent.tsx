@@ -2,6 +2,8 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { auth } from '@/lib/firebase'
+import { signInWithCustomToken } from 'firebase/auth'
 
 function VerificationContentInner() {
   const searchParams = useSearchParams()
@@ -44,8 +46,8 @@ function VerificationContentInner() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          email: targetEmail, 
-          method: 'email' 
+          email: targetEmail,
+          isConsultant: sessionStorage.getItem('isConsultant') === 'true'
         })
       })
 
@@ -72,16 +74,23 @@ function VerificationContentInner() {
     try {
       // Obtener datos del signup desde sessionStorage
       const signupData = sessionStorage.getItem('signupData')
+      const userData = signupData ? JSON.parse(signupData) : {}
       
       const response = await fetch('/api/verification/verify-codes', {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json',
-          'x-signup-data': signupData || ''
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ 
           email, 
-          code: verificationCode 
+          code: verificationCode,
+          password: userData.password,
+          userData: {
+            name: userData.name,
+            company: userData.company,
+            phone: userData.phone,
+            consultantCode: userData.consultantCode
+          }
         })
       })
 
@@ -93,13 +102,47 @@ function VerificationContentInner() {
 
       setSuccess(true)
       
-      // Limpiar sessionStorage
-      sessionStorage.removeItem('signupData')
-      sessionStorage.removeItem('codes_sent')
-      
-      setTimeout(() => {
-        router.push('/login')
-      }, 2000)
+      // Login automático con custom token si está disponible
+      if (data.customToken) {
+        try {
+          await signInWithCustomToken(auth, data.customToken)
+          
+          // Limpiar sessionStorage
+          sessionStorage.removeItem('signupData')
+          sessionStorage.removeItem('codes_sent')
+          sessionStorage.removeItem('isConsultant')
+          sessionStorage.removeItem('tempPassword')
+          sessionStorage.removeItem('tempUserData')
+          
+          // Redirigir según el rol
+          setTimeout(() => {
+            switch (data.user?.role) {
+              case 'admin':
+                router.push('/admin')
+                break
+              case 'consultant':
+                router.push('/consultant')
+                break
+              case 'client':
+                router.push('/dashboard')
+                break
+              default:
+                router.push('/dashboard')
+            }
+          }, 1500)
+        } catch (authError) {
+          console.error('Error en login automático:', authError)
+          // Si falla el login automático, redirigir al login manual
+          setTimeout(() => {
+            router.push('/login')
+          }, 2000)
+        }
+      } else {
+        // Si no hay custom token, redirigir al login
+        setTimeout(() => {
+          router.push('/login')
+        }, 2000)
+      }
       
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido')
@@ -129,7 +172,7 @@ function VerificationContentInner() {
 
         {success && (
           <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-green-800">✅ ¡Cuenta creada exitosamente! Redirigiendo al login...</p>
+            <p className="text-green-800">✅ ¡Cuenta creada exitosamente! Redirigiendo...</p>
           </div>
         )}
 
@@ -150,7 +193,7 @@ function VerificationContentInner() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@email.com"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-600 focus:border-transparent"
                 required
               />
             </div>
@@ -158,7 +201,7 @@ function VerificationContentInner() {
             <button
               onClick={() => handleSendCode()}
               disabled={loading || !email}
-              className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 disabled:opacity-50"
+              className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? 'Enviando...' : 'Enviar Código'}
             </button>
@@ -177,8 +220,9 @@ function VerificationContentInner() {
                 onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                 placeholder="000000"
                 maxLength={6}
-                className="w-full px-4 py-3 text-center text-2xl font-mono border border-gray-300 rounded-lg tracking-widest focus:ring-2 focus:ring-purple-600"
+                className="w-full px-4 py-3 text-center text-2xl font-mono border border-gray-300 rounded-lg tracking-widest focus:ring-2 focus:ring-purple-600 focus:border-transparent"
                 required
+                autoComplete="off"
               />
               <p className="text-sm text-gray-500 mt-2">
                 Enviamos un código a: <strong>{email}</strong>
@@ -188,7 +232,7 @@ function VerificationContentInner() {
             <button
               onClick={handleVerifyCode}
               disabled={loading || verificationCode.length !== 6}
-              className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 disabled:opacity-50"
+              className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? 'Verificando...' : 'Verificar y Crear Cuenta'}
             </button>
@@ -197,7 +241,7 @@ function VerificationContentInner() {
               <button
                 onClick={handleResendCode}
                 disabled={resendTimer > 0}
-                className="text-purple-600 hover:text-purple-700 font-medium disabled:text-gray-400"
+                className="text-purple-600 hover:text-purple-700 font-medium disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
               >
                 {resendTimer > 0 
                   ? `Reenviar en ${resendTimer}s`
@@ -211,7 +255,7 @@ function VerificationContentInner() {
                 setVerificationCode('')
                 setError('')
               }}
-              className="w-full text-gray-600 hover:text-gray-900"
+              className="w-full text-gray-600 hover:text-gray-900 transition-colors"
             >
               ← Cambiar email
             </button>
@@ -224,7 +268,11 @@ function VerificationContentInner() {
 
 export default function VerificationContent() {
   return (
-    <Suspense fallback={<div>Cargando...</div>}>
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-purple-600 text-lg">Cargando...</div>
+      </div>
+    }>
       <VerificationContentInner />
     </Suspense>
   )

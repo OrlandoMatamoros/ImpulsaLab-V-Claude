@@ -1,109 +1,147 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/firebase'
-import { collection, query, where, getDocs, updateDoc, doc, setDoc } from 'firebase/firestore'
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
-import { app } from '@/lib/firebase'
+// app/api/verification/verify-codes/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { adminAuth, adminDb } from '@/lib/firebase-admin';
+import bcrypt from 'bcryptjs';
+import { SignJWT } from 'jose';
 
-const auth = getAuth(app)
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, phoneNumber, code } = await request.json()
-
-    if (!code || (!email && !phoneNumber)) {
+    const { email, code, password, userData } = await request.json();
+    
+    console.log('Verifying code for:', email);
+    
+    // 1. Buscar el código en Firestore
+    const codesSnapshot = await adminDb
+      .collection('verification_codes')
+      .where('email', '==', email)
+      .where('code', '==', code)
+      .where('used', '==', false)
+      .orderBy('createdAt', 'desc')
+      .limit(1)
+      .get();
+    
+    if (codesSnapshot.empty) {
       return NextResponse.json(
-        { success: false, error: 'Datos incompletos' },
+        { error: 'Código inválido o expirado' },
         { status: 400 }
-      )
+      );
     }
-
-    const identifier = email || phoneNumber
-
-    // Buscar código en Firestore
-    const codesQuery = query(
-      collection(db, 'verification_codes'),
-      where('identifier', '==', identifier),
-      where('code', '==', code),
-      where('used', '==', false)
-    )
-
-    const snapshot = await getDocs(codesQuery)
-
-    if (snapshot.empty) {
+    
+    const codeDoc = codesSnapshot.docs[0];
+    const codeData = codeDoc.data();
+    
+    // 2. Verificar expiración
+    if (new Date() > codeData.expiresAt.toDate()) {
       return NextResponse.json(
-        { success: false, error: 'Código inválido o expirado' },
+        { error: 'El código ha expirado' },
         { status: 400 }
-      )
+      );
     }
-
-    // Marcar código como usado
-    const codeDoc = snapshot.docs[0]
-    await updateDoc(doc(db, 'verification_codes', codeDoc.id), {
+    
+    // 3. Marcar código como usado
+    await adminDb.collection('verification_codes').doc(codeDoc.id).update({
       used: true,
       usedAt: new Date()
+    });
+    
+    // 4. Crear usuario en Firebase Auth
+    const userRecord = await adminAuth.createUser({
+      email,
+      password,
+      emailVerified: true
+    });
+    
+    console.log('User created in Auth:', userRecord.uid);
+    
+    // 5. Hash de la contraseña para Firestore
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // 6. Determinar el rol
+    let role = 'registered';
+    if (codeData.isConsultant && userData?.consultantCode) {
+      // Verificar código de consultor
+      const consultantCodeSnapshot = await adminDb
+        .collection('consultantCodes')
+        .where('code', '==', userData.consultantCode)
+        .where('used', '==', false)
+        .limit(1)
+        .get();
+      
+      if (!consultantCodeSnapshot.empty) {
+        role = 'consultant';
+        // Marcar código de consultor como usado
+        await adminDb.collection('consultantCodes')
+          .doc(consultantCodeSnapshot.docs[0].id)
+          .update({ used: true, usedBy: email, usedAt: new Date() });
+      }
+    }
+    
+    // 7. Guardar datos en Firestore
+    await adminDb.collection('users').doc(userRecord.uid).set({
+      email,
+      password: hashedPassword,
+      role,
+      name: userData?.name || '',
+      company: userData?.company || '',
+      phone: userData?.phone || '',
+      createdAt: new Date(),
+      lastLogin: new Date(),
+      isActive: true,
+      emailVerified: true
+    });
+    
+    console.log('User data saved to Firestore');
+    
+    // 8. Crear custom token para login automático
+    const customToken = await adminAuth.createCustomToken(userRecord.uid, {
+      role,
+      email
+    });
+    
+    // 9. Crear JWT para cookie de sesión
+    const jwt = await new SignJWT({ 
+      uid: userRecord.uid, 
+      email, 
+      role 
     })
-
-    // Obtener datos del signup desde sessionStorage (se pasan desde el frontend)
-    let signupData = null
-    try {
-      // Los datos vienen del frontend
-      const signupDataStr = request.headers.get('x-signup-data')
-      if (signupDataStr) {
-        signupData = JSON.parse(signupDataStr)
-      }
-    } catch (e) {
-      console.log('No signup data found')
-    }
-
-    // Crear usuario en Firebase Auth
-    if (signupData && signupData.password) {
-      try {
-        const userCredential = await createUserWithEmailAndPassword(
-          auth, 
-          email, 
-          signupData.password
-        )
-        
-        // Guardar datos adicionales en Firestore
-        await setDoc(doc(db, 'users', userCredential.user.uid), {
-          email,
-          name: signupData.name || '',
-          phone: signupData.phone || '',
-          emailVerified: true,
-          role: signupData.isConsultant ? 'consultant' : 'registered',
-          consultantCode: signupData.consultantCode || null,
-          createdAt: new Date(),
-          uid: userCredential.user.uid
-        })
-        
-        return NextResponse.json({
-          success: true,
-          message: 'Usuario creado y verificado exitosamente',
-          uid: userCredential.user.uid
-        })
-        
-      } catch (authError: any) {
-        if (authError.code === 'auth/email-already-in-use') {
-          return NextResponse.json({
-            success: true,
-            message: 'Email ya registrado, verificación completada',
-            existing: true
-          })
-        }
-        throw authError
-      }
-    }
-
-    return NextResponse.json({
+      .setProtectedHeader({ alg: 'HS256' })
+      .setExpirationTime('7d')
+      .sign(JWT_SECRET);
+    
+    // 10. Respuesta con tokens
+    const response = NextResponse.json({
       success: true,
-      message: 'Verificación exitosa'
-    })
-
+      customToken,
+      user: {
+        uid: userRecord.uid,
+        email,
+        role
+      }
+    });
+    
+    // 11. Setear cookie httpOnly
+    response.cookies.set('auth-token', jwt, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7 // 7 días
+    });
+    
+    return response;
+    
   } catch (error) {
-    console.error('Error en verify-codes:', error)
+    console.error('❌ Error in verify-codes:', error);
+    
     return NextResponse.json(
-      { success: false, error: 'Error interno del servidor' },
+      { 
+        error: 'Error al verificar el código',
+        details: process.env.NODE_ENV === 'development' 
+          ? (error instanceof Error ? error.message : 'Unknown error')
+          : undefined
+      },
       { status: 500 }
-    )
+    );
   }
 }

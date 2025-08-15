@@ -1,256 +1,209 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { auth, db } from '@/lib/firebase'
-import { onAuthStateChanged } from 'firebase/auth'
-import { doc, getDoc } from 'firebase/firestore'
-import Link from 'next/link'
-import { 
-  CreditCard, 
-  Settings, 
-  FileText, 
-  Package,
-  ArrowRight,
-  User,
-  Bell,
-  Shield,
-  TrendingUp
-} from 'lucide-react'
-
-interface UserData {
-  email: string
-  name?: string
-  role: string
-  subscriptionStatus?: string
-  plan?: string
-  nextBillingDate?: string
-}
+import { useEffect, useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function DashboardPage() {
-  const [user, setUser] = useState<any>(null)
-  const [userData, setUserData] = useState<UserData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const router = useRouter()
+  const [user, setUser] = useState<any>(null);
+  const [stats, setStats] = useState({
+    lastLogin: new Date().toLocaleDateString(),
+    accountStatus: 'Activo',
+    memberSince: new Date().toLocaleDateString(),
+  });
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        setUser(firebaseUser)
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      setUser(JSON.parse(userData));
+    }
+  }, []);
+
+  const getRoleBasedContent = () => {
+    switch (user?.role) {
+      case 'admin':
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Usuarios Totales</CardTitle>
+                <CardDescription>Gestión de usuarios</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold">1,234</p>
+                <p className="text-sm text-gray-600">+12% este mes</p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Ingresos</CardTitle>
+                <CardDescription>Ingresos mensuales</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold">$45,678</p>
+                <p className="text-sm text-green-600">+23% este mes</p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Diagnósticos</CardTitle>
+                <CardDescription>Total realizados</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold">567</p>
+                <p className="text-sm text-gray-600">89 esta semana</p>
+              </CardContent>
+            </Card>
+          </div>
+        );
         
-        // Obtener datos adicionales del usuario
-        try {
-          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid))
-          if (userDoc.exists()) {
-            const data = userDoc.data() as UserData
+      case 'consultant':
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Mis Clientes</CardTitle>
+                <CardDescription>Clientes activos</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold">28</p>
+                <p className="text-sm text-gray-600">3 nuevos este mes</p>
+              </CardContent>
+            </Card>
             
-            // Verificar que sea cliente o admin
-            if (data.role !== 'client' && data.role !== 'admin') {
-              router.push('/unauthorized')
-              return
-            }
+            <Card>
+              <CardHeader>
+                <CardTitle>Diagnósticos Realizados</CardTitle>
+                <CardDescription>Este mes</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold">45</p>
+                <p className="text-sm text-green-600">+15% vs mes anterior</p>
+              </CardContent>
+            </Card>
+          </div>
+        );
+        
+      case 'client':
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Mi Suscripción</CardTitle>
+                <CardDescription>Plan actual</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">Plan Premium</p>
+                <p className="text-sm text-gray-600">Renovación: 15/09/2024</p>
+              </CardContent>
+            </Card>
             
-            setUserData(data)
-          }
-        } catch (error) {
-          console.error('Error obteniendo datos del usuario:', error)
-        }
-      } else {
-        router.push('/login')
-      }
-      setLoading(false)
-    })
-
-    return () => unsubscribe()
-  }, [router])
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      </div>
-    )
-  }
-
-  if (!user || !userData) {
-    return null
-  }
-
-  const quickActions = [
-    {
-      title: 'Mi Suscripción',
-      description: 'Gestiona tu plan y métodos de pago',
-      icon: CreditCard,
-      href: '/dashboard/suscripciones',
-      color: 'bg-blue-500'
-    },
-    {
-      title: 'Configuración',
-      description: 'Actualiza tu perfil y preferencias',
-      icon: Settings,
-      href: '/dashboard/configuracion',
-      color: 'bg-purple-500'
-    },
-    {
-      title: 'Facturas',
-      description: 'Descarga tus facturas y recibos',
-      icon: FileText,
-      href: '/dashboard/facturas',
-      color: 'bg-green-500'
-    },
-    {
-      title: 'Mis Servicios',
-      description: 'Accede a las herramientas de tu plan',
-      icon: Package,
-      href: '/dashboard/servicios',
-      color: 'bg-orange-500'
+            <Card>
+              <CardHeader>
+                <CardTitle>Diagnósticos Disponibles</CardTitle>
+                <CardDescription>Este mes</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-3xl font-bold">3/5</p>
+                <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                  <div className="bg-purple-600 h-2 rounded-full" style={{ width: '60%' }}></div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+        
+      default:
+        return (
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>Bienvenido a Impulsa Lab</CardTitle>
+              <CardDescription>Cuenta básica</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600">
+                Actualiza tu cuenta para acceder a todas las funcionalidades.
+              </p>
+              <button className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors">
+                Ver Planes
+              </button>
+            </CardContent>
+          </Card>
+        );
     }
-  ]
-
-  const stats = [
-    {
-      label: 'Plan Actual',
-      value: userData.plan || 'Básico',
-      icon: Shield,
-      trend: 'active'
-    },
-    {
-      label: 'Estado',
-      value: userData.subscriptionStatus === 'active' ? 'Activo' : 'Inactivo',
-      icon: TrendingUp,
-      trend: userData.subscriptionStatus === 'active' ? 'up' : 'down'
-    },
-    {
-      label: 'Próximo Pago',
-      value: userData.nextBillingDate || 'N/A',
-      icon: CreditCard,
-      trend: 'neutral'
-    }
-  ]
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header del Dashboard */}
-      <div className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="py-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Bienvenido, {userData.name || userData.email}
-                </h1>
-                <p className="mt-1 text-sm text-gray-500">
-                  Gestiona tu cuenta y servicios de Impulsa Lab
-                </p>
-              </div>
-              <button className="p-2 rounded-lg hover:bg-gray-100 relative">
-                <Bell className="h-6 w-6 text-gray-600" />
-                <span className="absolute top-1 right-1 h-2 w-2 bg-red-500 rounded-full"></span>
-              </button>
-            </div>
-          </div>
-        </div>
+    <div>
+      {/* Welcome Section */}
+      <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl p-8 text-white">
+        <h1 className="text-3xl font-bold mb-2">
+          ¡Bienvenido, {user?.email?.split('@')[0]}! 👋
+        </h1>
+        <p className="text-purple-100">
+          Este es tu panel de control personalizado
+        </p>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {stats.map((stat, index) => (
-            <div key={index} className="bg-white rounded-lg shadow p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500">{stat.label}</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">
-                    {stat.value}
-                  </p>
-                </div>
-                <div className={`p-3 rounded-lg ${
-                  stat.trend === 'up' ? 'bg-green-100' :
-                  stat.trend === 'down' ? 'bg-red-100' :
-                  'bg-gray-100'
-                }`}>
-                  <stat.icon className={`h-6 w-6 ${
-                    stat.trend === 'up' ? 'text-green-600' :
-                    stat.trend === 'down' ? 'text-red-600' :
-                    'text-gray-600'
-                  }`} />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardDescription>Último acceso</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-lg font-semibold">{stats.lastLogin}</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-3">
+            <CardDescription>Estado de cuenta</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-lg font-semibold text-green-600">{stats.accountStatus}</p>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="pb-3">
+            <CardDescription>Miembro desde</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-lg font-semibold">{stats.memberSince}</p>
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {quickActions.map((action, index) => (
-            <Link
-              key={index}
-              href={action.href}
-              className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-6 group"
-            >
-              <div className={`${action.color} w-12 h-12 rounded-lg flex items-center justify-center mb-4`}>
-                <action.icon className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-1">
-                {action.title}
-              </h3>
-              <p className="text-sm text-gray-500 mb-4">
-                {action.description}
-              </p>
-              <div className="flex items-center text-blue-600 group-hover:text-blue-700">
-                <span className="text-sm font-medium">Acceder</span>
-                <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Link>
-          ))}
-        </div>
+      {/* Role-based content */}
+      {getRoleBasedContent()}
 
-        {/* Recent Activity */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b">
-            <h2 className="text-lg font-semibold text-gray-900">
-              Actividad Reciente
-            </h2>
-          </div>
-          <div className="p-6">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between py-3 border-b last:border-0">
-                <div className="flex items-center">
-                  <div className="bg-blue-100 p-2 rounded-lg mr-4">
-                    <User className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">Perfil actualizado</p>
-                    <p className="text-sm text-gray-500">Hace 2 días</p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center justify-between py-3 border-b last:border-0">
-                <div className="flex items-center">
-                  <div className="bg-green-100 p-2 rounded-lg mr-4">
-                    <CreditCard className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">Pago procesado</p>
-                    <p className="text-sm text-gray-500">Hace 5 días</p>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center justify-between py-3 border-b last:border-0">
-                <div className="flex items-center">
-                  <div className="bg-purple-100 p-2 rounded-lg mr-4">
-                    <Package className="h-5 w-5 text-purple-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">Nuevo servicio activado</p>
-                    <p className="text-sm text-gray-500">Hace 1 semana</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+      {/* Quick Actions */}
+      <div className="mt-8">
+        <h2 className="text-xl font-semibold mb-4">Acciones Rápidas</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <button className="p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow text-center">
+            <span className="text-2xl mb-2">📊</span>
+            <p className="text-sm font-medium">Nuevo Diagnóstico</p>
+          </button>
+          
+          <button className="p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow text-center">
+            <span className="text-2xl mb-2">📈</span>
+            <p className="text-sm font-medium">Ver Reportes</p>
+          </button>
+          
+          <button className="p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow text-center">
+            <span className="text-2xl mb-2">⚙️</span>
+            <p className="text-sm font-medium">Configuración</p>
+          </button>
+          
+          <button className="p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow text-center">
+            <span className="text-2xl mb-2">💬</span>
+            <p className="text-sm font-medium">Soporte</p>
+          </button>
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,4 +1,3 @@
-// app/api/verification/send-codes/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { adminDb } from '@/lib/firebase-admin';
@@ -58,7 +57,7 @@ export async function POST(request: NextRequest) {
     
     // 4. Generar código de 6 dígitos
     const code = crypto.randomInt(100000, 999999).toString();
-    console.log('Generated code:', code);
+    console.log('Generated code for', email, ':', code);
     
     // 5. Guardar en Firestore con expiración
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutos
@@ -110,17 +109,6 @@ export async function POST(request: NextRequest) {
                 Este código expirará en 10 minutos. Si no solicitaste este código, puedes ignorar este email.
               </p>
               
-              ${isConsultant ? `
-                <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin-top: 20px;">
-                  <p style="color: #92400e; margin: 0; font-weight: 500;">
-                    🎯 Registro como Consultor
-                  </p>
-                  <p style="color: #92400e; margin: 5px 0 0 0; font-size: 14px;">
-                    Estás registrándote como consultor. Tendrás acceso a herramientas especializadas y panel de analytics.
-                  </p>
-                </div>
-              ` : ''}
-              
               <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
               
               <p style="color: #9ca3af; font-size: 12px; text-align: center; margin: 0;">
@@ -132,7 +120,7 @@ export async function POST(request: NextRequest) {
       `
     });
     
-    console.log('Email sent successfully:', emailResult);
+    console.log('Email sent successfully');
     
     // 7. Respuesta exitosa
     return NextResponse.json({
@@ -144,22 +132,15 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     // Log detallado del error
     console.error('❌ Error in send-codes:', error);
-    console.error('Error details:', {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-      type: typeof error
-    });
+    console.error('Error type:', error instanceof Error ? error.constructor.name : typeof error);
+    console.error('Error message:', error instanceof Error ? error.message : 'Unknown');
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
     
-    // Respuesta de error más informativa (solo en desarrollo)
-    const isDev = process.env.NODE_ENV === 'development';
-    
+    // Respuesta de error más informativa
     return NextResponse.json(
       { 
         error: 'Error al enviar el código',
-        ...(isDev && { 
-          details: error instanceof Error ? error.message : 'Unknown error',
-          type: error instanceof Error ? error.constructor.name : typeof error
-        })
+        details: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
     );

@@ -1,4 +1,3 @@
-// app/api/verification/verify-codes/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { adminAuth, adminDb } from '@/lib/firebase-admin';
 import bcrypt from 'bcryptjs';
@@ -137,9 +136,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       { 
         error: 'Error al verificar el código',
-        details: process.env.NODE_ENV === 'development' 
-          ? (error instanceof Error ? error.message : 'Unknown error')
-          : undefined
+        details: error instanceof Error ? error.message : 'Unknown error'
       },
       { status: 500 }
     );

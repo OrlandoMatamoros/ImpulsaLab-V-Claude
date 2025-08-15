@@ -19,7 +19,6 @@ function VerificationContentInner() {
     const emailParam = searchParams.get('email')
     if (emailParam) {
       setEmail(emailParam)
-      // Si hay email en la URL, ir directo al paso 2
       if (emailParam) {
         handleSendCode(emailParam)
       }
@@ -57,7 +56,7 @@ function VerificationContentInner() {
       }
 
       setStep('verify')
-      setResendTimer(60) // 60 segundos para reenviar
+      setResendTimer(60)
       
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error desconocido')
@@ -71,9 +70,15 @@ function VerificationContentInner() {
     setError('')
 
     try {
+      // Obtener datos del signup desde sessionStorage
+      const signupData = sessionStorage.getItem('signupData')
+      
       const response = await fetch('/api/verification/verify-codes', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-signup-data': signupData || ''
+        },
         body: JSON.stringify({ 
           email, 
           code: verificationCode 
@@ -87,8 +92,13 @@ function VerificationContentInner() {
       }
 
       setSuccess(true)
+      
+      // Limpiar sessionStorage
+      sessionStorage.removeItem('signupData')
+      sessionStorage.removeItem('codes_sent')
+      
       setTimeout(() => {
-        router.push('/dashboard')
+        router.push('/login')
       }, 2000)
       
     } catch (err) {
@@ -119,7 +129,7 @@ function VerificationContentInner() {
 
         {success && (
           <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-green-800">✅ ¡Verificación exitosa! Redirigiendo...</p>
+            <p className="text-green-800">✅ ¡Cuenta creada exitosamente! Redirigiendo al login...</p>
           </div>
         )}
 
@@ -180,7 +190,7 @@ function VerificationContentInner() {
               disabled={loading || verificationCode.length !== 6}
               className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 disabled:opacity-50"
             >
-              {loading ? 'Verificando...' : 'Verificar'}
+              {loading ? 'Verificando...' : 'Verificar y Crear Cuenta'}
             </button>
 
             <div className="text-center">

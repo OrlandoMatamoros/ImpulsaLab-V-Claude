@@ -15,6 +15,9 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname
   const token = request.cookies.get('auth-token')
   
+  console.log('🔍 Middleware check for path:', path)
+  console.log('�� Token exists:', !!token)
+  
   // Para rutas públicas, permitir siempre
   if (PUBLIC_ROUTES.includes(path)) {
     return NextResponse.next()
@@ -34,6 +37,7 @@ export async function middleware(request: NextRequest) {
       CONSULTANT_ROUTES.some(route => path.startsWith(route)) ||
       ADMIN_ROUTES.some(route => path.startsWith(route))
     ) {
+      console.log('❌ No token, redirecting to login')
       return NextResponse.redirect(new URL('/login', request.url))
     }
     
@@ -46,10 +50,11 @@ export async function middleware(request: NextRequest) {
     const tokenValue = token.value
     
     // Por ahora, parseamos el token básico que guardamos
-    // En producción, esto debe verificarse con Firebase Admin SDK
-    const userDataString = Buffer.from(tokenValue.split('.')[1] || '', 'base64').toString()
+    const userDataString = Buffer.from(tokenValue.split('.')[0] || '', 'base64').toString()
     const userData = JSON.parse(userDataString)
-    const userRole = userData.role || 'registered'
+    const userRole = (userData.role || 'registered').toLowerCase() // Convertir a minúsculas
+    
+    console.log('👤 User role:', userRole)
 
     // Si el usuario está autenticado y trata de acceder a login/signup
     if (AUTH_ROUTES.includes(path)) {
@@ -63,18 +68,21 @@ export async function middleware(request: NextRequest) {
     // Verificar permisos según el rol
     if (path.startsWith('/admin')) {
       if (userRole !== 'admin') {
+        console.log('❌ Not admin, redirecting to unauthorized')
         return NextResponse.redirect(new URL('/unauthorized', request.url))
       }
     }
 
     if (path.startsWith('/consultant')) {
       if (userRole !== 'consultant' && userRole !== 'admin') {
+        console.log('❌ Not consultant, redirecting to unauthorized')
         return NextResponse.redirect(new URL('/unauthorized', request.url))
       }
     }
 
     if (path.startsWith('/dashboard')) {
       if (userRole !== 'client' && userRole !== 'admin') {
+        console.log('❌ Not client, redirecting to unauthorized')
         return NextResponse.redirect(new URL('/unauthorized', request.url))
       }
     }
@@ -86,7 +94,7 @@ export async function middleware(request: NextRequest) {
 
     return NextResponse.next()
   } catch (error) {
-    console.error('Error en middleware:', error)
+    console.error('❌ Error en middleware:', error)
     // En caso de error, redirigir a login
     return NextResponse.redirect(new URL('/login', request.url))
   }

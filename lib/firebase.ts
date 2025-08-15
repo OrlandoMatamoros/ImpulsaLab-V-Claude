@@ -1,5 +1,5 @@
 // lib/firebase.ts - Configuración robusta para todos los entornos
-import { initializeApp, getApps, getApp } from 'firebase/app';
+import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { getAnalytics, isSupported } from 'firebase/analytics';
@@ -24,12 +24,13 @@ if (missingFields.length > 0) {
 }
 
 // Initialize Firebase (singleton pattern)
-let app;
+let app: FirebaseApp;
 try {
   app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
   console.log('✅ Firebase initialized successfully');
 } catch (error) {
   console.error('❌ Firebase initialization error:', error);
+  // Throw error para que la app no continúe sin Firebase
   throw error;
 }
 

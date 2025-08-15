@@ -3,16 +3,14 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { 
   User as FirebaseUser,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut as firebaseSignOut,
   onAuthStateChanged
 } from 'firebase/auth'
-import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore'
+import { doc, getDoc } from 'firebase/firestore'
 import { auth, db } from '@/lib/firebase'
+import { signUpUser, signInUser, signOutUser } from '@/lib/auth-helper'
 import { useRouter } from 'next/navigation'
 
-// Definir roles directamente aquí si no existe el archivo types/user.ts
+// Definir roles
 export enum UserRole {
   VISITOR = 'visitor',
   REGISTERED = 'registered',
@@ -26,10 +24,10 @@ interface UserData {
   email: string
   name?: string
   phone?: string
-  role: UserRole
+  role: UserRole | string
   consultantCode?: string
   subscriptionStatus?: 'active' | 'inactive' | 'trial'
-  createdAt: any // Firestore Timestamp
+  createdAt: any
   emailVerified?: boolean
   phoneVerified?: boolean
 }
@@ -87,18 +85,7 @@ export function FirebaseAuthProvider({ children }: { children: React.ReactNode }
               }))
             )}.${token.substring(0, 20)}; path=/; max-age=3600; SameSite=Strict`
           } else {
-            console.log('No user document found, creating basic one')
-            // Crear documento básico si no existe
-            const newUserData = {
-              uid: firebaseUser.uid,
-              email: firebaseUser.email!,
-              role: UserRole.REGISTERED,
-              createdAt: new Date(),
-              emailVerified: firebaseUser.emailVerified,
-              subscriptionStatus: 'inactive'
-            }
-            await setDoc(doc(db, 'users', firebaseUser.uid), newUserData)
-            setUserData(newUserData as UserData)
+            console.log('No user document found')
           }
         } catch (error) {
           console.error('Error getting user data:', error)
@@ -117,31 +104,25 @@ export function FirebaseAuthProvider({ children }: { children: React.ReactNode }
   const signIn = async (email: string, password: string) => {
     try {
       console.log('Attempting login for:', email)
-      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+      const result = await signInUser(email, password)
       
-      // Esperar a que se carguen los datos del usuario
-      const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid))
-      if (userDoc.exists()) {
-        const data = userDoc.data()
-        console.log('Login successful, role:', data.role)
+      if (result.success && result.userData) {
+        console.log('Login successful, role:', result.userData.role)
         
         // Redirigir según el rol
-        switch(data.role) {
-          case UserRole.ADMIN:
+        switch(result.userData.role) {
+          case 'admin':
             router.push('/admin')
             break
-          case UserRole.CONSULTANT:
+          case 'consultant':
             router.push('/consultant')
             break
-          case UserRole.CLIENT:
+          case 'client':
             router.push('/dashboard')
             break
           default:
             router.push('/diagnostico')
         }
-      } else {
-        console.log('No user data found after login')
-        router.push('/diagnostico')
       }
     } catch (error: any) {
       console.error('Login error:', error)
@@ -161,71 +142,25 @@ export function FirebaseAuthProvider({ children }: { children: React.ReactNode }
     additionalData?: { name?: string; phone?: string }
   ) => {
     try {
-      console.log('Starting signup for:', email, 'with consultant code:', consultantCode)
+      console.log('Starting signup process for:', email)
       
-      // Crear usuario en Firebase Auth
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
-      console.log('Firebase Auth user created:', userCredential.user.uid)
+      const result = await signUpUser({
+        email,
+        password,
+        name: additionalData?.name,
+        phone: additionalData?.phone,
+        consultantCode
+      })
       
-      // Determinar el rol
-      let userRole = UserRole.REGISTERED
-      
-      if (consultantCode) {
-        console.log('Checking consultant code:', consultantCode)
-        try {
-          const codeDoc = await getDoc(doc(db, 'consultantCodes', consultantCode))
-          console.log('Code document exists:', codeDoc.exists())
-          console.log('Code data:', codeDoc.data())
-          
-          if (codeDoc.exists() && codeDoc.data().isActive) {
-            userRole = UserRole.CONSULTANT
-            console.log('Valid consultant code, setting role to CONSULTANT')
-            
-            // Marcar código como usado
-            await updateDoc(doc(db, 'consultantCodes', consultantCode), {
-              isActive: false,
-              usedBy: userCredential.user.uid,
-              usedAt: new Date()
-            })
-            console.log('Consultant code marked as used')
-          } else {
-            console.log('Invalid or inactive consultant code')
-          }
-        } catch (codeError) {
-          console.error('Error checking consultant code:', codeError)
+      if (result.success) {
+        console.log('Signup successful, role:', result.role)
+        
+        // Redirigir según el rol
+        if (result.role === 'consultant') {
+          router.push('/consultant')
+        } else {
+          router.push('/diagnostico')
         }
-      }
-      
-      // IMPORTANTE: Crear documento del usuario en Firestore
-      const newUserData = {
-        uid: userCredential.user.uid,
-        email: userCredential.user.email!,
-        name: additionalData?.name || '',
-        phone: additionalData?.phone || '',
-        role: userRole,
-        consultantCode: consultantCode || null,
-        createdAt: new Date(),
-        emailVerified: false,
-        phoneVerified: false,
-        subscriptionStatus: 'inactive'
-      }
-      
-      console.log('Creating user document with data:', newUserData)
-      
-      // Crear el documento en Firestore
-      await setDoc(doc(db, 'users', userCredential.user.uid), newUserData)
-      console.log('User document created successfully')
-      
-      // Establecer userData localmente
-      setUserData(newUserData as UserData)
-      
-      // Redirigir según el rol
-      if (userRole === UserRole.CONSULTANT) {
-        console.log('Redirecting to /consultant')
-        router.push('/consultant')
-      } else {
-        console.log('Redirecting to /diagnostico')
-        router.push('/diagnostico')
       }
     } catch (error: any) {
       console.error('Signup error:', error)
@@ -233,14 +168,14 @@ export function FirebaseAuthProvider({ children }: { children: React.ReactNode }
         error.code === 'auth/email-already-in-use' ? 'Este email ya está registrado' :
         error.code === 'auth/weak-password' ? 'La contraseña debe tener al menos 6 caracteres' :
         error.code === 'auth/invalid-email' ? 'Email inválido' :
-        'Error al crear la cuenta'
+        error.message || 'Error al crear la cuenta'
       )
     }
   }
 
   const signOut = async () => {
     try {
-      await firebaseSignOut(auth)
+      await signOutUser()
       document.cookie = 'auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;'
       router.push('/')
     } catch (error) {

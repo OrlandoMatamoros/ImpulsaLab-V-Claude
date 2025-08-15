@@ -11,15 +11,7 @@ import {
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore'
 import { auth, db } from '@/lib/firebase'
 import { useRouter } from 'next/navigation'
-
-// Definir roles directamente aquí si no existe el archivo types/user.ts
-export enum UserRole {
-  VISITOR = 'visitor',
-  REGISTERED = 'registered',
-  CLIENT = 'client',
-  CONSULTANT = 'consultant',
-  ADMIN = 'admin'
-}
+import { UserRole } from '@/types/user'
 
 interface UserData {
   uid: string
@@ -29,7 +21,7 @@ interface UserData {
   role: UserRole
   consultantCode?: string
   subscriptionStatus?: 'active' | 'inactive' | 'trial'
-  createdAt: any // Firestore Timestamp
+  createdAt: Date
   emailVerified?: boolean
   phoneVerified?: boolean
 }
@@ -41,6 +33,8 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<void>
   signUp: (email: string, password: string, consultantCode?: string, additionalData?: any) => Promise<void>
   signOut: () => Promise<void>
+  updateUserData: (data: Partial<UserData>) => Promise<void>
+  checkUserRole: (requiredRole: UserRole) => boolean
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -49,7 +43,9 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   signIn: async () => {},
   signUp: async () => {},
-  signOut: async () => {}
+  signOut: async () => {},
+  updateUserData: async () => {},
+  checkUserRole: () => false
 })
 
 export const useAuth = () => useContext(AuthContext)
@@ -62,22 +58,22 @@ export function FirebaseAuthProvider({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      console.log('Auth state changed:', firebaseUser?.email)
       setUser(firebaseUser)
       
       if (firebaseUser) {
+        // Obtener datos adicionales del usuario desde Firestore
         try {
           const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid))
           if (userDoc.exists()) {
             const data = userDoc.data()
-            console.log('User data found:', data)
             setUserData({
               uid: firebaseUser.uid,
               email: firebaseUser.email!,
-              ...data
+              ...data,
+              createdAt: data.createdAt?.toDate() || new Date()
             } as UserData)
             
-            // Guardar token en cookie
+            // Guardar token en cookie para el middleware
             const token = await firebaseUser.getIdToken()
             document.cookie = `auth-token=${encodeURIComponent(
               btoa(JSON.stringify({
@@ -87,24 +83,23 @@ export function FirebaseAuthProvider({ children }: { children: React.ReactNode }
               }))
             )}.${token.substring(0, 20)}; path=/; max-age=3600; SameSite=Strict`
           } else {
-            console.log('No user document found, creating basic one')
-            // Crear documento básico si no existe
-            const newUserData = {
+            // Si no existe el documento, crear uno básico
+            const newUserData: UserData = {
               uid: firebaseUser.uid,
               email: firebaseUser.email!,
               role: UserRole.REGISTERED,
               createdAt: new Date(),
-              emailVerified: firebaseUser.emailVerified,
-              subscriptionStatus: 'inactive'
+              emailVerified: firebaseUser.emailVerified
             }
             await setDoc(doc(db, 'users', firebaseUser.uid), newUserData)
-            setUserData(newUserData as UserData)
+            setUserData(newUserData)
           }
         } catch (error) {
-          console.error('Error getting user data:', error)
+          console.error('Error obteniendo datos del usuario:', error)
         }
       } else {
         setUserData(null)
+        // Limpiar cookie
         document.cookie = 'auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;'
       }
       
@@ -116,14 +111,12 @@ export function FirebaseAuthProvider({ children }: { children: React.ReactNode }
 
   const signIn = async (email: string, password: string) => {
     try {
-      console.log('Attempting login for:', email)
       const userCredential = await signInWithEmailAndPassword(auth, email, password)
       
-      // Esperar a que se carguen los datos del usuario
+      // Obtener datos del usuario
       const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid))
       if (userDoc.exists()) {
         const data = userDoc.data()
-        console.log('Login successful, role:', data.role)
         
         // Redirigir según el rol
         switch(data.role) {
@@ -139,12 +132,9 @@ export function FirebaseAuthProvider({ children }: { children: React.ReactNode }
           default:
             router.push('/diagnostico')
         }
-      } else {
-        console.log('No user data found after login')
-        router.push('/diagnostico')
       }
     } catch (error: any) {
-      console.error('Login error:', error)
+      console.error('Error en login:', error)
       throw new Error(
         error.code === 'auth/user-not-found' ? 'Usuario no encontrado' :
         error.code === 'auth/wrong-password' ? 'Contraseña incorrecta' :
@@ -161,74 +151,50 @@ export function FirebaseAuthProvider({ children }: { children: React.ReactNode }
     additionalData?: { name?: string; phone?: string }
   ) => {
     try {
-      console.log('Starting signup for:', email, 'with consultant code:', consultantCode)
-      
-      // Crear usuario en Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password)
-      console.log('Firebase Auth user created:', userCredential.user.uid)
       
-      // Determinar el rol
+      // Determinar el rol basado en el código de consultor
       let userRole = UserRole.REGISTERED
       
       if (consultantCode) {
-        console.log('Checking consultant code:', consultantCode)
-        try {
-          const codeDoc = await getDoc(doc(db, 'consultantCodes', consultantCode))
-          console.log('Code document exists:', codeDoc.exists())
-          console.log('Code data:', codeDoc.data())
+        // Verificar si el código es válido en Firestore
+        const codeDoc = await getDoc(doc(db, 'consultantCodes', consultantCode))
+        if (codeDoc.exists() && codeDoc.data().isActive) {
+          userRole = UserRole.CONSULTANT
           
-          if (codeDoc.exists() && codeDoc.data().isActive) {
-            userRole = UserRole.CONSULTANT
-            console.log('Valid consultant code, setting role to CONSULTANT')
-            
-            // Marcar código como usado
-            await updateDoc(doc(db, 'consultantCodes', consultantCode), {
-              isActive: false,
-              usedBy: userCredential.user.uid,
-              usedAt: new Date()
-            })
-            console.log('Consultant code marked as used')
-          } else {
-            console.log('Invalid or inactive consultant code')
-          }
-        } catch (codeError) {
-          console.error('Error checking consultant code:', codeError)
+          // Marcar el código como usado
+          await updateDoc(doc(db, 'consultantCodes', consultantCode), {
+            isActive: false,
+            usedBy: userCredential.user.uid,
+            usedAt: new Date()
+          })
         }
       }
       
-      // IMPORTANTE: Crear documento del usuario en Firestore
-      const newUserData = {
+      // Crear documento del usuario en Firestore
+      const newUserData: UserData = {
         uid: userCredential.user.uid,
         email: userCredential.user.email!,
-        name: additionalData?.name || '',
-        phone: additionalData?.phone || '',
+        name: additionalData?.name,
+        phone: additionalData?.phone,
         role: userRole,
-        consultantCode: consultantCode || null,
+        consultantCode: consultantCode,
         createdAt: new Date(),
         emailVerified: false,
         phoneVerified: false,
         subscriptionStatus: 'inactive'
       }
       
-      console.log('Creating user document with data:', newUserData)
-      
-      // Crear el documento en Firestore
       await setDoc(doc(db, 'users', userCredential.user.uid), newUserData)
-      console.log('User document created successfully')
-      
-      // Establecer userData localmente
-      setUserData(newUserData as UserData)
       
       // Redirigir según el rol
       if (userRole === UserRole.CONSULTANT) {
-        console.log('Redirecting to /consultant')
         router.push('/consultant')
       } else {
-        console.log('Redirecting to /diagnostico')
         router.push('/diagnostico')
       }
     } catch (error: any) {
-      console.error('Signup error:', error)
+      console.error('Error en registro:', error)
       throw new Error(
         error.code === 'auth/email-already-in-use' ? 'Este email ya está registrado' :
         error.code === 'auth/weak-password' ? 'La contraseña debe tener al menos 6 caracteres' :
@@ -241,23 +207,58 @@ export function FirebaseAuthProvider({ children }: { children: React.ReactNode }
   const signOut = async () => {
     try {
       await firebaseSignOut(auth)
+      // Limpiar cookie
       document.cookie = 'auth-token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;'
       router.push('/')
     } catch (error) {
-      console.error('Error signing out:', error)
+      console.error('Error al cerrar sesión:', error)
       throw error
     }
   }
 
+  const updateUserData = async (data: Partial<UserData>) => {
+    if (!user) throw new Error('No hay usuario autenticado')
+    
+    try {
+      await updateDoc(doc(db, 'users', user.uid), data)
+      setUserData(prev => prev ? { ...prev, ...data } : null)
+    } catch (error) {
+      console.error('Error actualizando datos del usuario:', error)
+      throw error
+    }
+  }
+
+  const checkUserRole = (requiredRole: UserRole): boolean => {
+    if (!userData) return false
+    
+    // Admin tiene acceso a todo
+    if (userData.role === UserRole.ADMIN) return true
+    
+    // Verificar jerarquía de roles
+    const roleHierarchy = {
+      [UserRole.VISITOR]: 0,
+      [UserRole.REGISTERED]: 1,
+      [UserRole.CLIENT]: 2,
+      [UserRole.CONSULTANT]: 2, // Mismo nivel que CLIENT pero rutas diferentes
+      [UserRole.ADMIN]: 3
+    }
+    
+    return roleHierarchy[userData.role] >= roleHierarchy[requiredRole]
+  }
+
+  const value = {
+    user,
+    userData,
+    loading,
+    signIn,
+    signUp,
+    signOut,
+    updateUserData,
+    checkUserRole
+  }
+
   return (
-    <AuthContext.Provider value={{
-      user,
-      userData,
-      loading,
-      signIn,
-      signUp,
-      signOut
-    }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   )

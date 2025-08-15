@@ -207,6 +207,11 @@ export default function VerificationContent() {
     }
   }
   
+  // Función para asignar refs correctamente
+  const setInputRef = (index: number) => (el: HTMLInputElement | null) => {
+    emailRefs.current[index] = el
+  }
+  
   if (timeLeft === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-orange-50 p-4">
@@ -301,7 +306,7 @@ export default function VerificationContent() {
             {emailCode.map((digit, index) => (
               <input
                 key={`email-${index}`}
-                ref={el => emailRefs.current[index] = el}
+                ref={setInputRef(index)}
                 type="text"
                 maxLength={1}
                 value={digit}

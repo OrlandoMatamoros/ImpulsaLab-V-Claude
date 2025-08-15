@@ -1,3 +1,5 @@
+'use client'
+
 export default function UnauthorizedPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -10,7 +12,7 @@ export default function UnauthorizedPage() {
         </p>
         
           href="/"
-          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 inline-block"
         >
           Volver al Inicio
         </a>

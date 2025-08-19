@@ -40,6 +40,15 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
   const [operationsScore, setOperationsScore] = useState(50);
   const [marketingScore, setMarketingScore] = useState(50);
 
+  // BUG FIX 2: Estado para acumular TODAS las respuestas
+  const [allResponses, setAllResponses] = useState({
+    clientInfo: {},
+    preAssessment: {},
+    finance: [] as any[],
+    operations: [] as any[],
+    marketing: [] as any[]
+  });
+
   const steps = [
     { id: 0, name: 'Información', icon: '📋' },
     { id: 1, name: 'Evaluación Inicial', icon: '🎯' },
@@ -61,6 +70,10 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
         setOperationsScore(progress.scores.operations || 50);
         setMarketingScore(progress.scores.marketing || 50);
       }
+      // Restaurar respuestas si existen
+      if (progress.allResponses) {
+        setAllResponses(progress.allResponses);
+      }
     }
   }, []);
 
@@ -73,6 +86,7 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
         operations: operationsScore,
         marketing: marketingScore,
       },
+      allResponses: allResponses, // Guardar respuestas también
       timestamp: new Date().toISOString(),
     };
     localStorage.setItem('diagnosticProgress', JSON.stringify(progress));
@@ -110,22 +124,42 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
     setFinanceScore(50);
     setOperationsScore(50);
     setMarketingScore(50);
+    setAllResponses({
+      clientInfo: {},
+      preAssessment: {},
+      finance: [],
+      operations: [],
+      marketing: []
+    });
     localStorage.removeItem('diagnosticProgress');
     setShowResetDialog(false);
   };
 
-  const handleFinanceComplete = (score: number) => {
+  // BUG FIX 2: Funciones actualizadas para guardar respuestas
+  const handleFinanceComplete = (score: number, responses?: any[]) => {
     setFinanceScore(score);
+    setAllResponses(prev => ({ 
+      ...prev, 
+      finance: responses || [] 
+    }));
     handleNext();
   };
 
-  const handleOperationsComplete = (score: number) => {
+  const handleOperationsComplete = (score: number, responses?: any[]) => {
     setOperationsScore(score);
+    setAllResponses(prev => ({ 
+      ...prev, 
+      operations: responses || [] 
+    }));
     handleNext();
   };
 
-  const handleMarketingComplete = (score: number) => {
+  const handleMarketingComplete = (score: number, responses?: any[]) => {
     setMarketingScore(score);
+    setAllResponses(prev => ({ 
+      ...prev, 
+      marketing: responses || [] 
+    }));
     const results = {
       finance: financeScore,
       operations: operationsScore,
@@ -146,6 +180,11 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
             onUpdate={(info) => {
               setLocalClientInfo(info);
               setClientInfo(info);
+              // Guardar info del cliente en respuestas
+              setAllResponses(prev => ({ 
+                ...prev, 
+                clientInfo: info 
+              }));
             }}
             onNext={handleNext}
           />
@@ -157,6 +196,11 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
               setFinanceScore(scores.finance);
               setOperationsScore(scores.operations);
               setMarketingScore(scores.marketing);
+              // Guardar scores iniciales
+              setAllResponses(prev => ({ 
+                ...prev, 
+                preAssessment: scores 
+              }));
               handleNext();
             }}
           />
@@ -193,7 +237,11 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
               operations: operationsScore,
               marketing: marketingScore,
             }}
-            responses={[]} // TODO: Guardar respuestas de las preguntas
+            responses={[
+              ...allResponses.finance,
+              ...allResponses.operations,
+              ...allResponses.marketing
+            ]} // BUG FIX 3: Pasar TODAS las respuestas acumuladas
             clientInfo={localClientInfo}
             onScheduleConsultation={() => {
               window.open(LINKS.calendly, '_blank');
@@ -205,6 +253,11 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
         return null;
     }
   };
+
+  // Guardar progreso cada vez que cambie algo importante
+  useEffect(() => {
+    saveProgress();
+  }, [currentStep, completedSteps, financeScore, operationsScore, marketingScore, allResponses]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-4 sm:py-8 px-4">

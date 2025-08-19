@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight, Info, CheckCircle2 } from 'lucide-react';
 
 interface AdaptiveQuestionsProps {
   axis: 'finance' | 'operations' | 'marketing';
-  onComplete: (score: number) => void;
+  onComplete: (score: number, responses?: any[]) => void;
   initialScore?: number;
 }
 
@@ -17,12 +17,22 @@ export function AdaptiveQuestions({ axis, onComplete, initialScore = 50 }: Adapt
   const [answers, setAnswers] = useState<{ [key: string]: number }>({});
   const [questions, setQuestions] = useState<any[]>([]);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [previousAxis, setPreviousAxis] = useState(axis);
 
   useEffect(() => {
+    // Detectar cambio de eje
+    if (axis !== previousAxis) {
+      // RESETEAR TODO cuando cambia el eje
+      setCurrentQuestionIndex(0);
+      setSelectedOption(null);
+      setAnswers({}); // Limpiar respuestas anteriores del eje anterior
+      setPreviousAxis(axis);
+    }
+    
     // Cargar preguntas basadas en el eje y el score inicial
     const loadedQuestions = selectAdaptiveQuestions(axis, initialScore, 5);
     setQuestions(loadedQuestions);
-  }, [axis, initialScore]);
+  }, [axis, initialScore, previousAxis]);
 
   const handleAnswer = () => {
     const currentQuestion = questions[currentQuestionIndex];
@@ -63,16 +73,29 @@ export function AdaptiveQuestions({ axis, onComplete, initialScore = 50 }: Adapt
     // Calcular score ponderado basado en el weight de cada pregunta
     let totalWeight = 0;
     let weightedSum = 0;
+    const detailedResponses: any[] = [];
 
     questions.forEach(question => {
       const answerScore = allAnswers[question.id] || 50;
       const weight = question.weight || 1;
       weightedSum += answerScore * weight;
       totalWeight += weight;
+      
+      // Guardar respuesta detallada
+      detailedResponses.push({
+        questionId: question.id,
+        question: question.text || question.question,
+        score: answerScore,
+        weight: weight,
+        category: question.category,
+        axis: axis
+      });
     });
 
     const finalScore = totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 50;
-    onComplete(finalScore);
+    
+    // Pasar tanto el score como las respuestas detalladas
+    onComplete(finalScore, detailedResponses);
   };
 
   const handlePrevious = () => {

@@ -4,11 +4,11 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/index';
 import { Progress } from '@/components/ui/index';
 import { selectAdaptiveQuestions } from '../lib/questions-data';
-import { ChevronLeft, ChevronRight, Info } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Info, CheckCircle2 } from 'lucide-react';
 
 interface AdaptiveQuestionsProps {
   axis: 'finance' | 'operations' | 'marketing';
-  onComplete: (score: number) => void; // CAMBIADO: Ahora acepta score
+  onComplete: (score: number, responses?: any[]) => void;
   initialScore?: number;
 }
 
@@ -16,43 +16,97 @@ export function AdaptiveQuestions({ axis, onComplete, initialScore = 50 }: Adapt
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<{ [key: string]: number }>({});
   const [questions, setQuestions] = useState<any[]>([]);
-  const [score, setScore] = useState(initialScore);
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
 
   useEffect(() => {
     // Cargar preguntas basadas en el eje y el score inicial
-    const loadedQuestions = selectAdaptiveQuestions(axis, initialScore);
+    const loadedQuestions = selectAdaptiveQuestions(axis, initialScore, 5);
     setQuestions(loadedQuestions);
   }, [axis, initialScore]);
 
-  const handleAnswer = (value: number) => {
+  // BUG FIX 1: Resetear índice cuando cambia el eje
+  useEffect(() => {
+    setCurrentQuestionIndex(0);
+    setSelectedOption(null);
+    // No resetear answers para mantener historial si navega hacia atrás
+  }, [axis]);
+
+  const handleAnswer = () => {
     const currentQuestion = questions[currentQuestionIndex];
     
+    // Si no hay opción seleccionada para preguntas de multiple choice
+    if (currentQuestion.type === 'multiple-choice' && !selectedOption) {
+      return; // No hacer nada si no hay selección
+    }
+
+    // Obtener el score basado en la opción seleccionada
+    let score = 50; // Default para slider
+    if (currentQuestion.type === 'multiple-choice' && selectedOption) {
+      const option = currentQuestion.options.find((opt: any) => opt.value === selectedOption);
+      score = option ? option.score : 50;
+    } else if (currentQuestion.type !== 'multiple-choice') {
+      // Para preguntas tipo slider (si las hay en el futuro)
+      score = answers[currentQuestion.id] || 50;
+    }
+
     // Guardar respuesta
     setAnswers(prev => ({
       ...prev,
-      [currentQuestion.id]: value
+      [currentQuestion.id]: score
     }));
-
-    // Calcular nuevo score
-    const baseScore = initialScore;
-    const adjustment = (value - 50) * 0.4; // Ajuste basado en la respuesta
-    const newScore = Math.max(0, Math.min(100, baseScore + adjustment));
-    setScore(newScore);
 
     // Avanzar o completar
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
+      setSelectedOption(null); // Reset selection for next question
     } else {
-      // Calcular score final
-      const allAnswers = { ...answers, [currentQuestion.id]: value };
-      const avgScore = (Object.values(allAnswers) as number[]).reduce((a, b) => a + b, 0) / Object.keys(allAnswers).length;
-      onComplete(Math.round(avgScore));
+      // Calcular score final con ponderación
+      const allAnswers = { ...answers, [currentQuestion.id]: score };
+      calculateFinalScore(allAnswers);
     }
+  };
+
+  const calculateFinalScore = (allAnswers: { [key: string]: number }) => {
+    // Calcular score ponderado basado en el weight de cada pregunta
+    let totalWeight = 0;
+    let weightedSum = 0;
+    const detailedResponses: any[] = [];
+
+    questions.forEach(question => {
+      const answerScore = allAnswers[question.id] || 50;
+      const weight = question.weight || 1;
+      weightedSum += answerScore * weight;
+      totalWeight += weight;
+      
+      // BUG FIX 2: Guardar respuesta detallada
+      detailedResponses.push({
+        questionId: question.id,
+        question: question.text || question.question,
+        score: answerScore,
+        weight: weight,
+        category: question.category,
+        axis: axis
+      });
+    });
+
+    const finalScore = totalWeight > 0 ? Math.round(weightedSum / totalWeight) : 50;
+    
+    // Pasar tanto el score como las respuestas detalladas
+    onComplete(finalScore, detailedResponses);
   };
 
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(prev => prev - 1);
+      // Cargar la opción previamente seleccionada si existe
+      const prevQuestion = questions[currentQuestionIndex - 1];
+      if (prevQuestion.type === 'multiple-choice') {
+        const prevAnswer = answers[prevQuestion.id];
+        if (prevAnswer) {
+          const option = prevQuestion.options.find((opt: any) => opt.score === prevAnswer);
+          setSelectedOption(option?.value || null);
+        }
+      }
     }
   };
 
@@ -69,18 +123,39 @@ export function AdaptiveQuestions({ axis, onComplete, initialScore = 50 }: Adapt
 
   const currentQuestion = questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+  const hasAnswer = currentQuestion.type === 'multiple-choice' ? selectedOption !== null : true;
+
+  // Títulos y descripciones mejoradas por eje
+  const axisInfo = {
+    finance: {
+      icon: '💰',
+      title: 'Finanzas',
+      description: 'Evaluación de la gestión financiera y salud económica de tu empresa'
+    },
+    operations: {
+      icon: '⚙️',
+      title: 'Operaciones',
+      description: 'Análisis de la eficiencia operativa y procesos de tu negocio'
+    },
+    marketing: {
+      icon: '📈',
+      title: 'Marketing',
+      description: 'Evaluación de tus estrategias de marketing y presencia en el mercado'
+    }
+  };
+
+  const currentAxisInfo = axisInfo[axis];
 
   return (
     <div className="max-w-3xl mx-auto p-4 sm:p-6">
       {/* Header con título del eje */}
       <div className="mb-6 sm:mb-8">
-        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 capitalize mb-2">
-          {axis === 'finance' ? '💰 Finanzas' : axis === 'operations' ? '⚙️ Operaciones' : '📈 Marketing'}
+        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+          <span className="text-3xl">{currentAxisInfo.icon}</span>
+          {currentAxisInfo.title}
         </h2>
         <p className="text-sm sm:text-base text-gray-600">
-          Evaluación detallada de {axis === 'finance' ? 'la gestión financiera' : 
-                                   axis === 'operations' ? 'los procesos operativos' : 
-                                   'las estrategias de marketing'}
+          {currentAxisInfo.description}
         </p>
       </div>
 
@@ -95,85 +170,116 @@ export function AdaptiveQuestions({ axis, onComplete, initialScore = 50 }: Adapt
 
       {/* Question Card */}
       <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8 mb-6">
+        {/* Category Badge */}
+        {currentQuestion?.category && (
+          <div className="mb-4">
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+              ${currentQuestion.category === 'critical' ? 'bg-red-100 text-red-800' : 
+                currentQuestion.category === 'important' ? 'bg-yellow-100 text-yellow-800' : 
+                'bg-blue-100 text-blue-800'}`}>
+              {currentQuestion.category === 'critical' ? '🔴 Crítico' : 
+               currentQuestion.category === 'important' ? '🟡 Importante' : 
+               '🔵 Relevante'}
+            </span>
+          </div>
+        )}
+
         {/* Question */}
-        <div className="mb-8">
+        <div className="mb-6">
           <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">
-            {currentQuestion?.question}
+            {currentQuestion?.text || currentQuestion?.question}
           </h3>
           
-          {currentQuestion?.description && (
+          {(currentQuestion?.helpText || currentQuestion?.description) && (
             <div className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg">
               <Info className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
-              <p className="text-sm text-gray-700">{currentQuestion.description}</p>
+              <p className="text-sm text-gray-700">
+                {currentQuestion.helpText || currentQuestion.description}
+              </p>
             </div>
           )}
         </div>
 
-        {/* Slider Response */}
-        <div className="space-y-6">
-          <div className="px-2">
-            <div className="flex justify-between text-sm text-gray-600 mb-2">
-              <span>Totalmente en desacuerdo</span>
-              <span>Totalmente de acuerdo</span>
-            </div>
-            
-            <input
-              type="range"
-              min="0"
-              max="100"
-              step="10"
-              value={answers[currentQuestion?.id] || 50}
-              onChange={(e) => {
-                const value = parseInt(e.target.value);
-                setAnswers(prev => ({
-                  ...prev,
-                  [currentQuestion.id]: value
-                }));
-              }}
-              className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer 
-                       slider-thumb:appearance-none slider-thumb:w-6 slider-thumb:h-6 
-                       slider-thumb:rounded-full slider-thumb:bg-blue-600 
-                       slider-thumb:cursor-pointer slider-thumb:shadow-lg
-                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            />
-            
-            <div className="flex justify-between mt-2">
-              {[0, 25, 50, 75, 100].map((val) => (
-                <span key={val} className="text-xs text-gray-500">{val}</span>
-              ))}
-            </div>
-          </div>
-
-          {/* Current Value Display */}
-          <div className="text-center py-4 bg-gray-50 rounded-lg">
-            <p className="text-3xl font-bold text-blue-600">
-              {answers[currentQuestion?.id] || 50}
-            </p>
-            <p className="text-sm text-gray-600 mt-1">Puntuación actual</p>
-          </div>
-
-          {/* Quick Select Buttons - Mobile Optimized */}
-          <div className="grid grid-cols-3 gap-2">
-            {[
-              { label: 'Bajo', value: 25 },
-              { label: 'Medio', value: 50 },
-              { label: 'Alto', value: 75 }
-            ].map(({ label, value }) => (
-              <Button
-                key={value}
-                variant={answers[currentQuestion?.id] === value ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setAnswers(prev => ({
-                  ...prev,
-                  [currentQuestion.id]: value
-                }))}
-                className="text-xs sm:text-sm"
+        {/* Response Options */}
+        {currentQuestion?.type === 'multiple-choice' && currentQuestion?.options ? (
+          <div className="space-y-3">
+            {currentQuestion.options.map((option: any) => (
+              <button
+                key={option.value}
+                onClick={() => setSelectedOption(option.value)}
+                className={`w-full text-left p-4 rounded-lg border-2 transition-all duration-200
+                  ${selectedOption === option.value 
+                    ? 'border-blue-500 bg-blue-50 shadow-md' 
+                    : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'}`}
               >
-                {label} ({value})
-              </Button>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-start gap-3">
+                    <div className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center
+                      ${selectedOption === option.value 
+                        ? 'border-blue-500 bg-blue-500' 
+                        : 'border-gray-300'}`}>
+                      {selectedOption === option.value && (
+                        <CheckCircle2 className="w-3 h-3 text-white" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">{option.label}</p>
+                      {/* Mostrar score como indicador visual */}
+                      <div className="flex items-center gap-2 mt-1">
+                        <div className="w-20 bg-gray-200 rounded-full h-1.5">
+                          <div 
+                            className="bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 h-1.5 rounded-full"
+                            style={{ width: `${option.score}%` }}
+                          />
+                        </div>
+                        <span className="text-xs text-gray-500">{option.score}pts</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </button>
             ))}
           </div>
-        </div>
+        ) : (
+          // Fallback para preguntas tipo slider (si las hay)
+          <div className="space-y-6">
+            <div className="px-2">
+              <div className="flex justify-between text-sm text-gray-600 mb-2">
+                <span>Totalmente en desacuerdo</span>
+                <span>Totalmente de acuerdo</span>
+              </div>
+              
+              <input
+                type="range"
+                min="0"
+                max="100"
+                step="10"
+                value={answers[currentQuestion?.id] || 50}
+                onChange={(e) => {
+                  const value = parseInt(e.target.value);
+                  setAnswers(prev => ({
+                    ...prev,
+                    [currentQuestion.id]: value
+                  }));
+                }}
+                className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              />
+              
+              <div className="flex justify-between mt-2">
+                {[0, 25, 50, 75, 100].map((val) => (
+                  <span key={val} className="text-xs text-gray-500">{val}</span>
+                ))}
+              </div>
+            </div>
+
+            <div className="text-center py-4 bg-gray-50 rounded-lg">
+              <p className="text-3xl font-bold text-blue-600">
+                {answers[currentQuestion?.id] || 50}
+              </p>
+              <p className="text-sm text-gray-600 mt-1">Puntuación actual</p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Navigation */}
@@ -193,7 +299,8 @@ export function AdaptiveQuestions({ axis, onComplete, initialScore = 50 }: Adapt
         </span>
 
         <Button
-          onClick={() => handleAnswer(answers[currentQuestion?.id] || 50)}
+          onClick={handleAnswer}
+          disabled={!hasAnswer}
           className="flex items-center gap-2"
         >
           <span className="hidden sm:inline">
@@ -202,6 +309,13 @@ export function AdaptiveQuestions({ axis, onComplete, initialScore = 50 }: Adapt
           <ChevronRight className="w-4 h-4" />
         </Button>
       </div>
+
+      {/* Helper text */}
+      {currentQuestion?.type === 'multiple-choice' && !selectedOption && (
+        <p className="text-center text-sm text-gray-500 mt-4">
+          Selecciona una opción para continuar
+        </p>
+      )}
     </div>
   );
 }

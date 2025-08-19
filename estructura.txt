@@ -1,0 +1,39 @@
+/workspaces/ImpulsaLab-V-Claude
+├── .env.local
+├── .git
+├── .gitignore
+├── .next
+├── .vercel
+├── .vscode
+├── README.md
+├── app
+├── components
+├── components.json
+├── contexts
+├── estructura.txt
+├── estructura_completa.txt
+├── estructura_proyecto.txt
+├── hooks
+├── lib
+├── middleware.ts
+├── next-env.d.ts
+├── next.config.js
+├── next.config.ts
+├── node_modules
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── postcss.config.mjs
+├── public
+├── scripts
+├── signup-original.txt
+├── src
+├── store
+├── tailwind.config.js
+├── test-firebase.js
+├── tsconfig.json
+├── types
+└── utils
+
+directory: 16 file: 19
+

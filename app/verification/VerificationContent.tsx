@@ -29,7 +29,7 @@ function VerificationContentInner() {
 
   useEffect(() => {
     if (resendTimer > 0) {
-      const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000)
+      const timer: ReturnType<typeof setTimeout> = setTimeout(() => setResendTimer(resendTimer - 1), 1000)
       return () => clearTimeout(timer)
     }
   }, [resendTimer])
@@ -101,55 +101,47 @@ function VerificationContentInner() {
       }
 
       setSuccess(true)
-      
-      // Login automático con custom token si está disponible
-      if (data.customToken) {
-        try {
-          await signInWithCustomToken(auth, data.customToken)
-          
-          // Limpiar sessionStorage
-          sessionStorage.removeItem('signupData')
-          sessionStorage.removeItem('codes_sent')
-          sessionStorage.removeItem('isConsultant')
-          sessionStorage.removeItem('tempPassword')
-          sessionStorage.removeItem('tempUserData')
-          
-          // Redirigir según el rol
-          setTimeout(() => {
-            switch (data.user?.role) {
-              case 'admin':
-                router.push('/admin')
-                break
-              case 'consultant':
-                router.push('/consultant')
-                break
-              case 'client':
-                router.push('/dashboard')
-                break
-              default:
-                router.push('/dashboard')
-            }
-          }, 1500)
-        } catch (authError) {
-          console.error('Error en login automático:', authError)
-          // Si falla el login automático, redirigir al login manual
-          setTimeout(() => {
-            router.push('/login')
-          }, 2000)
-        }
-      } else {
-        // Si no hay custom token, redirigir al login
-        setTimeout(() => {
-          router.push('/login')
-        }, 2000)
+
+      // Guardar datos para el siguiente paso
+      sessionStorage.setItem('verifiedEmailData', JSON.stringify({
+      email,
+      ...userData
+}));
+
+      // Redirigir a verificación de WhatsApp
+    setTimeout(() => {
+      router.push('/verification-whatsapp');
+    }, 1500);
+    
+    // Limpiar sessionStorage
+    sessionStorage.removeItem('signupData')
+    sessionStorage.removeItem('codes_sent')
+    sessionStorage.removeItem('isConsultant')
+    sessionStorage.removeItem('tempPassword')
+    sessionStorage.removeItem('tempUserData')
+    
+    // Redirigir según el rol
+    setTimeout(() => {
+      switch (data.user?.role) {
+        case 'admin':
+          router.push('/admin')
+          break
+        case 'consultant':
+          router.push('/consultant')
+          break
+        case 'client':
+          router.push('/dashboard')
+          break
+        default:
+          router.push('/dashboard')
       }
-      
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido')
-    } finally {
-      setLoading(false)
-    }
+    }, 1500)
+  } catch (err) {
+    setError(err instanceof Error ? err.message : 'Error desconocido')
+  } finally {
+    setLoading(false)
   }
+}
 
   const handleResendCode = async () => {
     if (resendTimer > 0) return
@@ -227,6 +219,11 @@ function VerificationContentInner() {
               <p className="text-sm text-gray-500 mt-2">
                 Enviamos un código a: <strong>{email}</strong>
               </p>
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-3">
+              <p className="text-sm text-amber-800">
+              ⚠️ <strong>Importante:</strong> Revisa tu carpeta de SPAM si no ves el email
+              </p>
+            </div>
             </div>
 
             <button

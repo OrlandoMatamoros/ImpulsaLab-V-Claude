@@ -6,9 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-  "lint": "next lint",
-  "tree": "tree -I 'node_modules|.next|.git' -a --dirs-first -o estructura.txt"
-},
+    "lint": "next lint",
+    "tree": "tree -I 'node_modules|.next|.git' -a --dirs-first -o estructura.txt"
+  },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@radix-ui/react-alert-dialog": "^1.1.14",

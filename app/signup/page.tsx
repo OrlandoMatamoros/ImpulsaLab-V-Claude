@@ -234,7 +234,7 @@ function SignupForm() {
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Teléfono
+              Teléfono WhatsApp
             </label>
             <input
               type="tel"

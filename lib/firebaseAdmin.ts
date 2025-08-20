@@ -1,3 +1,4 @@
+// lib/firebaseAdmin.ts
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
@@ -5,34 +6,30 @@ import * as admin from 'firebase-admin';
 
 if (!getApps().length) {
   try {
-    let privateKey: string;
-    
-    // Intentar con base64 primero
-    if (process.env.FIREBASE_ADMIN_PRIVATE_KEY_BASE64) {
-      privateKey = Buffer.from(
-        process.env.FIREBASE_ADMIN_PRIVATE_KEY_BASE64, 
-        'base64'
-      ).toString('utf-8');
-      console.log('Using base64 encoded private key');
-    } else if (process.env.FIREBASE_ADMIN_PRIVATE_KEY) {
-      // Si no hay base64, usar el key directo
-      privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY.replace(/\\n/g, '\n');
-      console.log('Using direct private key');
-    } else {
-      throw new Error('No Firebase private key found');
+    // Usar Base64 para el private key
+    const privateKeyBase64 = process.env.FIREBASE_ADMIN_PRIVATE_KEY_BASE64;
+    const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID;
+    const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL;
+
+    if (!privateKeyBase64 || !projectId || !clientEmail) {
+      throw new Error('Missing Firebase Admin credentials');
     }
+
+    // Decodificar el private key de base64
+    const privateKey = Buffer.from(privateKeyBase64, 'base64').toString('utf-8');
 
     initializeApp({
       credential: cert({
-        projectId: process.env.FIREBASE_ADMIN_PROJECT_ID!,
-        clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL!,
-        privateKey: privateKey
+        projectId,
+        clientEmail,
+        privateKey
       })
     });
     
-    console.log('✅ Firebase Admin initialized');
+    console.log('✅ Firebase Admin initialized with Base64 key');
   } catch (error) {
-    console.error('❌ Firebase Admin error:', error);
+    console.error('❌ Firebase Admin initialization failed:', error);
+    // No lanzar error para que el build continúe
   }
 }
 

@@ -15,10 +15,15 @@ export default function VerificationWhatsApp() {
   const [resendTimer, setResendTimer] = useState(0)
 
   useEffect(() => {
-    // Verificar que el email fue verificado
+    // Verificar que el email fue verificado y pre-llenar teléfono
     const emailData = sessionStorage.getItem('verifiedEmailData')
     if (!emailData) {
       router.push('/signup')
+    } else {
+      const data = JSON.parse(emailData)
+      if (data.phone) {
+        setPhone(data.phone)
+      }
     }
   }, [router])
 
@@ -60,7 +65,6 @@ export default function VerificationWhatsApp() {
     setError('')
 
     try {
-      // Obtener datos guardados
       const emailData = sessionStorage.getItem('verifiedEmailData')
       if (!emailData) {
         throw new Error('Datos de verificación no encontrados')
@@ -68,8 +72,8 @@ export default function VerificationWhatsApp() {
 
       const userData = JSON.parse(emailData)
 
-      // Crear usuario en Firebase
-      const response = await fetch('/api/auth/create-verified-user/route', {
+      // FIX: Ruta correcta sin /route
+      const response = await fetch('/api/auth/create-verified-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -129,19 +133,6 @@ export default function VerificationWhatsApp() {
           </p>
         </div>
 
-        {/* Instrucciones Sandbox */}
-        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
-          <p className="text-sm text-amber-800 font-semibold mb-2">
-            ⚠️ IMPORTANTE - Antes de continuar:
-          </p>
-          <ol className="text-sm text-amber-700 space-y-1">
-            <li>1. Abre WhatsApp</li>
-            <li>2. Envía el mensaje: <code className="bg-amber-100 px-2 py-1 rounded">join circus-hot</code></li>
-            <li>3. Al número: <strong>+1 415 523 8886</strong></li>
-            <li>4. Espera confirmación de Twilio</li>
-          </ol>
-        </div>
-
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-red-800">❌ {error}</p>
@@ -163,7 +154,7 @@ export default function VerificationWhatsApp() {
                 required
               />
               <p className="text-xs text-gray-500 mt-2">
-                Incluye código de país (ej: +52 para México)
+                Incluye código de país (ej: +52 para México, +1 para USA)
               </p>
             </div>
 

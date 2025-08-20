@@ -2,8 +2,6 @@
 
 import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
-import { auth } from '@/lib/firebase'
-import { signInWithCustomToken } from 'firebase/auth'
 
 function VerificationContentInner() {
   const searchParams = useSearchParams()
@@ -29,7 +27,7 @@ function VerificationContentInner() {
 
   useEffect(() => {
     if (resendTimer > 0) {
-      const timer: ReturnType<typeof setTimeout> = setTimeout(() => setResendTimer(resendTimer - 1), 1000)
+      const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000)
       return () => clearTimeout(timer)
     }
   }, [resendTimer])
@@ -78,19 +76,10 @@ function VerificationContentInner() {
       
       const response = await fetch('/api/verification/verify-codes', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           email, 
-          code: verificationCode,
-          password: userData.password,
-          userData: {
-            name: userData.name,
-            company: userData.company,
-            phone: userData.phone,
-            consultantCode: userData.consultantCode
-          }
+          code: verificationCode
         })
       })
 
@@ -104,44 +93,24 @@ function VerificationContentInner() {
 
       // Guardar datos para el siguiente paso
       sessionStorage.setItem('verifiedEmailData', JSON.stringify({
-      email,
-      ...userData
-}));
+        email,
+        password: userData.password,
+        name: userData.name,
+        phone: userData.phone,
+        consultantCode: userData.consultantCode
+      }))
 
       // Redirigir a verificación de WhatsApp
-    setTimeout(() => {
-      router.push('/verification-whatsapp');
-    }, 1500);
-    
-    // Limpiar sessionStorage
-    sessionStorage.removeItem('signupData')
-    sessionStorage.removeItem('codes_sent')
-    sessionStorage.removeItem('isConsultant')
-    sessionStorage.removeItem('tempPassword')
-    sessionStorage.removeItem('tempUserData')
-    
-    // Redirigir según el rol
-    setTimeout(() => {
-      switch (data.user?.role) {
-        case 'admin':
-          router.push('/admin')
-          break
-        case 'consultant':
-          router.push('/consultant')
-          break
-        case 'client':
-          router.push('/dashboard')
-          break
-        default:
-          router.push('/dashboard')
-      }
-    }, 1500)
-  } catch (err) {
-    setError(err instanceof Error ? err.message : 'Error desconocido')
-  } finally {
-    setLoading(false)
+      setTimeout(() => {
+        router.push('/verification-whatsapp')
+      }, 1500)
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error desconocido')
+    } finally {
+      setLoading(false)
+    }
   }
-}
 
   const handleResendCode = async () => {
     if (resendTimer > 0) return
@@ -153,7 +122,7 @@ function VerificationContentInner() {
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Verificación de Cuenta
+            Verificación de Email
           </h1>
           <p className="text-gray-600">
             {step === 'input' 
@@ -164,7 +133,7 @@ function VerificationContentInner() {
 
         {success && (
           <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-green-800">✅ ¡Cuenta creada exitosamente! Redirigiendo...</p>
+            <p className="text-green-800">✅ Email verificado! Continuando...</p>
           </div>
         )}
 
@@ -209,7 +178,7 @@ function VerificationContentInner() {
               <input
                 type="text"
                 value={verificationCode}
-                onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                onChange={(e) => setVerificationCode(e.target.value.replace(/\\D/g, '').slice(0, 6))}
                 placeholder="000000"
                 maxLength={6}
                 className="w-full px-4 py-3 text-center text-2xl font-mono border border-gray-300 rounded-lg tracking-widest focus:ring-2 focus:ring-purple-600 focus:border-transparent"
@@ -220,10 +189,10 @@ function VerificationContentInner() {
                 Enviamos un código a: <strong>{email}</strong>
               </p>
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-3">
-              <p className="text-sm text-amber-800">
-              ⚠️ <strong>Importante:</strong> Revisa tu carpeta de SPAM si no ves el email
-              </p>
-            </div>
+                <p className="text-sm text-amber-800">
+                  ⚠️ <strong>Importante:</strong> Revisa tu carpeta de SPAM
+                </p>
+              </div>
             </div>
 
             <button
@@ -231,30 +200,17 @@ function VerificationContentInner() {
               disabled={loading || verificationCode.length !== 6}
               className="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {loading ? 'Verificando...' : 'Verificar y Crear Cuenta'}
+              {loading ? 'Verificando...' : 'Verificar Email'}
             </button>
 
-            <div className="text-center">
-              <button
-                onClick={handleResendCode}
-                disabled={resendTimer > 0}
-                className="text-purple-600 hover:text-purple-700 font-medium disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
-              >
-                {resendTimer > 0 
-                  ? `Reenviar en ${resendTimer}s`
-                  : '¿No recibiste el código? Reenviar'}
-              </button>
-            </div>
-
             <button
-              onClick={() => {
-                setStep('input')
-                setVerificationCode('')
-                setError('')
-              }}
-              className="w-full text-gray-600 hover:text-gray-900 transition-colors"
+              onClick={handleResendCode}
+              disabled={resendTimer > 0}
+              className="w-full text-purple-600 hover:text-purple-700 font-medium disabled:text-gray-400 disabled:cursor-not-allowed transition-colors"
             >
-              ← Cambiar email
+              {resendTimer > 0 
+                ? `Reenviar en ${resendTimer}s`
+                : '¿No recibiste el código? Reenviar'}
             </button>
           </div>
         )}

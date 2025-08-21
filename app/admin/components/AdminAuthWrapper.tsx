@@ -2,74 +2,57 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuth } from '@/contexts/FirebaseAuthContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Loader2, Lock, LogOut } from 'lucide-react'
+import { Loader2, Shield, LogOut, UserCog, MessageSquare } from 'lucide-react'
 
 interface AdminAuthWrapperProps {
   children: React.ReactNode
   title?: string
 }
 
-export default function AdminAuthWrapper({ children, title = "Panel de Administración" }: AdminAuthWrapperProps) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+export default function AdminAuthWrapper({ children, title = "Dashboard de Interacciones - Chatbot" }: AdminAuthWrapperProps) {
+  const [isAuthorized, setIsAuthorized] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loginLoading, setLoginLoading] = useState(false)
+  const { user, userData, signOut } = useAuth()
   const router = useRouter()
 
-  // Verificar si ya está autenticado
   useEffect(() => {
-    checkAuth()
-  }, [])
+    const checkAuth = async () => {
+      // Si no hay usuario, redirigir al login
+      if (!user) {
+        router.push('/login')
+        setLoading(false)
+        return
+      }
 
-  const checkAuth = async () => {
-    try {
-      const response = await fetch('/api/admin/auth')
-      const data = await response.json()
-      setIsAuthenticated(data.authenticated)
-    } catch (error) {
-      console.error('Error checking auth:', error)
-      setIsAuthenticated(false)
-    } finally {
+      // Esperar un momento para que userData se cargue
+      if (!userData) {
+        setTimeout(() => {
+          checkAuth()
+        }, 500)
+        return
+      }
+
+      // IMPORTANTE: Permitir acceso a admin Y consultant
+      if (userData.role === 'admin' || userData.role === 'consultant') {
+        setIsAuthorized(true)
+      } else {
+        // Si es usuario normal, redirigir a su dashboard
+        router.push('/dashboard')
+      }
+      
       setLoading(false)
     }
-  }
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoginLoading(true)
-
-    try {
-      const response = await fetch('/api/admin/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        setIsAuthenticated(true)
-        setPassword('')
-      } else {
-        setError(data.error || 'Credenciales inválidas')
-      }
-    } catch (error) {
-      setError('Error de conexión')
-    } finally {
-      setLoginLoading(false)
-    }
-  }
+    checkAuth()
+  }, [user, userData, router])
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/admin/auth', { method: 'DELETE' })
-      setIsAuthenticated(false)
+      await signOut()
       router.push('/')
     } catch (error) {
       console.error('Error al cerrar sesión:', error)
@@ -85,80 +68,78 @@ export default function AdminAuthWrapper({ children, title = "Panel de Administr
     )
   }
 
-  // Mostrar formulario de login si no está autenticado
-  if (!isAuthenticated) {
+  // Si no está autorizado (no debería verse porque redirige)
+  if (!isAuthorized) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="text-center">
             <div className="flex justify-center mb-4">
-              <div className="p-3 bg-blue-100 rounded-full">
-                <Lock className="h-8 w-8 text-blue-600" />
+              <div className="p-3 bg-red-100 rounded-full">
+                <Shield className="h-8 w-8 text-red-600" />
               </div>
             </div>
-            <CardTitle className="text-2xl">{title}</CardTitle>
+            <CardTitle className="text-2xl">Acceso Denegado</CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleLogin} className="space-y-4">
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-              
-              <div className="space-y-2">
-                <Input
-                  type="password"
-                  placeholder="Contraseña de administrador"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={loginLoading}
-                  autoFocus
-                />
-              </div>
-
-              <Button 
-                type="submit" 
-                className="w-full"
-                disabled={loginLoading || !password}
-              >
-                {loginLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Verificando...
-                  </>
-                ) : (
-                  'Ingresar'
-                )}
-              </Button>
-
-              <p className="text-xs text-center text-gray-500 mt-4">
-                Acceso restringido a administradores
-              </p>
-            </form>
+            <Alert variant="destructive">
+              <AlertDescription>
+                No tienes permisos para acceder a esta sección.
+              </AlertDescription>
+            </Alert>
+            <Button 
+              onClick={() => router.push('/dashboard')} 
+              className="w-full mt-4"
+            >
+              Volver al Dashboard
+            </Button>
           </CardContent>
         </Card>
       </div>
     )
   }
 
-  // Mostrar contenido si está autenticado
+  // Determinar el ícono según el rol
+  const getRoleIcon = () => {
+    if (userData?.role === 'admin') return <Shield className="h-5 w-5" />
+    if (userData?.role === 'consultant') return <UserCog className="h-5 w-5" />
+    return <MessageSquare className="h-5 w-5" />
+  }
+
+  // Determinar el título del rol
+  const getRoleTitle = () => {
+    if (userData?.role === 'admin') return 'Administrador'
+    if (userData?.role === 'consultant') return 'Consultor'
+    return 'Usuario'
+  }
+
+  // Mostrar contenido si está autorizado
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <h1 className="text-xl font-semibold">{title}</h1>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleLogout}
-              className="flex items-center gap-2"
-            >
-              <LogOut className="h-4 w-4" />
-              Cerrar Sesión
-            </Button>
+            <div className="flex items-center space-x-3">
+              {getRoleIcon()}
+              <div>
+                <h1 className="text-xl font-semibold">{title}</h1>
+                <p className="text-xs text-gray-500">{getRoleTitle()}</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-600">
+                {userData?.name || userData?.email || user?.email}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                className="flex items-center gap-2"
+              >
+                <LogOut className="h-4 w-4" />
+                Cerrar Sesión
+              </Button>
+            </div>
           </div>
         </div>
       </div>

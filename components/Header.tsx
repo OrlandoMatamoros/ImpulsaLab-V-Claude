@@ -99,7 +99,7 @@ export default function Header() {
       )
     }
     
-    // CONSULTOR
+    // CONSULTOR - Dashboard Chatbot apunta a /admin
     if (userData?.role === 'consultant') {
       items.push(
         <DropdownMenuItem key="chatbot" onClick={() => router.push('/admin')}>
@@ -157,7 +157,7 @@ export default function Header() {
       )
     }
     
-    // CONSULTOR
+    // CONSULTOR - Dashboard Chatbot apunta a /admin
     if (userData?.role === 'consultant') {
       items.push(
         <Link 
@@ -211,7 +211,7 @@ export default function Header() {
 
   return (
     <>
-      {/* CSS puro para el dropdown - MANTENER IGUAL */}
+      {/* CSS puro para el dropdown */}
       <style jsx global>{`
         /* Fix para dropdown de usuario en fondos oscuros */
         [data-radix-popper-content-wrapper] {
@@ -588,7 +588,6 @@ export default function Header() {
                 )}
               </div>
 
-              {/* Resto del menú móvil sin cambios */}
               <Link 
                 href="/#diagnostico" 
                 className="block text-gray-700 font-medium hover:text-[#002D62] py-3"

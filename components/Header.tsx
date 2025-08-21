@@ -89,16 +89,24 @@ export default function Header() {
   const getDashboardItems = () => {
     const items = []
     
-    // Todos los usuarios ven el dashboard principal (chatbot)
-    items.push({
-      label: 'Dashboard Chatbot',
-      href: '/dashboard',
-      icon: MessageSquare,
-      description: 'Panel principal'
-    })
-
-    // Consultores y admins ven el dashboard de consultor
-    if (userData?.role === 'consultant' || userData?.role === 'admin') {
+    // Usuario normal: solo dashboard principal
+    if (!userData?.role || userData?.role === 'public' || userData?.role === 'free' || userData?.role === 'premium') {
+      items.push({
+        label: 'Dashboard',
+        href: '/dashboard',
+        icon: LayoutDashboard,
+        description: 'Panel principal'
+      })
+    }
+    
+    // Consultores: ven dashboard chatbot y su dashboard
+    if (userData?.role === 'consultant') {
+      items.push({
+        label: 'Dashboard Chatbot',
+        href: '/admin', // El dashboard del chatbot está en /admin
+        icon: MessageSquare,
+        description: 'Estadísticas del chatbot'
+      })
       items.push({
         label: 'Dashboard Consultor',
         href: '/consultant',
@@ -107,13 +115,19 @@ export default function Header() {
       })
     }
 
-    // Solo admins ven el resumen de consultores
+    // Admin: ve todo
     if (userData?.role === 'admin') {
       items.push({
-        label: 'Resumen Consultores',
-        href: '/admin/consultores',
-        icon: Users,
-        description: 'Todos los consultores'
+        label: 'Dashboard Chatbot',
+        href: '/admin', // El dashboard del chatbot está en /admin
+        icon: MessageSquare,
+        description: 'Estadísticas del chatbot'
+      })
+      items.push({
+        label: 'Dashboard Consultor',
+        href: '/consultant',
+        icon: UserCog,
+        description: 'Vista de consultor'
       })
     }
 
@@ -385,14 +399,14 @@ export default function Header() {
                           <span className="ml-2 text-xs font-normal text-gray-500">
                             ({userData.role === 'admin' ? 'Administrador' : 
                               userData.role === 'consultant' ? 'Consultor' : 
-                              userData.role === 'premium' ? 'Premium' : 'Usuario'})
+                              'Usuario'})
                           </span>
                         )}
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       
                       {/* Dashboards dinámicos según el rol */}
-                      {getDashboardItems().map((item, index) => (
+                      {getDashboardItems().map((item) => (
                         <DropdownMenuItem 
                           key={item.href}
                           onClick={() => router.push(item.href)}
@@ -422,11 +436,6 @@ export default function Header() {
                       )}
                       
                       <DropdownMenuSeparator />
-                      
-                      <DropdownMenuItem onClick={() => router.push('/dashboard/perfil')}>
-                        <Settings className="mr-2 h-4 w-4" />
-                        Configuración
-                      </DropdownMenuItem>
                       
                       <DropdownMenuItem onClick={handleSignOut}>
                         <LogOut className="mr-2 h-4 w-4" />
@@ -491,7 +500,7 @@ export default function Header() {
                         <span className="ml-2 text-xs text-gray-500">
                           ({userData.role === 'admin' ? 'Admin' : 
                             userData.role === 'consultant' ? 'Consultor' : 
-                            userData.role})
+                            'Usuario'})
                         </span>
                       )}
                     </div>
@@ -522,14 +531,6 @@ export default function Header() {
                         </div>
                       </>
                     )}
-                    
-                    <Link 
-                      href="/dashboard/perfil"
-                      className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded"
-                      onClick={() => setIsMenuOpen(false)}
-                    >
-                      Configuración
-                    </Link>
                     
                     <button
                       onClick={() => {

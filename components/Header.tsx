@@ -85,49 +85,6 @@ export default function Header() {
     }
   ]
 
-  // Función para determinar qué dashboards mostrar según el rol
-  const getDashboardItems = () => {
-    const items = []
-    
-    // Usuario normal (registrado/free/premium): solo ve Dashboard principal
-    if (user && (!userData?.role || userData?.role === 'public' || userData?.role === 'free' || userData?.role === 'premium')) {
-      items.push({
-        label: 'Dashboard',
-        href: '/dashboard',
-        icon: LayoutDashboard,
-        description: 'Panel principal'
-      })
-    }
-    
-    // Consultor: ve Dashboard Chatbot y Dashboard Consultor
-    if (userData?.role === 'consultant') {
-      items.push({
-        label: 'Dashboard Chatbot',
-        href: '/admin', // Dashboard del chatbot está en /admin
-        icon: MessageSquare,
-        description: 'Estadísticas del chatbot'
-      })
-      items.push({
-        label: 'Dashboard Consultor',
-        href: '/consultant',
-        icon: UserCog,
-        description: 'Gestión de clientes'
-      })
-    }
-
-    // Admin: ve Dashboard Consultor (para el resumen futuro) y Panel Admin
-    if (userData?.role === 'admin') {
-      items.push({
-        label: 'Dashboard Consultor',
-        href: '/consultant',
-        icon: UserCog,
-        description: 'Vista de consultor'
-      })
-    }
-
-    return items
-  }
-
   return (
     <>
       {/* CSS puro para el dropdown */}
@@ -399,25 +356,35 @@ export default function Header() {
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       
-                      {/* Dashboards dinámicos según el rol */}
-                      {getDashboardItems().map((item) => (
-                        <DropdownMenuItem 
-                          key={item.href}
-                          onClick={() => router.push(item.href)}
-                        >
-                          <item.icon className="mr-2 h-4 w-4" />
-                          <div className="flex flex-col">
-                            <span>{item.label}</span>
-                            {item.description && (
-                              <span className="text-xs text-gray-500">{item.description}</span>
-                            )}
-                          </div>
+                      {/* USUARIO NORMAL/REGISTRADO - Solo Dashboard */}
+                      {user && (!userData?.role || userData?.role === 'public' || userData?.role === 'free' || userData?.role === 'premium') && (
+                        <DropdownMenuItem onClick={() => router.push('/dashboard')}>
+                          <LayoutDashboard className="mr-2 h-4 w-4" />
+                          Dashboard
                         </DropdownMenuItem>
-                      ))}
+                      )}
                       
-                      {/* Panel Admin solo para administradores */}
+                      {/* CONSULTOR - Dashboard Chatbot + Dashboard Consultor */}
+                      {userData?.role === 'consultant' && (
+                        <>
+                          <DropdownMenuItem onClick={() => router.push('/admin')}>
+                            <MessageSquare className="mr-2 h-4 w-4" />
+                            Dashboard Chatbot
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => router.push('/consultant')}>
+                            <UserCog className="mr-2 h-4 w-4" />
+                            Dashboard Consultor
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                      
+                      {/* ADMIN - Dashboard Consultor + Panel Admin */}
                       {userData?.role === 'admin' && (
                         <>
+                          <DropdownMenuItem onClick={() => router.push('/consultant')}>
+                            <UserCog className="mr-2 h-4 w-4" />
+                            Dashboard Consultor
+                          </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem 
                             onClick={() => router.push('/admin')}
@@ -499,21 +466,47 @@ export default function Header() {
                       )}
                     </div>
                     
-                    {/* Dashboards dinámicos para móvil */}
-                    {getDashboardItems().map((item) => (
+                    {/* MÓVIL - Usuario normal */}
+                    {user && (!userData?.role || userData?.role === 'public' || userData?.role === 'free' || userData?.role === 'premium') && (
                       <Link 
-                        key={item.href}
-                        href={item.href}
+                        href="/dashboard"
                         className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded"
                         onClick={() => setIsMenuOpen(false)}
                       >
-                        {item.label}
+                        Dashboard
                       </Link>
-                    ))}
+                    )}
                     
-                    {/* Panel Admin móvil */}
+                    {/* MÓVIL - Consultor */}
+                    {userData?.role === 'consultant' && (
+                      <>
+                        <Link 
+                          href="/admin"
+                          className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Dashboard Chatbot
+                        </Link>
+                        <Link 
+                          href="/consultant"
+                          className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Dashboard Consultor
+                        </Link>
+                      </>
+                    )}
+                    
+                    {/* MÓVIL - Admin */}
                     {userData?.role === 'admin' && (
                       <>
+                        <Link 
+                          href="/consultant"
+                          className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          Dashboard Consultor
+                        </Link>
                         <div className="border-t pt-2 mt-2">
                           <Link 
                             href="/admin"

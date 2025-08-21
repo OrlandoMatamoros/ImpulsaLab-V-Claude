@@ -89,8 +89,8 @@ export default function Header() {
   const getDashboardItems = () => {
     const items = []
     
-    // Usuario normal: solo dashboard principal
-    if (!userData?.role || userData?.role === 'public' || userData?.role === 'free' || userData?.role === 'premium') {
+    // Usuario normal (registrado/free/premium): solo ve Dashboard principal
+    if (user && (!userData?.role || userData?.role === 'public' || userData?.role === 'free' || userData?.role === 'premium')) {
       items.push({
         label: 'Dashboard',
         href: '/dashboard',
@@ -99,11 +99,11 @@ export default function Header() {
       })
     }
     
-    // Consultores: ven dashboard chatbot y su dashboard
+    // Consultor: ve Dashboard Chatbot y Dashboard Consultor
     if (userData?.role === 'consultant') {
       items.push({
         label: 'Dashboard Chatbot',
-        href: '/admin', // El dashboard del chatbot está en /admin
+        href: '/admin', // Dashboard del chatbot está en /admin
         icon: MessageSquare,
         description: 'Estadísticas del chatbot'
       })
@@ -115,14 +115,8 @@ export default function Header() {
       })
     }
 
-    // Admin: ve todo
+    // Admin: ve Dashboard Consultor (para el resumen futuro) y Panel Admin
     if (userData?.role === 'admin') {
-      items.push({
-        label: 'Dashboard Chatbot',
-        href: '/admin', // El dashboard del chatbot está en /admin
-        icon: MessageSquare,
-        description: 'Estadísticas del chatbot'
-      })
       items.push({
         label: 'Dashboard Consultor',
         href: '/consultant',

@@ -15,7 +15,16 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu'
 import { Button } from '@/components/ui/button'
-import { User, Settings, LogOut, LayoutDashboard } from 'lucide-react'
+import { 
+  User, 
+  Settings, 
+  LogOut, 
+  LayoutDashboard, 
+  Shield, 
+  UserCog,
+  MessageSquare,
+  Users
+} from 'lucide-react'
 
 type Language = 'ES' | 'EN'
 
@@ -75,6 +84,41 @@ export default function Header() {
       className: 'dropdown-item-noticias'
     }
   ]
+
+  // Función para determinar qué dashboards mostrar según el rol
+  const getDashboardItems = () => {
+    const items = []
+    
+    // Todos los usuarios ven el dashboard principal (chatbot)
+    items.push({
+      label: 'Dashboard Chatbot',
+      href: '/dashboard',
+      icon: MessageSquare,
+      description: 'Panel principal'
+    })
+
+    // Consultores y admins ven el dashboard de consultor
+    if (userData?.role === 'consultant' || userData?.role === 'admin') {
+      items.push({
+        label: 'Dashboard Consultor',
+        href: '/consultant',
+        icon: UserCog,
+        description: 'Gestión de clientes'
+      })
+    }
+
+    // Solo admins ven el resumen de consultores
+    if (userData?.role === 'admin') {
+      items.push({
+        label: 'Resumen Consultores',
+        href: '/admin/consultores',
+        icon: Users,
+        description: 'Todos los consultores'
+      })
+    }
+
+    return items
+  }
 
   return (
     <>
@@ -335,20 +379,54 @@ export default function Header() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56">
-                      <DropdownMenuLabel>Mi Cuenta</DropdownMenuLabel>
+                      <DropdownMenuLabel>
+                        Mi Cuenta
+                        {userData?.role && (
+                          <span className="ml-2 text-xs font-normal text-gray-500">
+                            ({userData.role === 'admin' ? 'Administrador' : 
+                              userData.role === 'consultant' ? 'Consultor' : 
+                              userData.role === 'premium' ? 'Premium' : 'Usuario'})
+                          </span>
+                        )}
+                      </DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       
-                      <DropdownMenuItem onClick={() => router.push('/dashboard')}>
-                        <LayoutDashboard className="mr-2 h-4 w-4" />
-                        Dashboard
-                      </DropdownMenuItem>
+                      {/* Dashboards dinámicos según el rol */}
+                      {getDashboardItems().map((item, index) => (
+                        <DropdownMenuItem 
+                          key={item.href}
+                          onClick={() => router.push(item.href)}
+                        >
+                          <item.icon className="mr-2 h-4 w-4" />
+                          <div className="flex flex-col">
+                            <span>{item.label}</span>
+                            {item.description && (
+                              <span className="text-xs text-gray-500">{item.description}</span>
+                            )}
+                          </div>
+                        </DropdownMenuItem>
+                      ))}
+                      
+                      {/* Panel Admin solo para administradores */}
+                      {userData?.role === 'admin' && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem 
+                            onClick={() => router.push('/admin')}
+                            className="text-blue-600 font-medium"
+                          >
+                            <Shield className="mr-2 h-4 w-4" />
+                            Panel Administración
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                      
+                      <DropdownMenuSeparator />
                       
                       <DropdownMenuItem onClick={() => router.push('/dashboard/perfil')}>
                         <Settings className="mr-2 h-4 w-4" />
                         Configuración
                       </DropdownMenuItem>
-                      
-                      <DropdownMenuSeparator />
                       
                       <DropdownMenuItem onClick={handleSignOut}>
                         <LogOut className="mr-2 h-4 w-4" />
@@ -404,19 +482,55 @@ export default function Header() {
           <div className="md:hidden bg-white border-t shadow-lg">
             <nav className="px-4 py-4 space-y-1">
               {/* Auth section móvil */}
-              <div className="flex gap-3 pb-4 mb-4 border-b border-gray-100">
+              <div className="flex flex-col gap-3 pb-4 mb-4 border-b border-gray-100">
                 {user ? (
                   <div className="w-full space-y-2">
                     <div className="px-3 py-2 text-sm font-medium text-gray-900">
                       {userData?.name || user.email}
+                      {userData?.role && (
+                        <span className="ml-2 text-xs text-gray-500">
+                          ({userData.role === 'admin' ? 'Admin' : 
+                            userData.role === 'consultant' ? 'Consultor' : 
+                            userData.role})
+                        </span>
+                      )}
                     </div>
+                    
+                    {/* Dashboards dinámicos para móvil */}
+                    {getDashboardItems().map((item) => (
+                      <Link 
+                        key={item.href}
+                        href={item.href}
+                        className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded"
+                        onClick={() => setIsMenuOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                    
+                    {/* Panel Admin móvil */}
+                    {userData?.role === 'admin' && (
+                      <>
+                        <div className="border-t pt-2 mt-2">
+                          <Link 
+                            href="/admin"
+                            className="block px-3 py-2 text-sm text-blue-600 font-medium hover:bg-blue-50 rounded"
+                            onClick={() => setIsMenuOpen(false)}
+                          >
+                            Panel Administración
+                          </Link>
+                        </div>
+                      </>
+                    )}
+                    
                     <Link 
-                      href="/dashboard"
+                      href="/dashboard/perfil"
                       className="block px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded"
                       onClick={() => setIsMenuOpen(false)}
                     >
-                      Dashboard
+                      Configuración
                     </Link>
+                    
                     <button
                       onClick={() => {
                         handleSignOut()

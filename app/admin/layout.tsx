@@ -55,10 +55,10 @@ export default function AdminLayout({
         return;
       }
 
-      // Verificar rol de admin
+      // CAMBIO CRÍTICO: Permitir admin Y consultant
       const token = await firebaseUser.getIdTokenResult();
-      if (token.claims.role !== 'admin') {
-        toast.error('No tienes permisos de administrador');
+      if (token.claims.role !== 'admin' && token.claims.role !== 'consultant') {
+        toast.error('No tienes permisos para acceder a esta sección');
         router.push('/dashboard');
         return;
       }
@@ -94,6 +94,13 @@ export default function AdminLayout({
     );
   }
 
+  // Determinar título según el rol
+  const getRoleTitle = () => {
+    if (user?.role === 'admin') return 'Panel Admin';
+    if (user?.role === 'consultant') return 'Panel Consultor';
+    return 'Panel';
+  };
+
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
@@ -107,7 +114,7 @@ export default function AdminLayout({
               <Link href="/admin" className="flex items-center space-x-2">
                 <Shield className="h-8 w-8 text-blue-600" />
                 <span className="text-xl font-bold text-gray-900">
-                  Admin Panel
+                  {getRoleTitle()}
                 </span>
               </Link>
             )}
@@ -121,9 +128,15 @@ export default function AdminLayout({
             </Button>
           </div>
 
-          {/* Navigation */}
+          {/* Navigation - Filtrar items según el rol */}
           <nav className="flex-1 px-2 py-4 space-y-1">
             {menuItems.map((item) => {
+              // Si es consultor, no mostrar Gestión de Usuarios ni Lista Simple
+              if (user?.role === 'consultant' && 
+                  (item.href === '/admin/users' || item.href === '/admin/usuarios')) {
+                return null;
+              }
+              
               const isActive = pathname === item.href;
               
               return (
@@ -155,7 +168,7 @@ export default function AdminLayout({
                       {user?.email}
                     </p>
                     <p className="text-xs text-gray-500">
-                      Administrador
+                      {user?.role === 'admin' ? 'Administrador' : 'Consultor'}
                     </p>
                   </>
                 )}
@@ -182,3 +195,5 @@ export default function AdminLayout({
     </div>
   );
 }
+
+

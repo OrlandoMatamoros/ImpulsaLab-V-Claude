@@ -2,18 +2,42 @@
 import jsPDF from 'jspdf';
 import { PDFStyles } from '../utils/pdfStyles';
 
+interface RoadmapPhase {
+  phase: string;
+  focus: string;
+  keyActions: string[];
+  expectedOutcome: string;
+}
+
 export async function generateRoadmap(
   pdf: jsPDF,
-  roadmap: any[],
+  roadmapData: RoadmapPhase[] | undefined,
   styles: typeof PDFStyles
 ) {
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
+  const maxY = pageHeight - 30;
+  
+  // Función helper para verificar espacio
+  const checkPageSpace = (currentY: number, requiredSpace: number): number => {
+    if (currentY + requiredSpace > maxY) {
+      pdf.addPage();
+      // Header en nueva página
+      pdf.setFillColor(...styles.colors.primary);
+      pdf.rect(0, 0, pageWidth, 35, 'F');
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(20);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('ROADMAP DE TRANSFORMACIÓN - 90 DÍAS (Cont.)', 20, 22);
+      return 45;
+    }
+    return currentY;
+  };
   
   // Header
   pdf.setFillColor(...styles.colors.primary);
   pdf.rect(0, 0, pageWidth, 35, 'F');
-  pdf.setTextColor(...styles.colors.white);
+  pdf.setTextColor(255, 255, 255);
   pdf.setFontSize(20);
   pdf.setFont('helvetica', 'bold');
   pdf.text('ROADMAP DE TRANSFORMACIÓN - 90 DÍAS', 20, 22);
@@ -21,7 +45,7 @@ export async function generateRoadmap(
   let yPos = 50;
   
   // Timeline visual
-  pdf.setDrawColor(...styles.colors.gray);
+  pdf.setDrawColor(200, 200, 200);
   pdf.setLineWidth(3);
   pdf.line(30, yPos, pageWidth - 30, yPos);
   
@@ -33,7 +57,7 @@ export async function generateRoadmap(
     { x: 168, label: 'Fase 3', day: '90', color: styles.colors.success }
   ];
   
-  phases.forEach(phase => {
+  phases.forEach((phase) => {
     pdf.setFillColor(...phase.color);
     pdf.circle(phase.x, yPos, 5, 'F');
     pdf.setTextColor(...styles.colors.black);
@@ -47,104 +71,126 @@ export async function generateRoadmap(
   
   yPos += 30;
   
-  // Fases del roadmap
+  // Roadmap por defecto
   const defaultRoadmap = [
     {
-      phase: 'Días 1-30',
-      focus: 'Fundamentos',
-      keyActions: [
-        'Auditoría completa de sistemas',
-        'Implementación de quick wins',
-        'Configuración de herramientas básicas'
+      title: 'FASE 1: FUNDAMENTOS (Días 1-30)',
+      color: styles.colors.secondary,
+      objective: 'Establecer las bases sólidas',
+      actions: [
+        'Auditoría completa de sistemas y procesos actuales',
+        'Implementación de quick wins identificados',
+        'Configuración de herramientas básicas de monitoreo',
+        'Capacitación inicial del equipo'
       ],
-      expectedOutcome: 'Sistema básico con 40% más visibilidad'
+      result: 'Sistema básico operativo con 40% más visibilidad'
     },
     {
-      phase: 'Días 31-60',
-      focus: 'Optimización',
-      keyActions: [
-        'Automatización de procesos críticos',
-        'Implementación de dashboards',
-        'Optimización de flujos de trabajo'
+      title: 'FASE 2: OPTIMIZACIÓN (Días 31-60)',
+      color: styles.colors.purple,
+      objective: 'Automatizar y optimizar procesos clave',
+      actions: [
+        'Automatización de 3-5 procesos críticos',
+        'Implementación de dashboards avanzados',
+        'Optimización de flujos de trabajo',
+        'Establecimiento de métricas automatizadas'
       ],
-      expectedOutcome: 'Eficiencia mejorada 35-45%'
+      result: 'Eficiencia operativa mejorada 35-45%'
     },
     {
-      phase: 'Días 61-90',
-      focus: 'Escalamiento',
-      keyActions: [
-        'Expansión del sistema',
-        'Analytics predictivos',
-        'Preparación para crecimiento'
+      title: 'FASE 3: ESCALAMIENTO (Días 61-90)',
+      color: styles.colors.success,
+      objective: 'Escalar el sistema y preparar crecimiento',
+      actions: [
+        'Expansión del sistema a todas las áreas',
+        'Implementación de analytics predictivos',
+        'Optimización continua basada en datos',
+        'Preparación para scaling 2-3X'
       ],
-      expectedOutcome: 'Capacidad de escalar 2-3X'
+      result: 'Sistema completo con capacidad de escalar'
     }
   ];
   
-  const roadmapData = roadmap && roadmap.length > 0 ? roadmap : defaultRoadmap;
-  
-  roadmapData.forEach((phase, index) => {
-    const phaseColor = index === 0 ? styles.colors.secondary :
-                      index === 1 ? styles.colors.purple :
-                      styles.colors.success;
+  defaultRoadmap.forEach(phase => {
+    // Verificar espacio para toda la fase
+    yPos = checkPageSpace(yPos, 70);
     
     // Header de fase
-    pdf.setFillColor(...phaseColor);
-    pdf.rect(15, yPos - 5, pageWidth - 30, 10, 'F');
-    pdf.setTextColor(...styles.colors.white);
+    pdf.setFillColor(...phase.color);
+    pdf.rect(15, yPos - 8, pageWidth - 30, 12, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(14);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text(phase.title, 20, yPos);
+    
+    yPos += 10;
+    
+    // Card de contenido con fondo gris muy claro
+    pdf.setFillColor(245, 245, 245); // Gris muy claro como en DetailedAnalysis
+    pdf.roundedRect(20, yPos, pageWidth - 40, 55, 3, 3, 'F');
+    
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(11);
-    pdf.text(`FASE ${index + 1}: ${phase.focus?.toUpperCase()} (${phase.phase})`, 20, yPos + 2);
-    
-    yPos += 12;
-    
-    // Contenido de la fase
-    const r = phaseColor[0];
-    const g = phaseColor[1];
-    const b = phaseColor[2];
-    pdf.setFillColor(r, g, b, 0.05);
-    pdf.roundedRect(20, yPos, pageWidth - 40, 40, 3, 3, 'F');
-    
-    pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(10);
-    pdf.setTextColor(...phaseColor);
-    pdf.text('Objetivo:', 25, yPos + 7);
+    pdf.setTextColor(...phase.color);
+    pdf.text(`Objetivo: ${phase.objective}`, 25, yPos + 8);
     
     pdf.setFont('helvetica', 'normal');
-    pdf.setFontSize(9);
+    pdf.setFontSize(10);
     pdf.setTextColor(...styles.colors.black);
-    pdf.text(phase.focus || 'Mejora continua', 65, yPos + 7);
     
-    pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(...phaseColor);
-    pdf.text('Acciones:', 25, yPos + 14);
+    let tempY = yPos + 15;
+    pdf.text('Acciones:', 25, tempY);
+    tempY += 5;
     
-    let actionY = yPos + 20;
-    phase.keyActions?.forEach((action: string) => {
-      pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor(...styles.colors.black);
-      pdf.text(`• ${action}`, 30, actionY);
-      actionY += 5;
+    phase.actions.forEach(action => {
+      // Verificar si la acción cabe
+      const actionLines = pdf.splitTextToSize(`• ${action}`, pageWidth - 50);
+      if (tempY + (actionLines.length * 5) > yPos + 50) {
+        // Si no cabe, ajustar
+        return;
+      }
+      
+      actionLines.forEach((line: string) => {
+        pdf.text(line, 30, tempY);
+        tempY += 5;
+      });
     });
     
+    // Resultado esperado
     pdf.setFont('helvetica', 'bold');
     pdf.setTextColor(...styles.colors.success);
-    pdf.text('Resultado:', 25, actionY);
-    pdf.setFont('helvetica', 'normal');
-    pdf.setTextColor(...styles.colors.black);
-    pdf.text(phase.expectedOutcome || 'Mejora significativa', 50, actionY);
+    pdf.text(`Resultado: ${phase.result}`, 25, yPos + 48);
     
-    yPos += 50;
-    
-    // Nueva página si es necesario
-    if (yPos > 220 && index < roadmapData.length - 1) {
-      pdf.addPage();
-      yPos = 30;
-    }
+    yPos += 65;
   });
+  
+  // Indicadores de éxito si hay espacio
+  if (yPos < maxY - 40) {
+    yPos += 10;
+    
+    pdf.setFillColor(245, 245, 245); // Gris muy claro
+    pdf.roundedRect(20, yPos, pageWidth - 40, 30, 3, 3, 'F');
+    
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(12);
+    pdf.setTextColor(...styles.colors.primary);
+    pdf.text('🎯 INDICADORES DE ÉXITO DEL ROADMAP', pageWidth/2, yPos + 10, { align: 'center' });
+    
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(10);
+    pdf.setTextColor(...styles.colors.black);
+    
+    const metrics = [
+      '✓ Reducción 40-60% en tareas manuales',
+      '✓ Incremento 2-3X en capacidad',
+      '✓ ROI positivo desde mes 3'
+    ];
+    
+    pdf.text(metrics.join('  |  '), pageWidth/2, yPos + 20, { align: 'center' });
+  }
   
   // Número de página
   pdf.setFontSize(9);
   pdf.setTextColor(...styles.colors.gray);
-  pdf.text('Página 5', pageWidth - 20, pageHeight - 10, { align: 'right' });
+  pdf.text('Página 5 de 7', pageWidth - 20, pageHeight - 10, { align: 'right' });
 }

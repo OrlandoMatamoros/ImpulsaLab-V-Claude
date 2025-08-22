@@ -10,8 +10,31 @@ export async function generateROIMetrics(
 ) {
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
+  const maxY = pageHeight - 30; // Margen inferior seguro
   
-  // Header
+  // Función helper para verificar espacio y agregar página si es necesario
+  const checkPageSpace = (currentY: number, requiredSpace: number): number => {
+    if (currentY + requiredSpace > maxY) {
+      pdf.addPage();
+      // Header en nueva página
+      pdf.setFillColor(...styles.colors.primary);
+      pdf.rect(0, 0, pageWidth, 35, 'F');
+      pdf.setTextColor(255, 255, 255);
+      pdf.setFontSize(20);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('MÉTRICAS DE ÉXITO Y ROI (Cont.)', 20, 22);
+      
+      // Actualizar número de página
+      pdf.setFontSize(9);
+      pdf.setTextColor(...styles.colors.gray);
+      pdf.text(`Página ${pdf.getCurrentPageInfo().pageNumber} de 7`, pageWidth - 20, pageHeight - 10, { align: 'right' });
+      
+      return 45; // Nueva posición Y después del header
+    }
+    return currentY;
+  };
+  
+  // Header principal
   pdf.setFillColor(...styles.colors.primary);
   pdf.rect(0, 0, pageWidth, 35, 'F');
   pdf.setTextColor(255, 255, 255);
@@ -22,11 +45,9 @@ export async function generateROIMetrics(
   let yPos = 50;
   
   // Identificar el eje más débil para personalizar métricas
-  const weakestAxis = Object.entries(scores).reduce(
+  const weakestAxis = Object.entries(scores).reduce<{ key: string; value: number }>(
     (min, [key, value]) =>
-      (typeof value === 'number' && value < (min.value as number))
-        ? { key, value: value as number }
-        : min,
+      (typeof value === 'number' && value < min.value) ? { key, value } : min,
     { key: 'finance', value: scores.finance as number }
   );
   
@@ -34,6 +55,8 @@ export async function generateROIMetrics(
                        weakestAxis.key === 'operations' ? 'Operaciones' : 'Marketing';
   
   // SECCIÓN 1: KPIs principales
+  yPos = checkPageSpace(yPos, 20);
+  
   pdf.setFillColor(...styles.colors.success);
   pdf.rect(15, yPos - 8, pageWidth - 30, 12, 'F');
   pdf.setTextColor(255, 255, 255);
@@ -43,7 +66,7 @@ export async function generateROIMetrics(
   
   yPos += 15;
   
-  // Tabla de KPIs
+  // Tabla de KPIs con verificación de espacio
   const kpis = [
     {
       metric: `Score ${weakAxisLabel}`,
@@ -90,6 +113,8 @@ export async function generateROIMetrics(
   ];
   
   // Header de tabla
+  yPos = checkPageSpace(yPos, 12);
+  
   pdf.setFillColor(...styles.colors.lightGray);
   pdf.rect(20, yPos, pageWidth - 40, 10, 'F');
   
@@ -104,8 +129,10 @@ export async function generateROIMetrics(
   
   yPos += 12;
   
-  // Filas de KPIs
+  // Filas de KPIs con verificación de espacio para cada una
   kpis.forEach((kpi, index) => {
+    yPos = checkPageSpace(yPos, 10);
+    
     // Alternar color de fondo
     if (index % 2 === 0) {
       pdf.setFillColor(250, 250, 250);
@@ -140,6 +167,8 @@ export async function generateROIMetrics(
   yPos += 15;
   
   // SECCIÓN 2: ROI Proyectado
+  yPos = checkPageSpace(yPos, 60);
+  
   pdf.setFillColor(...styles.colors.secondary);
   pdf.rect(15, yPos - 8, pageWidth - 30, 12, 'F');
   pdf.setTextColor(255, 255, 255);
@@ -194,6 +223,8 @@ export async function generateROIMetrics(
   yPos += 45;
   
   // SECCIÓN 3: Cálculo detallado del ROI
+  yPos = checkPageSpace(yPos, 55);
+  
   pdf.setFillColor(...styles.colors.lightGray);
   pdf.roundedRect(20, yPos, pageWidth - 40, 50, 3, 3, 'F');
   
@@ -215,13 +246,22 @@ export async function generateROIMetrics(
   
   let tempY = yPos + 18;
   roiBreakdown.forEach(item => {
-    pdf.text(`• ${item}`, 30, tempY);
-    tempY += 7;
+    // Verificar si la línea cabe
+    const itemLines = pdf.splitTextToSize(`• ${item}`, pageWidth - 50);
+    tempY = checkPageSpace(tempY, itemLines.length * 7);
+    
+    itemLines.forEach((line: string) => {
+      pdf.text(line, 30, tempY);
+      tempY += 6;
+    });
+    tempY += 1;
   });
   
-  yPos += 60;
+  yPos = tempY + 10;
   
   // SECCIÓN 4: Beneficios intangibles
+  yPos = checkPageSpace(yPos, 60);
+  
   pdf.setFillColor(...styles.colors.primary);
   pdf.rect(15, yPos - 8, pageWidth - 30, 12, 'F');
   pdf.setTextColor(255, 255, 255);
@@ -245,16 +285,44 @@ export async function generateROIMetrics(
   pdf.setTextColor(...styles.colors.black);
   
   benefits.forEach(benefit => {
+    yPos = checkPageSpace(yPos, 8);
+    
     pdf.setFillColor(...styles.colors.success);
     pdf.circle(25, yPos - 1, 2, 'F');
     pdf.setTextColor(...styles.colors.black);
-    pdf.text(benefit, 30, yPos);
-    yPos += 7;
+    
+    const benefitLines = pdf.splitTextToSize(benefit, pageWidth - 55);
+    benefitLines.forEach((line: string) => {
+      pdf.text(line, 30, yPos);
+      yPos += 5;
+    });
+    yPos += 2;
   });
   
-  // SECCIÓN 5: Garantía de resultados
-  if (yPos < pageHeight - 40) {
+  // SECCIÓN 5: Garantía de resultados (si hay espacio)
+  const spaceNeeded = 30;
+  if (yPos + spaceNeeded < maxY) {
     yPos += 10;
+    
+    pdf.setFillColor(220, 252, 231);
+    pdf.setDrawColor(...styles.colors.success);
+    pdf.setLineWidth(2);
+    pdf.roundedRect(20, yPos, pageWidth - 40, 25, 3, 3, 'FD');
+    
+    pdf.setTextColor(...styles.colors.success);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(11);
+    pdf.text('GARANTÍA DE RESULTADOS IMPULSA LAB', pageWidth/2, yPos + 8, { align: 'center' });
+    
+    pdf.setTextColor(...styles.colors.black);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(10);
+    pdf.text('Si no alcanzas al menos 50% del ROI proyectado en 6 meses,', pageWidth/2, yPos + 15, { align: 'center' });
+    pdf.text('te proporcionamos consultoría adicional sin costo hasta lograrlo.', pageWidth/2, yPos + 20, { align: 'center' });
+  } else {
+    // Si no hay espacio, agregar en nueva página
+    pdf.addPage();
+    yPos = 45;
     
     pdf.setFillColor(220, 252, 231);
     pdf.setDrawColor(...styles.colors.success);

@@ -11,8 +11,37 @@ export async function generateConclusions(
 ) {
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
+  const maxY = pageHeight - 40; // Margen inferior para el footer
   
-  // Header
+  // Función helper para verificar espacio y agregar página si es necesario
+  const checkPageSpace = (currentY: number, requiredSpace: number, addHeader: boolean = true): number => {
+    if (currentY + requiredSpace > maxY) {
+      pdf.addPage();
+      
+      if (addHeader) {
+        // Header en nueva página
+        pdf.setFillColor(...styles.colors.primary);
+        pdf.rect(0, 0, pageWidth, 35, 'F');
+        pdf.setTextColor(255, 255, 255);
+        pdf.setFontSize(20);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('CONCLUSIONES Y PRÓXIMOS PASOS (Cont.)', 20, 22);
+        
+        // Actualizar número de página
+        const currentPage = pdf.getCurrentPageInfo().pageNumber;
+        pdf.setFontSize(9);
+        pdf.setTextColor(...styles.colors.gray);
+        pdf.text(`Página ${currentPage} de ${currentPage}`, pageWidth - 20, pageHeight - 10, { align: 'right' });
+        
+        return 45; // Nueva posición Y después del header
+      }
+      
+      return 30; // Sin header, empezar más arriba
+    }
+    return currentY;
+  };
+  
+  // Header principal
   pdf.setFillColor(...styles.colors.primary);
   pdf.rect(0, 0, pageWidth, 35, 'F');
   pdf.setTextColor(255, 255, 255);
@@ -31,17 +60,16 @@ export async function generateConclusions(
                         averageScore >= 40 ? 'Crecimiento' : 
                         'Supervivencia';
   
-  const weakestAxis = Object.entries(scores).reduce(
-    (min, [key, value]) =>
-      (typeof value === 'number' && value < min.value) ? { key, value } : min,
-    { key: 'finance', value: scores.finance as number }
-  );
+  // Corregir el tipo para weakestAxis y strongestAxis
+  const weakestAxis = Object.entries(scores).reduce((min, [key, value]) => {
+    const numValue = value as number;
+    return numValue < min.value ? { key, value: numValue } : min;
+  }, { key: 'finance', value: scores.finance as number });
   
-  const strongestAxis = Object.entries(scores).reduce(
-    (max, [key, value]) =>
-      (typeof value === 'number' && value > max.value) ? { key, value } : max,
-    { key: 'finance', value: scores.finance as number }
-  );
+  const strongestAxis = Object.entries(scores).reduce((max, [key, value]) => {
+    const numValue = value as number;
+    return numValue > max.value ? { key, value: numValue } : max;
+  }, { key: 'finance', value: scores.finance as number });
   
   const weakAxis = weakestAxis.key === 'finance' ? 'Finanzas' : 
                    weakestAxis.key === 'operations' ? 'Operaciones' : 'Marketing';
@@ -50,6 +78,8 @@ export async function generateConclusions(
                      strongestAxis.key === 'operations' ? 'Operaciones' : 'Marketing';
   
   // SECCIÓN 1: Resumen ejecutivo final
+  yPos = checkPageSpace(yPos, 20);
+  
   pdf.setFillColor(...styles.colors.primary);
   pdf.rect(15, yPos - 8, pageWidth - 30, 12, 'F');
   pdf.setTextColor(255, 255, 255);
@@ -67,6 +97,7 @@ export async function generateConclusions(
   
   const lines1 = pdf.splitTextToSize(summaryText, pageWidth - 50);
   lines1.forEach((line: string) => {
+    yPos = checkPageSpace(yPos, 7);
     pdf.text(line, 25, yPos);
     yPos += 6;
   });
@@ -74,6 +105,8 @@ export async function generateConclusions(
   yPos += 10;
   
   // SECCIÓN 2: Potencial de crecimiento
+  yPos = checkPageSpace(yPos, 75);
+  
   pdf.setFillColor(...styles.colors.success);
   pdf.rect(15, yPos - 8, pageWidth - 30, 12, 'F');
   pdf.setTextColor(255, 255, 255);
@@ -113,13 +146,16 @@ export async function generateConclusions(
   pdf.setFont('helvetica', 'bold');
   pdf.setTextColor(...styles.colors.success);
   achievements.forEach(achievement => {
+    tempY = checkPageSpace(tempY, 7);
     pdf.text(achievement, 30, tempY);
     tempY += 6;
   });
   
-  yPos += 70;
+  yPos = tempY + 10;
   
   // SECCIÓN 3: Recomendación estratégica
+  yPos = checkPageSpace(yPos, 50);
+  
   pdf.setFillColor(220, 38, 127);
   pdf.rect(15, yPos - 8, pageWidth - 30, 12, 'F');
   pdf.setTextColor(255, 255, 255);
@@ -141,13 +177,16 @@ export async function generateConclusions(
   const lines3 = pdf.splitTextToSize(recommendationText, pageWidth - 50);
   tempY = yPos + 8;
   lines3.forEach((line: string) => {
+    tempY = checkPageSpace(tempY, 7);
     pdf.text(line, 25, tempY);
     tempY += 6;
   });
   
-  yPos += 45;
+  yPos = tempY + 10;
   
   // SECCIÓN 4: Call to Action principal
+  yPos = checkPageSpace(yPos, 40);
+  
   pdf.setFillColor(0, 123, 255);
   pdf.roundedRect(20, yPos, pageWidth - 40, 35, 5, 5, 'F');
   
@@ -164,6 +203,8 @@ export async function generateConclusions(
   yPos += 45;
   
   // SECCIÓN 5: Beneficios de la sesión
+  yPos = checkPageSpace(yPos, 50);
+  
   pdf.setFillColor(245, 245, 245);
   pdf.roundedRect(20, yPos, pageWidth - 40, 45, 3, 3, 'F');
   
@@ -184,24 +225,36 @@ export async function generateConclusions(
   
   let benefitY = yPos + 16;
   sessionBenefits.forEach(benefit => {
+    benefitY = checkPageSpace(benefitY, 7);
     pdf.text(benefit, 30, benefitY);
     benefitY += 6;
   });
   
-  // Footer profesional
+  yPos = benefitY + 10;
+  
+  // Verificar si necesitamos nueva página para el footer
+  const footerSpace = 40;
+  if (yPos + footerSpace > pageHeight - 35) {
+    pdf.addPage();
+    yPos = pageHeight - 35; // Posicionar al final de la nueva página
+  } else {
+    yPos = pageHeight - 35; // Posicionar al final de la página actual
+  }
+  
+  // Footer profesional (siempre al final)
   pdf.setFillColor(...styles.colors.primary);
-  pdf.rect(0, pageHeight - 35, pageWidth, 35, 'F');
+  pdf.rect(0, yPos, pageWidth, 35, 'F');
   
   pdf.setTextColor(255, 255, 255);
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(12);
-  pdf.text('IMPULSA LAB', 20, pageHeight - 25);
+  pdf.text('IMPULSA LAB', 20, yPos + 10);
   pdf.setFontSize(10);
   pdf.setFont('helvetica', 'normal');
-  pdf.text('Business Intelligence & Digital Transformation', 20, pageHeight - 20);
+  pdf.text('Business Intelligence & Digital Transformation', 20, yPos + 15);
   
   pdf.setFontSize(9);
-  pdf.text('Este diagnóstico es confidencial y propiedad de tu organización', 20, pageHeight - 13);
+  pdf.text('Este diagnóstico es confidencial y propiedad de tu organización', 20, yPos + 22);
   
   const currentDate = new Date().toLocaleDateString('es-ES', { 
     year: 'numeric', 
@@ -215,25 +268,26 @@ export async function generateConclusions(
     day: 'numeric' 
   });
   
-  pdf.text(`Validez: hasta ${validUntil}`, 20, pageHeight - 8);
+  pdf.text(`Validez: hasta ${validUntil}`, 20, yPos + 28);
   
   // Información de contacto
   pdf.setFont('helvetica', 'bold');
-  pdf.text('Contacto Directo:', pageWidth - 80, pageHeight - 25);
+  pdf.text('Contacto Directo:', pageWidth - 80, yPos + 10);
   pdf.setFont('helvetica', 'normal');
-  pdf.text('contacto@tuimpulsalab.com', pageWidth - 80, pageHeight - 20);
-  pdf.text('+1 347 904 3169', pageWidth - 80, pageHeight - 15);
-  pdf.text('www.tuimpulsalab.com', pageWidth - 80, pageHeight - 10);
+  pdf.text(styles.contactInfo?.email || 'contacto@tuimpulsalab.com', pageWidth - 80, yPos + 15);
+  pdf.text(styles.contactInfo?.phoneCalls || '+1 929 500-1850', pageWidth - 80, yPos + 20);
+  pdf.text(styles.contactInfo?.website || 'www.tuimpulsalab.com', pageWidth - 80, yPos + 25);
   
-  // Agregar código QR o link si el usuario puede descargar
+  // Agregar información del usuario si está disponible
   if (userData && ['client', 'consultant', 'admin'].includes(userData.role)) {
-    pdf.setTextColor(255, 255, 255);
+    pdf.setTextColor(255, 255, 255, 200);
     pdf.setFontSize(8);
-    pdf.text(`Generado por: ${userData.email || 'Usuario autorizado'}`, pageWidth/2, pageHeight - 3, { align: 'center' });
+    pdf.text(`Generado por: ${userData.email || 'Usuario autorizado'}`, pageWidth/2, yPos + 30, { align: 'center' });
   }
   
   // Número de página final
+  const totalPages = pdf.getCurrentPageInfo().pageNumber;
   pdf.setFontSize(9);
   pdf.setTextColor(255, 255, 255, 200);
-  pdf.text('Página 7 de 7', pageWidth - 20, pageHeight - 3, { align: 'right' });
+  pdf.text(`Página ${totalPages} de ${totalPages}`, pageWidth - 20, yPos + 30, { align: 'right' });
 }

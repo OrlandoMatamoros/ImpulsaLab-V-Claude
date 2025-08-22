@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import twilio from 'twilio';
-import { adminDb } from '@/lib/firebaseAdmin';
 
 const client = twilio(
   process.env.TWILIO_ACCOUNT_SID,

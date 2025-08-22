@@ -13,44 +13,52 @@ function generateCode(): string {
 export async function POST(request: NextRequest) {
   try {
     const { phone } = await request.json();
-    
-    if (!phone) {
-      return NextResponse.json({ error: 'Phone required' }, { status: 400 });
-    }
-
     const code = generateCode();
-    console.log(`Code for ${phone}: ${code}`);
-
-    // Intentar WhatsApp
+    
+    console.log(`Enviando código ${code} a ${phone}`);
+    
     try {
+      // Usar tu WhatsApp Business REAL
       const message = await client.messages.create({
-        from: 'whatsapp:+14155238886',
+        from: 'whatsapp:+15558240286', // TU NÚMERO BUSINESS!
         to: `whatsapp:${phone}`,
-        body: `Impulsa Lab - Tu código: ${code}`
+        body: `🚀 *Impulsa Lab*\n\nTu código de verificación es:\n\n*${code}*\n\nVálido por 10 minutos.\n\nImpulsa LAB LLC`
       });
-
+      
+      console.log('✅ WhatsApp Business enviado:', message.sid);
+      
+      // Guardar código en sesión o DB temporal
+      // TODO: Implementar guardado de código
+      
       return NextResponse.json({
         success: true,
-        message: 'Código enviado por WhatsApp',
-        debugCode: code
+        message: 'Código enviado por WhatsApp Business',
+        channel: 'whatsapp_business'
       });
-
-    } catch (error: any) {
-      // Si falla, intentar SMS
+      
+    } catch (whatsappError: any) {
+      console.error('WhatsApp falló, intentando SMS:', whatsappError);
+      
+      // Fallback a SMS si WhatsApp falla
       const sms = await client.messages.create({
-        from: '+19296589612',
+        from: process.env.TWILIO_PHONE_NUMBER,
         to: phone,
-        body: `Impulsa Lab - Código: ${code}`
+        body: `Impulsa Lab - Tu código es: ${code}`
       });
       
       return NextResponse.json({
         success: true,
         message: 'Código enviado por SMS',
-        debugCode: code
+        channel: 'sms',
+        fallback: true
       });
     }
     
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('Error:', error);
+    return NextResponse.json(
+      { error: 'Error al enviar código' },
+      { status: 500 }
+    );
   }
 }

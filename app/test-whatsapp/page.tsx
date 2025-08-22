@@ -23,10 +23,8 @@ export default function TestWhatsApp() {
       const data = await response.json();
       
       if (data.success) {
-        setMessage('✅ Código enviado por WhatsApp/SMS');
+        setMessage('✅ Código enviado por WhatsApp Business');
         setStep(2);
-      } else if (data.needsSandbox) {
-        setMessage('⚠️ Primero envía "join circus-hot" a +14155238886 por WhatsApp');
       } else {
         setMessage(`❌ Error: ${data.error || 'No se pudo enviar el código'}`);
       }
@@ -71,16 +69,15 @@ export default function TestWhatsApp() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
       <div className="max-w-md w-full space-y-6 bg-white p-8 rounded-xl shadow-lg">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Test WhatsApp</h1>
-          <p className="mt-2 text-gray-600">Verificación con Twilio</p>
+          <h1 className="text-3xl font-bold text-gray-900">Test WhatsApp Business</h1>
+          <p className="mt-2 text-gray-600">Verificación Profesional</p>
         </div>
 
-        {/* Instrucciones Sandbox */}
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-          <p className="text-sm text-amber-800">
-            <strong>⚠️ Importante:</strong> Antes de empezar, envía{' '}
-            <code className="bg-amber-100 px-2 py-1 rounded font-mono">join circus-hot</code>{' '}
-            al número <strong>+1 415 523 8886</strong> por WhatsApp
+        {/* Mensaje de WhatsApp Business */}
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <p className="text-sm text-green-800 text-center">
+            <span className="font-semibold">✅ WhatsApp Business Activo</span><br/>
+            Verificación directa desde Impulsa LAB LLC
           </p>
         </div>
 
@@ -89,8 +86,6 @@ export default function TestWhatsApp() {
           <div className={`p-4 rounded-lg text-sm font-medium ${
             message.includes('✅') 
               ? 'bg-green-50 text-green-800 border border-green-200' 
-              : message.includes('⚠️')
-              ? 'bg-amber-50 text-amber-800 border border-amber-200'
               : 'bg-red-50 text-red-800 border border-red-200'
           }`}>
             {message}
@@ -112,7 +107,7 @@ export default function TestWhatsApp() {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <p className="mt-1 text-xs text-gray-500">
-                Incluye código de país (ej: +52 para México, +1 para USA)
+                Incluye código de país (ej: +52 México, +57 Colombia, +1 USA)
               </p>
             </div>
             <button 
@@ -179,6 +174,14 @@ export default function TestWhatsApp() {
             </button>
           </div>
         )}
+
+        {/* Footer */}
+        <div className="pt-4 border-t border-gray-200">
+          <p className="text-xs text-center text-gray-500">
+            Powered by Twilio WhatsApp Business API<br/>
+            Impulsa LAB LLC © 2025
+          </p>
+        </div>
       </div>
     </div>
   );

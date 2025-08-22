@@ -42,3 +42,39 @@ next-env.d.ts
 .env.local
 .env.local
 firebase-admin-key.json
+
+# Test files
+test-*.js
+check-*.js
+clean-*.js
+*.test.js
+
+# Credentials
+.env.local
+.env
+firebase-admin-key.json
+serviceAccountKey.json
+
+# Scripts de test locales
+test*.js
+check*.js
+clean*.js
+debug*.js
+temp*.js
+
+# Archivos con credenciales
+*credentials*
+*secret*
+*token*
+
+# Scripts de test locales
+test*.js
+check*.js
+clean*.js
+debug*.js
+temp*.js
+
+# Archivos con credenciales
+*credentials*
+*secret*
+*token*

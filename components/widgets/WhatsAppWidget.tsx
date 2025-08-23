@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { X, MessageCircle, Send, Clock, ChevronDown } from 'lucide-react'
 import { db } from '@/lib/firebase'
 import { collection, addDoc, serverTimestamp, doc, updateDoc, arrayUnion } from 'firebase/firestore'
+
 export default function WhatsAppWidget() {
   // Logs de depuración para Firebase
   console.log('=== NOVA Debug Info ===');
@@ -23,6 +24,7 @@ export default function WhatsAppWidget() {
     timestamp: Date
     buttons?: string[]
   }
+
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState('')
@@ -59,19 +61,34 @@ export default function WhatsAppWidget() {
     'Tengo otra consulta': 'Entendido. Por favor, escribe tu pregunta a continuación y te responderemos a la brevedad posible durante nuestro horario de atención. 📝'
   }
 
-  // Función para verificar horario de negocio
+  // Función corregida para verificar horario de negocio
   const checkBusinessOpen = () => {
-    const now = new Date()
-    const estOffset = -5
-    const utc = now.getTime() + (now.getTimezoneOffset() * 60000)
-    const estTime = new Date(utc + (3600000 * estOffset))
+    const now = new Date();
     
-    const day = estTime.getDay()
-    const hour = estTime.getHours()
+    // Obtener hora de NY correctamente
+    const nyTimeStr = now.toLocaleString("en-US", { timeZone: "America/New_York" });
+    const nyTime = new Date(nyTimeStr);
     
-    if (day === 0) return false
-    if (day === 6) return hour >= 9 && hour < 14
-    return hour >= 9 && hour < 20
+    const day = nyTime.getDay();
+    const hours = nyTime.getHours();
+    
+    console.log('NY Time Check:', {
+      nyTime: nyTimeStr,
+      day: day,
+      hours: hours,
+      dayName: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][day]
+    });
+    
+    // Domingo cerrado
+    if (day === 0) return false;
+    
+    // Sábado: 9 AM - 2 PM
+    if (day === 6) {
+      return hours >= 9 && hours < 14;
+    }
+    
+    // Lunes a Viernes: 9 AM - 8 PM
+    return hours >= 9 && hours < 20;
   }
 
   useEffect(() => {
@@ -80,52 +97,49 @@ export default function WhatsAppWidget() {
     
     const interval = setInterval(() => {
       setBusinessOpen(checkBusinessOpen())
-    }, 60000)
+    }, 60000) // Verificar cada minuto
     
     return () => clearInterval(interval)
   }, [])
 
   // Crear nueva sesión en Firebase
   const createSession = async () => {
-  console.log('📝 Intentando crear sesión en Firebase...');
-  console.log('db está disponible?', !!db);
-  console.log('businessOpen:', businessOpen);
-  
-  try {
-    if (!db) {
-      console.error('❌ Firebase db no está inicializado');
-      return null;
-    }
+    console.log('📝 Intentando crear sesión en Firebase...');
+    console.log('db está disponible?', !!db);
+    console.log('businessOpen:', businessOpen);
     
-    const sessionData = {
-      startedAt: serverTimestamp(),
-      lastActivity: serverTimestamp(),
-      messages: [],
-      userInfo: {
-        userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : '',
-        referrer: typeof document !== 'undefined' ? document.referrer : '',
-        url: typeof window !== 'undefined' ? window.location.href : ''
-      },
-      status: 'active',
-      isBusinessOpen: businessOpen
-    }
+    try {
+      if (!db) {
+        console.error('❌ Firebase db no está inicializado');
+        return null;
+      }
+      
+      const sessionData = {
+        startedAt: serverTimestamp(),
+        lastActivity: serverTimestamp(),
+        messages: [],
+        userInfo: {
+          userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : '',
+          referrer: typeof document !== 'undefined' ? document.referrer : '',
+          url: typeof window !== 'undefined' ? window.location.href : ''
+        },
+        status: 'active',
+        isBusinessOpen: businessOpen
+      }
 
       const docRef = await addDoc(collection(db, 'chat-sessions'), sessionData)
       setSessionId(docRef.id)
-      
-      // Enviar notificación (próximo paso)
-      new Notification('Nueva conversación iniciada', { body: 'Un usuario ha iniciado una conversación en el chat.' })
+      console.log('✅ Sesión creada:', docRef.id)
       
       return docRef.id
     } catch (error) {
-      console.error('Error creando sesión:', error)
+      console.error('❌ Error creando sesión:', error)
       return null
     }
   }
 
   // Función para enviar notificaciones (placeholder para implementar)
   const sendNotification = async (title: string, body: string) => {
-    // Implementaremos esto después con Firebase Functions o servicio de email
     console.log(`Notificación: ${title} - ${body}`)
   }
 
@@ -154,6 +168,7 @@ export default function WhatsAppWidget() {
         messages: arrayUnion(messageData),
         lastActivity: serverTimestamp()
       })
+      console.log('✅ Mensaje guardado en Firebase')
       
       // Si es mensaje del usuario, enviar notificación
       if (message.isUser) {
@@ -163,7 +178,7 @@ export default function WhatsAppWidget() {
         )
       }
     } catch (error) {
-      console.error('Error guardando mensaje:', error)
+      console.error('❌ Error guardando mensaje:', error)
     }
   }
 
@@ -342,22 +357,40 @@ export default function WhatsAppWidget() {
             </details>
           </div>
 
-          {/* Mensajes */}
+          {/* Mensajes - CORREGIDO PARA MÓVILES */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
             {messages.map((message) => (
               <div
                 key={message.id}
                 className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
               >
-                <div className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                  message.isUser 
-                    ? 'bg-blue-600 text-white rounded-br-none' 
-                    : 'bg-white text-gray-800 rounded-bl-none shadow-sm'
-                }`}>
-                  <p className="text-sm whitespace-pre-line">{message.text}</p>
+                <div 
+                  className={`max-w-[80%] rounded-2xl px-4 py-2 ${
+                    message.isUser 
+                      ? 'bg-blue-600 text-white rounded-br-none' 
+                      : 'bg-white text-gray-800 rounded-bl-none shadow-sm'
+                  }`}
+                  style={{
+                    // FIX PARA MÓVILES - Forzar colores
+                    color: message.isUser ? '#ffffff' : '#1f2937',
+                    backgroundColor: message.isUser ? '#2563eb' : '#ffffff',
+                    WebkitTextFillColor: message.isUser ? '#ffffff' : '#1f2937'
+                  }}
+                >
+                  <p className="text-sm whitespace-pre-line" 
+                     style={{ 
+                       color: 'inherit',
+                       WebkitTextFillColor: 'inherit' 
+                     }}>
+                    {message.text}
+                  </p>
                   <p className={`text-xs mt-1 ${
                     message.isUser ? 'text-blue-100' : 'text-gray-400'
-                  }`}>
+                  }`}
+                  style={{
+                    color: message.isUser ? '#dbeafe' : '#9ca3af',
+                    WebkitTextFillColor: message.isUser ? '#dbeafe' : '#9ca3af'
+                  }}>
                     {message.timestamp.toLocaleTimeString('es-ES', { 
                       hour: '2-digit', 
                       minute: '2-digit' 
@@ -373,14 +406,14 @@ export default function WhatsAppWidget() {
                 <div className="bg-white rounded-2xl rounded-bl-none px-4 py-3 shadow-sm">
                   <div className="flex gap-1">
                     <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100"></span>
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></span>
+                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></span>
+                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></span>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Botones de opciones */}
+            {/* Botones de opciones - CORREGIDO PARA MÓVILES */}
             {showInitialButtons && messages.length === 1 && !isTyping && (
               <div className="space-y-2">
                 {initialButtons.map((button) => (
@@ -390,6 +423,11 @@ export default function WhatsAppWidget() {
                     className="w-full text-left bg-white hover:bg-gray-50 text-gray-700 
                              px-4 py-3 rounded-xl shadow-sm transition-all duration-200 
                              hover:shadow-md text-sm border border-gray-100"
+                    style={{
+                      color: '#374151',
+                      backgroundColor: '#ffffff',
+                      WebkitTextFillColor: '#374151'
+                    }}
                   >
                     {button}
                   </button>
@@ -398,7 +436,7 @@ export default function WhatsAppWidget() {
             )}
           </div>
 
-          {/* Input - FIX PARA CONTRASTE EN MÓVILES */}
+          {/* Input - YA CORREGIDO */}
           <div className="p-4 bg-white border-t border-gray-100">
             <div className="flex gap-2">
               <input

@@ -14,41 +14,25 @@ export async function POST(request: NextRequest) {
   try {
     const { phone } = await request.json();
     
-    if (!phone) {
-      return NextResponse.json(
-        { error: 'Phone number required' },
-        { status: 400 }
-      );
-    }
-    
     const code = generateCode();
-    console.log(`Sending SMS code ${code} to ${phone}`);
     
-    // SMS directo - funciona inmediatamente
+    // WhatsApp Business (esperando aprobación)
     const message = await client.messages.create({
-      from: '+19296589612', // Tu número Twilio verificado
-      to: phone,
-      body: `Impulsa Lab - Your verification code is: ${code}\n\nValid for 10 minutes.`
+      from: 'whatsapp:+15558240286',
+      to: `whatsapp:${phone}`,
+      body: `🚀 *Impulsa Lab*\n\nTu código de verificación es:\n\n*${code}*\n\nVálido por 10 minutos.`
     });
-    
-    console.log('SMS sent successfully:', message.sid);
-    
-    // TODO: Guardar código en base de datos para verificación
-    // Por ahora retornamos el código para testing
     
     return NextResponse.json({
       success: true,
-      message: 'Verification code sent via SMS',
-      messageSid: message.sid,
-      channel: 'sms',
-      debugCode: code // QUITAR EN PRODUCCIÓN
+      message: 'Código enviado por WhatsApp',
+      channel: 'whatsapp'
     });
     
   } catch (error: any) {
-    console.error('SMS Error:', error.message);
     return NextResponse.json(
-      { error: 'Failed to send verification code' },
-      { status: 500 }
+      { error: 'Sistema de verificación en mantenimiento. Por favor contacta al administrador.' },
+      { status: 503 }
     );
   }
 }

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { LINKS } from '@/lib/constants'
 import { useState } from 'react'
 import ProtectedSection from '@/components/ProtectedSection'
+import { NovaFinanceShowcase } from './NovaFinanceShowcase';
 
 // Definir tipos para TypeScript
 interface Dashboard {
@@ -689,8 +690,7 @@ export default function FinanzasPage() {
         </section>
       </ProtectedSection>
 
-      {/* Sección 6: CTA Final - SIEMPRE VISIBLE */}
-      <section className="py-20 bg-[#002D62] text-white">
+       <section className="py-20 bg-[#002D62] text-white">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
@@ -710,6 +710,9 @@ export default function FinanzasPage() {
           </div>
         </div>
       </section>
+
+      {/* NUEVA SECCIÓN: Nova Finance Showcase - SIEMPRE VISIBLE */}
+      <NovaFinanceShowcase />
     </>
   )
 }

@@ -12,7 +12,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { User, LogOut, LayoutDashboard, FileText, Shield } from 'lucide-react'
+import { 
+  User, 
+  LogOut, 
+  LayoutDashboard, 
+  FileText, 
+  Shield, 
+  ChevronDown,
+  TrendingUp,
+  Sparkles,
+  ExternalLink,
+  Target,
+  Brain
+} from 'lucide-react'
 
 export function Navigation() {
   const router = useRouter()
@@ -29,34 +41,132 @@ export function Navigation() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="text-xl font-bold text-gray-900">
-              Diagnóstico 3D
+              Impulsa Lab
             </Link>
             
-            {user && (
-              <div className="ml-10 flex items-center space-x-4">
-                <Link 
-                  href="/diagnostico" 
-                  className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Nuevo Diagnóstico
-                </Link>
-                <Link 
-                  href="/dashboard" 
-                  className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
-                >
-                  Mis Diagnósticos
-                </Link>
-                {userData?.role === 'consultant' && (
-                  <Link 
-                    href="/admin" 
-                    className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center"
+            <div className="hidden md:flex ml-10 items-center space-x-1">
+              {/* Servicios Dropdown */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="flex items-center">
+                    Servicios
+                    <ChevronDown className="ml-1 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-64">
+                  <DropdownMenuLabel>Nuestros Servicios</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  
+                  {/* Finanzas Section */}
+                  <DropdownMenuLabel className="text-xs text-gray-500 font-normal">
+                    Finanzas
+                  </DropdownMenuLabel>
+                  <DropdownMenuItem onClick={() => router.push('/servicios/finanzas')}>
+                    <TrendingUp className="h-4 w-4 mr-2" />
+                    <div className="flex-1">
+                      <div>Consultoría Financiera</div>
+                      <div className="text-xs text-gray-500">Análisis personalizado</div>
+                    </div>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => window.open('https://nova.tuimpulsalab.com', '_blank')}
+                    className="bg-gradient-to-r from-blue-50 to-purple-50 my-1"
                   >
-                    <Shield className="h-4 w-4 mr-1" />
-                    Panel Consultor
+                    <Sparkles className="h-4 w-4 mr-2 text-purple-600" />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        Nova Finance
+                        <span className="text-xs bg-purple-600 text-white px-1.5 py-0.5 rounded">NUEVO</span>
+                      </div>
+                      <div className="text-xs text-gray-500">Dashboard IA en vivo</div>
+                    </div>
+                    <ExternalLink className="h-3 w-3 text-gray-400" />
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuSeparator />
+                  
+                  {/* Marketing Section */}
+                  <DropdownMenuLabel className="text-xs text-gray-500 font-normal">
+                    Marketing
+                  </DropdownMenuLabel>
+                  <DropdownMenuItem onClick={() => router.push('/servicios/marketing')}>
+                    <Target className="h-4 w-4 mr-2" />
+                    <div className="flex-1">
+                      <div>Marketing Digital</div>
+                      <div className="text-xs text-gray-500">Crecimiento con IA</div>
+                    </div>
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuSeparator />
+                  
+                  {/* Operaciones Section */}
+                  <DropdownMenuLabel className="text-xs text-gray-500 font-normal">
+                    Operaciones
+                  </DropdownMenuLabel>
+                  <DropdownMenuItem onClick={() => router.push('/servicios/operaciones')}>
+                    <Brain className="h-4 w-4 mr-2" />
+                    <div className="flex-1">
+                      <div>Automatización</div>
+                      <div className="text-xs text-gray-500">Agentes de IA</div>
+                    </div>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Diagnóstico 3D Link */}
+              <Link 
+                href="/diagnostico" 
+                className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center"
+              >
+                Diagnóstico 3D
+              </Link>
+
+              {/* Herramientas Link */}
+              <Link 
+                href="/herramientas" 
+                className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Herramientas
+              </Link>
+
+              {/* Blog Link */}
+              <Link 
+                href="/blog" 
+                className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+              >
+                Blog
+              </Link>
+
+              {/* User specific links */}
+              {user && (
+                <>
+                  <Link 
+                    href="/dashboard" 
+                    className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                  >
+                    Mis Diagnósticos
                   </Link>
-                )}
-              </div>
-            )}
+                  {userData?.role === 'consultant' && (
+                    <Link 
+                      href="/consultant" 
+                      className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center"
+                    >
+                      <Shield className="h-4 w-4 mr-1" />
+                      Panel Consultor
+                    </Link>
+                  )}
+                  {userData?.role === 'admin' && (
+                    <Link 
+                      href="/admin" 
+                      className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium flex items-center"
+                    >
+                      <Shield className="h-4 w-4 mr-1" />
+                      Admin
+                    </Link>
+                  )}
+                </>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center">
@@ -76,9 +186,15 @@ export function Navigation() {
                     Dashboard
                   </DropdownMenuItem>
                   {userData?.role === 'consultant' && (
-                    <DropdownMenuItem onClick={() => router.push('/admin')}>
+                    <DropdownMenuItem onClick={() => router.push('/consultant')}>
                       <Shield className="h-4 w-4 mr-2" />
                       Panel Consultor
+                    </DropdownMenuItem>
+                  )}
+                  {userData?.role === 'admin' && (
+                    <DropdownMenuItem onClick={() => router.push('/admin')}>
+                      <Shield className="h-4 w-4 mr-2" />
+                      Panel Admin
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
@@ -99,7 +215,7 @@ export function Navigation() {
                 </Button>
                 <Button 
                   size="sm"
-                  onClick={() => router.push('/registro')}
+                  onClick={() => router.push('/signup')}
                 >
                   Registrarse
                 </Button>

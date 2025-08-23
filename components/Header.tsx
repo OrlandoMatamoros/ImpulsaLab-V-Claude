@@ -373,6 +373,34 @@ export default function Header() {
           right: 0;
           height: 10px;
         }
+                  /* Nova Finance - Gradient púrpura/azul */
+        .dropdown-item-nova {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .dropdown-item-nova:hover {
+          background: linear-gradient(135deg, #f3e8ff 0%, #dbeafe 100%);
+          color: #7c3aed;
+        }
+
+        .dropdown-item-nova::after {
+          content: '✨';
+          position: absolute;
+          right: 20px;
+          opacity: 0;
+          transition: opacity 0.2s ease;
+        }
+
+        .dropdown-item-nova:hover::after {
+          opacity: 1;
+          animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.2); }
+        }
       `}</style>
 
       <header className="bg-white shadow-md fixed w-full top-0 z-50">
@@ -422,9 +450,38 @@ export default function Header() {
                   </div>
                 </div>
 
-                <Link href="/servicios/finanzas" className="text-gray-700 hover:text-[#002D62] transition-colors font-medium">
-                  Finanzas
+                {/* Finanzas con dropdown */}
+                <div className="tools-dropdown-container">
+                <Link 
+                  href="/servicios/finanzas"
+                  className="tools-link"
+                >
+                Finanzas
                 </Link>
+  
+                {/* Dropdown de Finanzas */}
+                <div className="tools-dropdown-menu">
+                <Link 
+                href="/servicios/finanzas"
+                className="dropdown-item dropdown-item-all"
+                >
+                Consultoría Financiera
+                    </Link>
+                    <Link 
+                      href="https://nova.tuimpulsalab.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="dropdown-item dropdown-item-nova"
+                    >
+                      <span className="flex items-center justify-between">
+                        <span>Nova Finance</span>
+                        <span className="text-xs bg-gradient-to-r from-purple-600 to-blue-600 text-white px-2 py-0.5 rounded-full font-bold">
+                          NUEVO
+                        </span>
+                      </span>
+                    </Link>
+                  </div>
+                </div>
                 <Link href="/servicios/operaciones" className="text-gray-700 hover:text-[#002D62] transition-colors font-medium">
                   Operaciones
                 </Link>

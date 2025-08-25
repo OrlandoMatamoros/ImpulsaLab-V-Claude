@@ -1,113 +1,65 @@
-import { NextResponse } from 'next/server'
-import { adminAuth, adminDb } from '@/lib/firebase-admin'
+import { NextRequest, NextResponse } from 'next/server';
+import { adminAuth, adminDb } from '@/lib/firebase-admin';
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const { 
-      email, 
-      password, 
-      name, 
-      phone, 
-      whatsappCode,
-      consultantCode 
-    } = await request.json()
+    const body = await request.json();
+    const { email, password, firstName, lastName, company, phone, phoneVerified, emailVerified } = body;
 
-    console.log('📝 Intentando crear usuario:', { email, name, phone })
+    // Crear usuario en Firebase Auth
+    const userRecord = await adminAuth.createUser({
+      email,
+      password,
+      displayName: `${firstName} ${lastName}`,
+      emailVerified: emailVerified || false
+    });
 
-    // Verificar código WhatsApp (por ahora aceptar cualquier código de 6 dígitos)
-    if (!whatsappCode || whatsappCode.length !== 6) {
-      return NextResponse.json(
-        { error: 'Código de WhatsApp inválido' },
-        { status: 400 }
-      )
-    }
+    // Rol por defecto: 'registered' (no 'free')
+    const role = 'registered';
+    
+    // Establecer custom claims
+    await adminAuth.setCustomUserClaims(userRecord.uid, { role });
 
-    // Determinar rol
-    let role = 'free'
-    if (consultantCode) {
-      const validCodes = [
-        'ALEX2025',
-        'CONS-2024-001', 
-        'DIEGO2025',
-        'IMP-STAFF-001',
-        'KATTY2025'
-      ]
-      if (validCodes.includes(consultantCode)) {
-        role = 'consultant'
+    // Guardar en Firestore
+    await adminDb.collection('users').doc(userRecord.uid).set({
+      email,
+      firstName,
+      lastName,
+      company,
+      phone,
+      role: 'registered', // CAMBIADO DE 'free' A 'registered'
+      phoneVerified: phoneVerified || false,
+      emailVerified: emailVerified || false,
+      createdAt: new Date(),
+      lastLogin: new Date(),
+      diagnosticsCompleted: 0,
+      diagnosticsLimit: 3, // Límite para usuarios registered
+      features: {
+        diagnostics3D: true,
+        basicReports: true,
+        emailSupport: true
       }
-    }
+    });
 
-    try {
-      // Formatear teléfono correctamente
-      let formattedPhone = phone
-      if (!formattedPhone.startsWith('+')) {
-        formattedPhone = '+' + formattedPhone
-      }
-      
-      console.log('📱 Teléfono formateado:', formattedPhone)
+    // Crear custom token
+    const customToken = await adminAuth.createCustomToken(userRecord.uid, { role });
 
-      // Crear usuario en Firebase Auth
-      const userRecord = await adminAuth.createUser({
-        email,
-        password,
-        emailVerified: true,
-        phoneNumber: formattedPhone,
-        displayName: name || email.split('@')[0]
-      })
-
-      console.log('✅ Usuario creado en Auth:', userRecord.uid)
-
-      // Guardar en Firestore
-      await adminDb.collection('users').doc(userRecord.uid).set({
-        email,
-        name: name || '',
-        phone: formattedPhone,
-        role,
-        consultantCode: consultantCode || null,
-        emailVerified: true,
-        phoneVerified: true,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      })
-
-      console.log('✅ Usuario guardado en Firestore')
-
-      // Crear custom token para auto-login
-      const customToken = await adminAuth.createCustomToken(userRecord.uid)
-
-      return NextResponse.json({
-        success: true,
+    return NextResponse.json({
+      success: true,
+      user: {
         uid: userRecord.uid,
-        email,
-        role,
-        customToken
-      })
-
-    } catch (authError: any) {
-      console.error('❌ Error en Firebase Auth:', authError)
-      
-      if (authError.code === 'auth/email-already-exists') {
-        return NextResponse.json(
-          { error: 'Este email ya está registrado' },
-          { status: 400 }
-        )
-      }
-      
-      if (authError.code === 'auth/invalid-phone-number') {
-        return NextResponse.json(
-          { error: `Número inválido: ${phone}. Usa formato: +19293686749` },
-          { status: 400 }
-        )
-      }
-
-      throw authError
-    }
+        email: userRecord.email,
+        role: 'registered' // Confirmamos el rol
+      },
+      customToken,
+      redirectTo: '/' // REDIRIGIR A HOME, NO A DASHBOARD
+    });
 
   } catch (error: any) {
-    console.error('❌ Error general:', error)
+    console.error('Error creating user:', error);
     return NextResponse.json(
-      { error: error.message || 'Error al crear usuario' },
+      { error: error.message || 'Error creating user' },
       { status: 500 }
-    )
+    );
   }
 }

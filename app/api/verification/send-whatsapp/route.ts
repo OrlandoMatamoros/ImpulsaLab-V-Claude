@@ -22,70 +22,54 @@ export async function POST(request: NextRequest) {
     }
     
     const code = generateCode();
-    const expirationMinutes = '10'; // Tiempo de expiración
+    const expirationMinutes = '10';
     
     console.log(`Sending WhatsApp verification code ${code} to ${phone}`);
     
     try {
-      // WHATSAPP CON TEMPLATE APROBADO
       const message = await client.messages.create({
         from: 'whatsapp:+15558240286',
         to: `whatsapp:${phone}`,
-        contentSid: 'HX05bd7f21fa662f0a6f6ac30ff1a1a44f', // Template aprobado!
+        contentSid: 'HX03bd7f21fa662f0a6f6ac30ff1a1a44f', // SID CORRECTO
         contentVariables: JSON.stringify({
-          '1': code,  // El código de verificación
-          '2': expirationMinutes  // Minutos de expiración
+          '1': code,
+          '2': expirationMinutes
         })
       });
       
       console.log('✅ WhatsApp sent successfully:', message.sid);
-      
-      // TODO: Guardar código en base de datos con timestamp
-      // Para verificación real, debes almacenar: { phone, code, expiresAt }
       
       return NextResponse.json({
         success: true,
         message: 'Verification code sent via WhatsApp',
         messageSid: message.sid,
         channel: 'whatsapp',
-        debugCode: code // QUITAR EN PRODUCCIÓN
+        debugCode: code
       });
       
     } catch (whatsappError: any) {
-      console.error('WhatsApp failed, trying SMS fallback:', whatsappError.message);
+      console.error('WhatsApp failed:', whatsappError.message);
       
-      // FALLBACK A SMS SI WHATSAPP FALLA
-      try {
-        const sms = await client.messages.create({
-          from: '+19296589612',
-          to: phone,
-          body: `Impulsa Lab - Your verification code is: ${code}\nValid for ${expirationMinutes} minutes.`
-        });
-        
-        console.log('✅ SMS sent as fallback:', sms.sid);
-        
-        return NextResponse.json({
-          success: true,
-          message: 'Verification code sent via SMS',
-          messageSid: sms.sid,
-          channel: 'sms',
-          fallback: true,
-          debugCode: code // QUITAR EN PRODUCCIÓN
-        });
-        
-      } catch (smsError: any) {
-        console.error('SMS also failed:', smsError.message);
-        throw smsError;
-      }
+      const sms = await client.messages.create({
+        from: '+19296589612',
+        to: phone,
+        body: `Impulsa Lab - Your verification code is: ${code}\nValid for ${expirationMinutes} minutes.`
+      });
+      
+      return NextResponse.json({
+        success: true,
+        message: 'Verification code sent via SMS',
+        messageSid: sms.sid,
+        channel: 'sms',
+        fallback: true,
+        debugCode: code
+      });
     }
     
   } catch (error: any) {
-    console.error('Error in verification:', error);
+    console.error('Error:', error);
     return NextResponse.json(
-      { 
-        error: 'Failed to send verification code',
-        details: error.message 
-      },
+      { error: 'Failed to send verification code' },
       { status: 500 }
     );
   }

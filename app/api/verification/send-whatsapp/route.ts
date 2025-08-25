@@ -22,35 +22,44 @@ export async function POST(request: NextRequest) {
     }
     
     const code = generateCode();
-    console.log(`Sending WhatsApp code ${code} to ${phone}`);
+    const expirationMinutes = '10'; // Tiempo de expiración
+    
+    console.log(`Sending WhatsApp verification code ${code} to ${phone}`);
     
     try {
-      // WhatsApp para TODOS - funcionando YA
+      // WHATSAPP CON TEMPLATE APROBADO
       const message = await client.messages.create({
         from: 'whatsapp:+15558240286',
         to: `whatsapp:${phone}`,
-        body: `🚀 *Impulsa Lab*\n\nYour verification code is:\n\n*${code}*\n\nValid for 10 minutes.\n\nImpulsa LAB LLC`
+        contentSid: 'HX05bd7f21fa662f0a6f6ac30ff1a1a44f', // Template aprobado!
+        contentVariables: JSON.stringify({
+          '1': code,  // El código de verificación
+          '2': expirationMinutes  // Minutos de expiración
+        })
       });
       
       console.log('✅ WhatsApp sent successfully:', message.sid);
+      
+      // TODO: Guardar código en base de datos con timestamp
+      // Para verificación real, debes almacenar: { phone, code, expiresAt }
       
       return NextResponse.json({
         success: true,
         message: 'Verification code sent via WhatsApp',
         messageSid: message.sid,
         channel: 'whatsapp',
-        debugCode: code // QUITAR en producción final
+        debugCode: code // QUITAR EN PRODUCCIÓN
       });
       
     } catch (whatsappError: any) {
       console.error('WhatsApp failed, trying SMS fallback:', whatsappError.message);
       
-      // SMS como fallback si WhatsApp falla
+      // FALLBACK A SMS SI WHATSAPP FALLA
       try {
         const sms = await client.messages.create({
           from: '+19296589612',
           to: phone,
-          body: `Impulsa Lab - Your verification code is: ${code}\nValid for 10 minutes.`
+          body: `Impulsa Lab - Your verification code is: ${code}\nValid for ${expirationMinutes} minutes.`
         });
         
         console.log('✅ SMS sent as fallback:', sms.sid);
@@ -61,7 +70,7 @@ export async function POST(request: NextRequest) {
           messageSid: sms.sid,
           channel: 'sms',
           fallback: true,
-          debugCode: code
+          debugCode: code // QUITAR EN PRODUCCIÓN
         });
         
       } catch (smsError: any) {
@@ -71,7 +80,7 @@ export async function POST(request: NextRequest) {
     }
     
   } catch (error: any) {
-    console.error('Error in send-whatsapp:', error);
+    console.error('Error in verification:', error);
     return NextResponse.json(
       { 
         error: 'Failed to send verification code',

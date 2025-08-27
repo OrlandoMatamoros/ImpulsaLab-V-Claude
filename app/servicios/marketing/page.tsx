@@ -251,9 +251,14 @@ export default function MarketingPage() {
                       <span className="text-gray-700">Análisis competitivo con IA</span>
                     </li>
                   </ul>
-                  <button className="block w-full text-center bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors">
+                  <Link
+                    href={LINKS.calendly}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full text-center bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+                  >
                     Empezar Ahora
-                  </button>
+                  </Link>
                 </div>
 
                 {/* Plan Crecimiento */}
@@ -298,9 +303,14 @@ export default function MarketingPage() {
                       <span className="text-gray-700">Optimización continua con machine learning</span>
                     </li>
                   </ul>
-                  <button className="block w-full text-center bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors">
+                  <Link
+                    href={LINKS.calendly}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full text-center bg-purple-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-purple-700 transition-colors"
+                  >
                     Agenda tu Diagnóstico
-                  </button>
+                  </Link>
                 </div>
               </div>
 

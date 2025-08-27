@@ -6,29 +6,53 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, password, firstName, lastName, company, phone, phoneVerified, emailVerified } = body;
 
-    let userRecord;
-    let isExistingUser = false;
+    // Validar datos requeridos
+    if (!email || !password) {
+      return NextResponse.json(
+        { error: 'Email and password are required' },
+        { status: 400 }
+      );
+    }
 
-    // Verificar si el usuario ya existe
+    // Usar valores por defecto si faltan datos
+    const userData = {
+      email,
+      firstName: firstName || email.split('@')[0], // Usar parte del email si no hay nombre
+      lastName: lastName || '',
+      company: company || '',
+      phone: phone || '',
+      role: 'registered',
+      phoneVerified: phoneVerified || false,
+      emailVerified: emailVerified || false,
+      createdAt: new Date(),
+      lastLogin: new Date(),
+      diagnosticsCompleted: 0,
+      diagnosticsLimit: 3,
+      features: {
+        diagnostics3D: true,
+        basicReports: true,
+        emailSupport: true
+      }
+    };
+
+    let userRecord;
+    
     try {
       userRecord = await adminAuth.getUserByEmail(email);
-      console.log('User already exists in Auth:', userRecord.uid);
-      isExistingUser = true;
+      console.log('User exists, updating:', userRecord.uid);
       
-      // Actualizar password si es necesario
       await adminAuth.updateUser(userRecord.uid, {
         password,
-        displayName: `${firstName} ${lastName}`,
+        displayName: `${userData.firstName} ${userData.lastName}`.trim() || email,
         emailVerified: true
       });
       
     } catch (error: any) {
       if (error.code === 'auth/user-not-found') {
-        // Crear nuevo usuario
         userRecord = await adminAuth.createUser({
           email,
           password,
-          displayName: `${firstName} ${lastName}`,
+          displayName: `${userData.firstName} ${userData.lastName}`.trim() || email,
           emailVerified: true
         });
         console.log('New user created:', userRecord.uid);
@@ -37,60 +61,27 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // SIEMPRE rol 'registered' para usuarios nuevos
-    const role = 'registered';
-    
-    // Establecer claims
-    await adminAuth.setCustomUserClaims(userRecord.uid, { role });
+    await adminAuth.setCustomUserClaims(userRecord.uid, { role: userData.role });
 
-    // Verificar si existe en Firestore
     const userDoc = await adminDb.collection('users').doc(userRecord.uid).get();
     
     if (!userDoc.exists) {
-      // Crear documento en Firestore
-      await adminDb.collection('users').doc(userRecord.uid).set({
-        email,
-        firstName,
-        lastName,
-        company,
-        phone,
-        role: 'registered', // SIEMPRE registered
-        phoneVerified: true,
-        emailVerified: true,
-        createdAt: new Date(),
-        lastLogin: new Date(),
-        diagnosticsCompleted: 0,
-        diagnosticsLimit: 3,
-        features: {
-          diagnostics3D: true,
-          basicReports: true,
-          emailSupport: true
-        }
-      });
+      await adminDb.collection('users').doc(userRecord.uid).set(userData);
     } else {
-      // Actualizar documento existente
       await adminDb.collection('users').doc(userRecord.uid).update({
-        firstName,
-        lastName,
-        company,
-        phone,
-        role: 'registered', // Asegurar rol correcto
-        phoneVerified: true,
-        emailVerified: true,
+        ...userData,
         lastLogin: new Date()
       });
     }
 
-    // Crear token
-    const customToken = await adminAuth.createCustomToken(userRecord.uid, { role });
+    const customToken = await adminAuth.createCustomToken(userRecord.uid, { role: userData.role });
 
     return NextResponse.json({
       success: true,
       user: {
         uid: userRecord.uid,
         email: userRecord.email,
-        role: 'registered',
-        isExisting: isExistingUser
+        role: userData.role
       },
       customToken,
       redirectTo: '/'

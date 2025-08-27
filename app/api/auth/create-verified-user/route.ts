@@ -6,42 +6,82 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, password, firstName, lastName, company, phone, phoneVerified, emailVerified } = body;
 
-    // Crear usuario en Firebase Auth
-    const userRecord = await adminAuth.createUser({
-      email,
-      password,
-      displayName: `${firstName} ${lastName}`,
-      emailVerified: emailVerified || false
-    });
+    let userRecord;
+    let isExistingUser = false;
 
-    // Rol por defecto: 'registered' (no 'free')
+    // Verificar si el usuario ya existe
+    try {
+      userRecord = await adminAuth.getUserByEmail(email);
+      console.log('User already exists in Auth:', userRecord.uid);
+      isExistingUser = true;
+      
+      // Actualizar password si es necesario
+      await adminAuth.updateUser(userRecord.uid, {
+        password,
+        displayName: `${firstName} ${lastName}`,
+        emailVerified: true
+      });
+      
+    } catch (error: any) {
+      if (error.code === 'auth/user-not-found') {
+        // Crear nuevo usuario
+        userRecord = await adminAuth.createUser({
+          email,
+          password,
+          displayName: `${firstName} ${lastName}`,
+          emailVerified: true
+        });
+        console.log('New user created:', userRecord.uid);
+      } else {
+        throw error;
+      }
+    }
+
+    // SIEMPRE rol 'registered' para usuarios nuevos
     const role = 'registered';
     
-    // Establecer custom claims
+    // Establecer claims
     await adminAuth.setCustomUserClaims(userRecord.uid, { role });
 
-    // Guardar en Firestore
-    await adminDb.collection('users').doc(userRecord.uid).set({
-      email,
-      firstName,
-      lastName,
-      company,
-      phone,
-      role: 'registered', // CAMBIADO DE 'free' A 'registered'
-      phoneVerified: phoneVerified || false,
-      emailVerified: emailVerified || false,
-      createdAt: new Date(),
-      lastLogin: new Date(),
-      diagnosticsCompleted: 0,
-      diagnosticsLimit: 3, // Límite para usuarios registered
-      features: {
-        diagnostics3D: true,
-        basicReports: true,
-        emailSupport: true
-      }
-    });
+    // Verificar si existe en Firestore
+    const userDoc = await adminDb.collection('users').doc(userRecord.uid).get();
+    
+    if (!userDoc.exists) {
+      // Crear documento en Firestore
+      await adminDb.collection('users').doc(userRecord.uid).set({
+        email,
+        firstName,
+        lastName,
+        company,
+        phone,
+        role: 'registered', // SIEMPRE registered
+        phoneVerified: true,
+        emailVerified: true,
+        createdAt: new Date(),
+        lastLogin: new Date(),
+        diagnosticsCompleted: 0,
+        diagnosticsLimit: 3,
+        features: {
+          diagnostics3D: true,
+          basicReports: true,
+          emailSupport: true
+        }
+      });
+    } else {
+      // Actualizar documento existente
+      await adminDb.collection('users').doc(userRecord.uid).update({
+        firstName,
+        lastName,
+        company,
+        phone,
+        role: 'registered', // Asegurar rol correcto
+        phoneVerified: true,
+        emailVerified: true,
+        lastLogin: new Date()
+      });
+    }
 
-    // Crear custom token
+    // Crear token
     const customToken = await adminAuth.createCustomToken(userRecord.uid, { role });
 
     return NextResponse.json({
@@ -49,16 +89,17 @@ export async function POST(request: NextRequest) {
       user: {
         uid: userRecord.uid,
         email: userRecord.email,
-        role: 'registered' // Confirmamos el rol
+        role: 'registered',
+        isExisting: isExistingUser
       },
       customToken,
-      redirectTo: '/' // REDIRIGIR A HOME, NO A DASHBOARD
+      redirectTo: '/'
     });
 
   } catch (error: any) {
-    console.error('Error creating user:', error);
+    console.error('Error creating/updating user:', error);
     return NextResponse.json(
-      { error: error.message || 'Error creating user' },
+      { error: error.message || 'Error processing user' },
       { status: 500 }
     );
   }

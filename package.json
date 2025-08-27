@@ -36,6 +36,7 @@
     "firebase": "^11.10.0",
     "firebase-admin": "^13.4.0",
     "framer-motion": "^12.23.12",
+    "googleapis": "^158.0.0",
     "html2canvas": "^1.4.1",
     "jose": "^6.0.12",
     "js-cookie": "^3.0.5",

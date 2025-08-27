@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { 
   Calendar, 
   Clock, 
@@ -55,7 +55,6 @@ const mockNews: NewsItem[] = [
     isTrending: true,
     isFeatured: true
   },
-  // ... resto de los datos (mantén todo igual)
   {
     id: '2',
     title: 'Microsoft lanza Copilot para PYMES: IA empresarial desde $30/mes',
@@ -69,8 +68,7 @@ const mockNews: NewsItem[] = [
     imageUrl: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=600&fit=crop',
     tags: ['Microsoft', 'PYMES', 'Copilot', 'Productividad', 'SaaS'],
     isTrending: true
-  },
-  // ... incluye todas las demás noticias tal como están
+  }
 ]
 
 // Configuración de categorías
@@ -99,6 +97,34 @@ export default function NoticiasPage() {
   const [showNewsletter, setShowNewsletter] = useState(false)
   const [email, setEmail] = useState('')
   const [selectedTag, setSelectedTag] = useState<string | null>(null)
+  
+  // NUEVOS ESTADOS para datos dinámicos
+  const [newsData, setNewsData] = useState<NewsItem[]>(mockNews)
+  const [isLoading, setIsLoading] = useState(true)
+
+  // NUEVO useEffect para cargar noticias de Gmail
+  useEffect(() => {
+    const loadNews = async () => {
+      setIsLoading(true)
+      try {
+        const response = await fetch('/api/news/sync')
+        const data = await response.json()
+        
+        if (data && Array.isArray(data) && data.length > 0) {
+          setNewsData(data)
+        } else {
+          setNewsData(mockNews)
+        }
+      } catch (error) {
+        console.error('Error loading news:', error)
+        setNewsData(mockNews)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadNews()
+  }, [])
 
   // Manejar click en tags
   const handleTagClick = (tag: string) => {
@@ -108,7 +134,7 @@ export default function NoticiasPage() {
 
   // Filtrar y ordenar noticias
   const filteredNews = useMemo(() => {
-    let filtered = mockNews
+    let filtered = newsData // CAMBIO: usar newsData en vez de mockNews
 
     // Filtrar por categoría
     if (selectedCategory !== 'all') {
@@ -138,17 +164,29 @@ export default function NoticiasPage() {
     }
 
     return filtered
-  }, [selectedCategory, searchQuery, sortBy])
+  }, [selectedCategory, searchQuery, sortBy, newsData]) // AÑADIR newsData a las dependencias
 
-  // Noticias destacadas
-  const featuredNews = mockNews.filter(news => news.isFeatured)
-  const trendingNews = mockNews.filter(news => news.isTrending)
+  // Noticias destacadas y en tendencia
+  const featuredNews = newsData.filter(news => news.isFeatured)
+  const trendingNews = newsData.filter(news => news.isTrending)
 
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     console.log('Email subscrito:', email)
     setEmail('')
     setShowNewsletter(false)
+  }
+
+  // Mostrar indicador de carga
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mx-auto mb-4"></div>
+          <p className="text-gray-400">Cargando noticias...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -225,7 +263,7 @@ export default function NoticiasPage() {
             Tu fuente confiable para las últimas novedades, tendencias y avances en inteligencia artificial
           </p>
 
-          {/* Barra de búsqueda principal - VISIBLE pero no funcional sin registro */}
+          {/* Barra de búsqueda principal */}
           <div className="max-w-2xl mx-auto">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-500 w-5 h-5" />
@@ -241,7 +279,7 @@ export default function NoticiasPage() {
         </div>
       </section>
 
-      {/* Categorías - VISIBLE pero no funcional sin registro */}
+      {/* Categorías */}
       <section className="sticky top-0 z-40 bg-black/80 backdrop-blur-lg border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between gap-4">
@@ -282,7 +320,7 @@ export default function NoticiasPage() {
         </div>
       </section>
 
-      {/* CONTENIDO PROTEGIDO - Solo las noticias interactuables */}
+      {/* CONTENIDO PROTEGIDO */}
       <ProtectedSection
         message="Regístrate gratis para leer noticias completas, suscribirte al newsletter y personalizar tu feed de IA empresarial"
         showPreview={true}

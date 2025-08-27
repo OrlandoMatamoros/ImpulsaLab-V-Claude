@@ -38,39 +38,6 @@ interface NewsItem {
   isFeatured?: boolean
 }
 
-// Mock data de noticias con enfoque empresarial
-const mockNews: NewsItem[] = [
-  {
-    id: '1',
-    title: 'JPMorgan reduce 40% costos operativos con IA: Guía para el sector financiero',
-    summary: 'El gigante bancario comparte su estrategia de implementación de IA que revolucionó sus operaciones, ahorrando $1.5B anuales en procesamiento de documentos.',
-    content: 'JPMorgan Chase ha logrado reducir significativamente sus costos operativos mediante la implementación estratégica de IA...',
-    category: 'business-ai',
-    source: 'Financial Times',
-    sourceUrl: 'https://www.ft.com',
-    date: '2025-01-25',
-    readTime: 6,
-    imageUrl: 'https://images.unsplash.com/photo-1560472355-536de3962603?w=800&h=600&fit=crop',
-    tags: ['Finanzas', 'JPMorgan', 'ROI', 'Automatización', 'Negocios'],
-    isTrending: true,
-    isFeatured: true
-  },
-  {
-    id: '2',
-    title: 'Microsoft lanza Copilot para PYMES: IA empresarial desde $30/mes',
-    summary: 'Nueva suite de herramientas de IA diseñada específicamente para pequeñas y medianas empresas, democratizando el acceso a tecnología avanzada.',
-    content: 'Microsoft ha anunciado el lanzamiento de Copilot for Business Essentials, una solución de IA accesible para PYMES...',
-    category: 'product-launches',
-    source: 'The Wall Street Journal',
-    sourceUrl: 'https://www.wsj.com',
-    date: '2025-01-24',
-    readTime: 5,
-    imageUrl: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=600&fit=crop',
-    tags: ['Microsoft', 'PYMES', 'Copilot', 'Productividad', 'SaaS'],
-    isTrending: true
-  }
-]
-
 // Configuración de categorías
 const categories = [
   { id: 'all', label: 'Todas las Noticias', icon: Sparkles },
@@ -93,48 +60,47 @@ export default function NoticiasPage() {
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState('date')
-  const [showFilters, setShowFilters] = useState(false)
   const [showNewsletter, setShowNewsletter] = useState(false)
   const [email, setEmail] = useState('')
-  const [selectedTag, setSelectedTag] = useState<string | null>(null)
   
-  // NUEVOS ESTADOS para datos dinámicos
-  const [newsData, setNewsData] = useState<NewsItem[]>(mockNews)
+  // Estados para datos dinámicos - SIN MOCK DATA
+  const [newsData, setNewsData] = useState<NewsItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
-  // NUEVO useEffect para cargar noticias de Gmail
+  // Cargar noticias de Gmail
   useEffect(() => {
     const loadNews = async () => {
       setIsLoading(true)
       try {
+        console.log('Cargando noticias desde Gmail...')
         const response = await fetch('/api/news/sync')
         const data = await response.json()
         
         if (data && Array.isArray(data) && data.length > 0) {
+          console.log(`✅ ${data.length} noticias cargadas de Google Alerts`)
           setNewsData(data)
         } else {
-          setNewsData(mockNews)
+          console.log('⚠️ No hay noticias disponibles de Google Alerts')
+          setNewsData([])
         }
       } catch (error) {
-        console.error('Error loading news:', error)
-        setNewsData(mockNews)
+        console.error('❌ Error cargando noticias:', error)
+        setNewsData([])
       } finally {
         setIsLoading(false)
       }
     }
 
     loadNews()
+    
+    // Actualizar cada hora automáticamente
+    const interval = setInterval(loadNews, 3600000)
+    return () => clearInterval(interval)
   }, [])
-
-  // Manejar click en tags
-  const handleTagClick = (tag: string) => {
-    setSelectedTag(tag)
-    setSearchQuery(tag)
-  }
 
   // Filtrar y ordenar noticias
   const filteredNews = useMemo(() => {
-    let filtered = newsData // CAMBIO: usar newsData en vez de mockNews
+    let filtered = newsData
 
     // Filtrar por categoría
     if (selectedCategory !== 'all') {
@@ -151,20 +117,21 @@ export default function NoticiasPage() {
     }
 
     // Ordenar
+    const sorted = [...filtered]
     switch (sortBy) {
       case 'date':
-        filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         break
       case 'relevance':
-        filtered.sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0))
+        sorted.sort((a, b) => (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0))
         break
       case 'trending':
-        filtered.sort((a, b) => (b.isTrending ? 1 : 0) - (a.isTrending ? 1 : 0))
+        sorted.sort((a, b) => (b.isTrending ? 1 : 0) - (a.isTrending ? 1 : 0))
         break
     }
 
-    return filtered
-  }, [selectedCategory, searchQuery, sortBy, newsData]) // AÑADIR newsData a las dependencias
+    return sorted
+  }, [selectedCategory, searchQuery, sortBy, newsData])
 
   // Noticias destacadas y en tendencia
   const featuredNews = newsData.filter(news => news.isFeatured)
@@ -177,14 +144,37 @@ export default function NoticiasPage() {
     setShowNewsletter(false)
   }
 
-  // Mostrar indicador de carga
+  const handleTagClick = (tag: string) => {
+    setSearchQuery(tag)
+  }
+
+  // Pantalla de carga
   if (isLoading) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mx-auto mb-4"></div>
-          <p className="text-gray-400">Cargando noticias...</p>
+          <p className="text-gray-400">Cargando noticias de IA...</p>
         </div>
+      </div>
+    )
+  }
+
+  // Si no hay noticias
+  if (newsData.length === 0) {
+    return (
+      <div className="min-h-screen bg-black text-white">
+        <section className="relative py-20 px-4">
+          <div className="max-w-7xl mx-auto text-center">
+            <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-200 to-white">
+              Noticias IA
+            </h1>
+            <div className="mt-12 p-8 border border-white/10 rounded-xl">
+              <h2 className="text-2xl mb-4">No hay noticias disponibles en este momento</h2>
+              <p className="text-gray-400">Las noticias se actualizarán automáticamente cuando lleguen nuevos Google Alerts</p>
+            </div>
+          </div>
+        </section>
       </div>
     )
   }
@@ -251,7 +241,7 @@ export default function NoticiasPage() {
         }
       `}</style>
 
-      {/* Hero Section - SIEMPRE VISIBLE */}
+      {/* Hero Section */}
       <section className="relative py-20 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 to-black" />
         
@@ -260,7 +250,7 @@ export default function NoticiasPage() {
             Noticias IA
           </h1>
           <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto">
-            Tu fuente confiable para las últimas novedades, tendencias y avances en inteligencia artificial
+            Últimas noticias y tendencias en inteligencia artificial directamente desde tus Google Alerts
           </p>
 
           {/* Barra de búsqueda principal */}
@@ -276,6 +266,10 @@ export default function NoticiasPage() {
               />
             </div>
           </div>
+          
+          <div className="mt-4 text-sm text-gray-400">
+            {newsData.length} noticias disponibles • Actualizado automáticamente cada hora
+          </div>
         </div>
       </section>
 
@@ -286,6 +280,10 @@ export default function NoticiasPage() {
             <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
               {categories.map((category) => {
                 const Icon = category.icon
+                const count = category.id === 'all' 
+                  ? newsData.length 
+                  : newsData.filter(n => n.category === category.id).length
+                
                 return (
                   <button
                     key={category.id}
@@ -298,6 +296,7 @@ export default function NoticiasPage() {
                   >
                     <Icon className="w-4 h-4" />
                     <span className="text-sm font-medium">{category.label}</span>
+                    <span className="text-xs opacity-75">({count})</span>
                   </button>
                 )
               })}
@@ -320,9 +319,9 @@ export default function NoticiasPage() {
         </div>
       </section>
 
-      {/* CONTENIDO PROTEGIDO */}
+      {/* Contenido Principal */}
       <ProtectedSection
-        message="Regístrate gratis para leer noticias completas, suscribirte al newsletter y personalizar tu feed de IA empresarial"
+        message="Regístrate gratis para leer noticias completas y personalizar tu feed de IA"
         showPreview={true}
         previewBlur={false}
       >
@@ -330,7 +329,7 @@ export default function NoticiasPage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Columna Principal - Noticias */}
             <div className="lg:col-span-2">
-              {/* Noticia Destacada */}
+              {/* Noticia Destacada (si existe) */}
               {featuredNews.length > 0 && filteredNews.includes(featuredNews[0]) && (
                 <article className="mb-8 group cursor-pointer animate-fadeInUp">
                   <a
@@ -380,7 +379,11 @@ export default function NoticiasPage() {
                           {featuredNews[0].tags.slice(0, 3).map((tag, index) => (
                             <span
                               key={index}
-                              className="px-3 py-1 bg-white/10 rounded-full text-xs"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                handleTagClick(tag)
+                              }}
+                              className="px-3 py-1 bg-white/10 rounded-full text-xs hover:bg-white/20 cursor-pointer"
                             >
                               {tag}
                             </span>
@@ -397,14 +400,21 @@ export default function NoticiasPage() {
                 </article>
               )}
 
-              {/* Grid de Noticias */}
+              {/* Grid de Noticias - TODAS las noticias */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {filteredNews.filter(news => !news.isFeatured || news !== featuredNews[0]).slice(0, 6).map((news, index) => (
+                {filteredNews
+                  .filter(news => !news.isFeatured || news !== featuredNews[0])
+                  .map((news) => (
                   <article
                     key={news.id}
                     className="group cursor-pointer news-card h-full"
                   >
-                    <div className="h-full flex flex-col bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden hover:bg-white/10 transition-all duration-300">
+                    <a
+                      href={news.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="h-full flex flex-col bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl overflow-hidden hover:bg-white/10 transition-all duration-300"
+                    >
                       <div className="relative h-48 overflow-hidden">
                         <img
                           src={news.imageUrl}
@@ -448,7 +458,11 @@ export default function NoticiasPage() {
                             {news.tags.slice(0, 2).map((tag, index) => (
                               <span
                                 key={index}
-                                className="px-2 py-1 bg-white/10 rounded-full text-xs"
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  handleTagClick(tag)
+                                }}
+                                className="px-2 py-1 bg-white/10 rounded-full text-xs hover:bg-white/20 cursor-pointer"
                               >
                                 {tag}
                               </span>
@@ -458,10 +472,16 @@ export default function NoticiasPage() {
                           <ExternalLink className="w-4 h-4 text-purple-400 opacity-0 transition-opacity group-hover:opacity-100" />
                         </div>
                       </div>
-                    </div>
+                    </a>
                   </article>
                 ))}
               </div>
+              
+              {filteredNews.length === 0 && (
+                <div className="text-center py-12">
+                  <p className="text-gray-400">No se encontraron noticias con los filtros actuales</p>
+                </div>
+              )}
             </div>
 
             {/* Sidebar */}
@@ -476,7 +496,7 @@ export default function NoticiasPage() {
                 </div>
                 
                 <p className="text-gray-300 mb-4">
-                  Recibe las noticias más importantes de IA directamente en tu correo cada semana.
+                  Recibe las noticias más importantes de IA directamente en tu correo.
                 </p>
                 
                 <button
@@ -488,40 +508,51 @@ export default function NoticiasPage() {
               </div>
 
               {/* Trending Topics */}
-              <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl p-6 animate-fadeInUp">
-                <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-orange-500" />
-                  En Tendencia
-                </h3>
-                
-                <div className="space-y-4">
-                  {trendingNews.slice(0, 5).map((news, index) => (
-                    <div key={news.id} className="group cursor-pointer block">
-                      <div className="flex gap-3">
-                        <span className="text-2xl font-bold text-gray-600">
-                          {String(index + 1).padStart(2, '0')}
-                        </span>
-                        <div className="flex-1">
-                          <h4 className="font-medium transition-colors group-hover:text-purple-400 line-clamp-2">
-                            {news.title}
-                          </h4>
-                          <p className="text-sm text-gray-400 mt-1">
-                            {news.source} • {news.readTime} min lectura
-                          </p>
+              {trendingNews.length > 0 && (
+                <div className="bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl p-6 animate-fadeInUp">
+                  <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+                    <TrendingUp className="w-5 h-5 text-orange-500" />
+                    En Tendencia
+                  </h3>
+                  
+                  <div className="space-y-4">
+                    {trendingNews.slice(0, 5).map((news, index) => (
+                      <a
+                        key={news.id}
+                        href={news.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group cursor-pointer block"
+                      >
+                        <div className="flex gap-3">
+                          <span className="text-2xl font-bold text-gray-600">
+                            {String(index + 1).padStart(2, '0')}
+                          </span>
+                          <div className="flex-1">
+                            <h4 className="font-medium transition-colors group-hover:text-purple-400 line-clamp-2">
+                              {news.title}
+                            </h4>
+                            <p className="text-sm text-gray-400 mt-1">
+                              {news.source} • {news.readTime} min
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  ))}
+                      </a>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
-              {/* Tags populares */}
+              {/* Tags populares dinámicos */}
               <div className="mt-8 bg-white/5 backdrop-blur-lg border border-white/10 rounded-xl p-6 animate-fadeInUp">
                 <h3 className="text-xl font-bold mb-4">Tags Populares</h3>
                 <div className="flex flex-wrap gap-2">
-                  {['OpenAI', 'GPT-5', 'Claude', 'IA Generativa', 'Machine Learning', 'Regulación', 'Startups', 'Inversión'].map((tag) => (
+                  {Array.from(new Set(newsData.flatMap(n => n.tags)))
+                    .slice(0, 10)
+                    .map((tag) => (
                     <span
                       key={tag}
+                      onClick={() => handleTagClick(tag)}
                       className="px-3 py-1 bg-white/10 rounded-full text-sm cursor-pointer hover:bg-white/20 transition-colors"
                     >
                       {tag}

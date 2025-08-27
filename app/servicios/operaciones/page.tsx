@@ -264,9 +264,11 @@ export default function OperacionesPage() {
                     </ul>
                   </div>
 
-                  <button className="block w-full bg-green-600 text-white text-center py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+                  <Link href={LINKS.calendly}
+                        target="_blank"
+                        className="block w-full bg-green-600 text-white text-center py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
                     Agendar Diagnóstico
-                  </button>
+                  </Link>
                 </div>
 
                 {/* Plan Equipo Completo */}
@@ -331,9 +333,11 @@ export default function OperacionesPage() {
                     </ul>
                   </div>
 
-                  <button className="block w-full bg-green-600 text-white text-center py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
+                  <Link href={LINKS.calendly}
+                        target="_blank"
+                        className="block w-full bg-green-600 text-white text-center py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors">
                     Agendar Diagnóstico
-                  </button>
+                  </Link>
                 </div>
               </div>
 

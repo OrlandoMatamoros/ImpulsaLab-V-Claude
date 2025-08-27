@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { LINKS } from '@/lib/constants'
 import Link from 'next/link';
 import { 
   Sparkles, 
@@ -782,7 +783,7 @@ export default function OperationsEnhancedSection() {
               <p className="mb-6 opacity-90">
                 Te ayudamos a elegir e implementar la solución perfecta en menos de 2 semanas
               </p>
-              <a href="https://calendly.com/tu-enlace-aqui"
+              <a href={LINKS.calendly}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block px-8 py-3 bg-white text-green-700 rounded-lg font-semibold hover:bg-gray-100 transition">

@@ -1,5 +1,20 @@
-// lib/gmail-news-service.ts
 import { google } from 'googleapis'
+
+interface NewsItem {
+  id: string
+  title: string
+  summary: string
+  content: string
+  sourceUrl: string
+  source: string
+  date: string
+  category: string
+  tags: string[]
+  readTime: number
+  imageUrl: string
+  isTrending: boolean
+  isFeatured: boolean
+}
 
 export class GmailNewsService {
   private gmail: any
@@ -18,32 +33,163 @@ export class GmailNewsService {
     this.gmail = google.gmail({ version: 'v1', auth: oauth2Client })
   }
   
-  // Categorizar basado en contenido
-  categorizeNews(title: string, url: string): string {
-    const text = title.toLowerCase()
-    
-    // Palabras clave para cada categoría
-    if (text.includes('launch') || text.includes('announces') || text.includes('introduces') || text.includes('unveils')) {
-      return 'product-launches'
+  extractRealUrl(googleUrl: string): string {
+    // Los links vienen como: https://www.google.com/alerts/feedback?ffu=URL_REAL
+    const match = googleUrl.match(/ffu=([^&]+)/)
+    if (match) {
+      return decodeURIComponent(match[1])
     }
-    if (text.includes('regulation') || text.includes('law') || text.includes('policy') || text.includes('government')) {
-      return 'regulations'
-    }
-    if (text.includes('research') || text.includes('study') || text.includes('paper') || text.includes('scientists')) {
-      return 'research'
-    }
-    if (text.includes('raises') || text.includes('funding') || text.includes('investment') || text.includes('startup')) {
-      return 'success-stories'
-    }
-    if (text.includes('business') || text.includes('enterprise') || text.includes('corporate') || text.includes('company')) {
-      return 'business-ai'
-    }
-    
-    return 'market-trends' // Default
+    return googleUrl
   }
   
-  // Obtener imagen basada en la fuente
-  getImageForSource(url: string, index: number): string {
+  extractSource(url: string): string {
+    try {
+      const hostname = new URL(url).hostname
+      return hostname.replace('www.', '').split('.')[0]
+    } catch {
+      return 'News Source'
+    }
+  }
+  
+  categorizeNews(title: string): string {
+    const text = title.toLowerCase()
+    if (text.includes('launch') || text.includes('lanza')) return 'product-launches'
+    if (text.includes('research') || text.includes('estudio')) return 'research'
+    if (text.includes('business') || text.includes('negocio') || text.includes('empresa')) return 'business-ai'
+    if (text.includes('regulation') || text.includes('ley')) return 'regulations'
+    return 'market-trends'
+  }
+  
+  async fetchAndStoreNews(): Promise<NewsItem[]> {
+    try {
+      console.log('Fetching Google Alerts emails...')
+      
+      const response = await this.gmail.users.messages.list({
+        userId: 'me',
+        q: 'from:googlealerts-noreply@google.com',
+        maxResults: 10
+      })
+      
+      if (!response.data.messages) {
+        console.log('No messages found')
+        return []
+      }
+      
+      console.log(`Found ${response.data.messages.length} messages`)
+      const allNews: NewsItem[] = []
+      let globalIndex = 0
+      
+      for (const message of response.data.messages.slice(0, 5)) {
+        const email = await this.gmail.users.messages.get({
+          userId: 'me',
+          id: message.id,
+          format: 'full'
+        })
+        
+        const headers = email.data.payload.headers
+        const dateHeader = headers.find((h: any) => h.name === 'Date')
+        const subjectHeader = headers.find((h: any) => h.name === 'Subject')
+        const emailDate = dateHeader ? new Date(dateHeader.value).toISOString() : new Date().toISOString()
+        const alertTopic = subjectHeader ? subjectHeader.value.replace('Alerta de Google:', '').trim() : 'AI News'
+        
+        let htmlBody = ''
+        const extractBody = (parts: any[]) => {
+          for (const part of parts || []) {
+            if (part.mimeType === 'text/html' && part.body?.data) {
+              htmlBody = Buffer.from(part.body.data, 'base64').toString()
+            }
+            if (part.parts) extractBody(part.parts)
+          }
+        }
+        
+        if (email.data.payload) {
+          extractBody([email.data.payload])
+        }
+        
+        // Buscar los títulos de noticias y sus URLs
+        // Google Alerts usa un patrón donde el título viene antes del link de feedback
+        const sections = htmlBody.split('Marcar como no importante')
+        
+        for (let i = 0; i < sections.length - 1; i++) {
+          const section = sections[i]
+          
+          // Buscar el link de feedback que contiene la URL real
+          const feedbackMatch = section.match(/href="([^"]*google\.com\/alerts\/feedback[^"]*ffu=([^"&]+)[^"]*)"/i)
+          if (!feedbackMatch) continue
+          
+          const realUrl = decodeURIComponent(feedbackMatch[2])
+          
+          // Buscar el título (suele estar en un tag con estilo específico)
+          const titleMatch = section.match(/>([^<]{20,200})<\/a>/gi)
+          let title = alertTopic // Usar el tema del alert como fallback
+          
+          if (titleMatch && titleMatch.length > 0) {
+            // Limpiar y obtener el último match que suele ser el título
+            const lastMatch = titleMatch[titleMatch.length - 1]
+            title = lastMatch.replace(/<[^>]*>/g, '').replace(/>/g, '').replace(/</g, '').trim()
+          }
+          
+          // Si no encontramos un buen título, intentar extraerlo del URL
+          if (title === alertTopic || title.length < 10) {
+            const urlParts = realUrl.split('/')
+            title = urlParts[urlParts.length - 1]
+              .replace(/-/g, ' ')
+              .replace(/_/g, ' ')
+              .substring(0, 100)
+          }
+          
+          allNews.push({
+            id: `news-${Date.now()}-${globalIndex}`,
+            title: title.substring(0, 200),
+            summary: `${title.substring(0, 150)}... - ${alertTopic}`,
+            content: '',
+            sourceUrl: realUrl,
+            source: this.extractSource(realUrl),
+            date: emailDate,
+            category: this.categorizeNews(title),
+            tags: this.extractTags(title + ' ' + alertTopic),
+            readTime: Math.floor(Math.random() * 3) + 3,
+            imageUrl: this.getImageForIndex(globalIndex),
+            isTrending: globalIndex < 3,
+            isFeatured: globalIndex === 0
+          })
+          
+          globalIndex++
+          if (globalIndex >= 20) break // Limitar a 20 noticias totales
+        }
+        
+        if (globalIndex >= 20) break
+      }
+      
+      console.log(`Total news extracted: ${allNews.length}`)
+      return allNews
+      
+    } catch (error: any) {
+      console.error('Error in GmailNewsService:', error)
+      return []
+    }
+  }
+  
+  extractTags(text: string): string[] {
+    const keywords = [
+      'AI', 'Inteligencia Artificial', 'Machine Learning', 'GPT', 
+      'Robot', 'Automation', 'Data', 'Algorithm', 'Deep Learning',
+      'Negocios', 'Empresa', 'Tecnología', 'Digital', 'Innovación'
+    ]
+    const tags = []
+    const textLower = text.toLowerCase()
+    
+    for (const keyword of keywords) {
+      if (textLower.includes(keyword.toLowerCase())) {
+        tags.push(keyword)
+      }
+    }
+    
+    if (tags.length === 0) tags.push('AI', 'Technology')
+    return tags.slice(0, 5)
+  }
+  
+  getImageForIndex(index: number): string {
     const images = [
       'https://images.unsplash.com/photo-1677442136019-21780ecad995',
       'https://images.unsplash.com/photo-1518770660439-4636190af475',
@@ -52,201 +198,12 @@ export class GmailNewsService {
       'https://images.unsplash.com/photo-1559136555-9303baea8ebd',
       'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3',
       'https://images.unsplash.com/photo-1560472355-536de3962603',
-      'https://images.unsplash.com/photo-1552664730-d307ca884978',
-      'https://images.unsplash.com/photo-1495020689067-958852a7765e',
-      'https://images.unsplash.com/photo-1485827404703-89b55fcc595e'
+      'https://images.unsplash.com/photo-1552664730-d307ca884978'
     ]
-    
     return images[index % images.length]
   }
   
-  async fetchAndStoreNews() {
-    try {
-      const response = await this.gmail.users.messages.list({
-        userId: 'me',
-        q: 'from:googlealerts-noreply@google.com newer_than:7d', // Última semana
-        maxResults: 50 // Obtener más mensajes
-      })
-      
-      if (!response.data.messages) {
-        return []
-      }
-      
-      const allNewsItems = []
-      let newsIndex = 0
-      
-      for (const message of response.data.messages) {
-        const email = await this.gmail.users.messages.get({
-          userId: 'me',
-          id: message.id,
-          format: 'full'
-        })
-        
-        const newsFromEmail = this.parseGoogleAlert(email.data, newsIndex)
-        allNewsItems.push(...newsFromEmail)
-        newsIndex += newsFromEmail.length
-      }
-      
-      // Ordenar por fecha más reciente primero
-      allNewsItems.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      
-      // Marcar los primeros como destacados/trending
-      if (allNewsItems.length > 0) {
-        allNewsItems[0].isFeatured = true
-        allNewsItems.slice(0, 3).forEach(item => item.isTrending = true)
-      }
-      
-      return allNewsItems
-    } catch (error) {
-      console.error('Error fetching Gmail:', error)
-      return []
-    }
-  }
-  
-  parseGoogleAlert(message: any, startIndex: number) {
-    type NewsItem = {
-      id: string
-      title: string
-      summary: string
-      content: string
-      sourceUrl: string
-      source: string
-      date: string
-      category: string
-      tags: string[]
-      readTime: number
-      imageUrl: string
-      isTrending: boolean
-      isFeatured: boolean
-    }
-    const news: NewsItem[] = []
-    let htmlBody = ''
-    
-    // Obtener fecha del email
-    const emailDate = this.getEmailDate(message.payload.headers)
-    
-    const extractBody = (parts: any[]) => {
-      for (const part of parts || []) {
-        if (part.mimeType === 'text/html' && part.body?.data) {
-          htmlBody = Buffer.from(part.body.data, 'base64').toString()
-        }
-        if (part.parts) extractBody(part.parts)
-      }
-    }
-    
-    if (message.payload) extractBody([message.payload])
-    
-    // Mejorar regex para capturar más información
-    const linkRegex = /<a[^>]+href="(https?:\/\/[^"]+)"[^>]*>([^<]+)<\/a>/gi
-    let match
-    let newsCount = 0
-    
-    while ((match = linkRegex.exec(htmlBody)) !== null && newsCount < 20) {
-      const [_, url, title] = match
-      
-      // Filtrar solo noticias reales (no links de Google)
-      if (!url.includes('google.com') && 
-          !url.includes('accounts.google') && 
-          title.length > 20) {
-        
-        const cleanUrl = this.cleanGoogleUrl(url)
-        const cleanTitle = this.cleanHTML(title)
-        
-        news.push({
-          id: `news-${Date.now()}-${newsCount}`,
-          title: cleanTitle,
-          summary: `${cleanTitle.substring(0, 150)}...`, // Generar resumen del título
-          content: '',
-          sourceUrl: cleanUrl,
-          source: this.extractSource(cleanUrl),
-          date: emailDate,
-          category: this.categorizeNews(cleanTitle, cleanUrl),
-          tags: this.extractTags(cleanTitle),
-          readTime: Math.floor(Math.random() * 3) + 3, // 3-6 min
-          imageUrl: this.getImageForSource(cleanUrl, startIndex + newsCount),
-          isTrending: false,
-          isFeatured: false
-        })
-        
-        newsCount++
-      }
-    }
-    async (params: any) => {
-      news.forEach(item => {
-        item.category = this.categorizeNews(item.title, item.sourceUrl)
-      })
-
-      // Marcar primeras como destacadas
-        if (news.length > 0) {
-          news[0].isFeatured = true
-          news.slice(0, 3).forEach(n => n.isTrending = true)
-        }
-    }
-    return news
-  }
-  
-  getEmailDate(headers: any[]): string {
-    const dateHeader = headers.find(h => h.name === 'Date')
-    return dateHeader ? new Date(dateHeader.value).toISOString() : new Date().toISOString()
-  }
-  
-  cleanGoogleUrl(url: string) {
-    if (url.includes('url?q=')) {
-      const match = url.match(/url\?q=([^&]+)/)
-      if (match) return decodeURIComponent(match[1])
-    }
-    return url
-  }
-  
-  cleanHTML(text: string) {
-    return text
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .replace(/&#39;/g, "'")
-      .replace(/&[^;]+;/g, ' ')
-      .replace(/<[^>]*>/g, '')
-      .trim()
-  }
-  
-  extractSource(url: string) {
-    try {
-      const hostname = new URL(url).hostname
-      const name = hostname.replace('www.', '').split('.')[0]
-      return name.charAt(0).toUpperCase() + name.slice(1)
-    } catch {
-      return 'Tech News'
-    }
-  }
-  
-  extractTags(title: string) {
-    const keywords = [
-      'AI', 'Artificial Intelligence', 'Machine Learning', 'Deep Learning',
-      'ChatGPT', 'GPT', 'Claude', 'Gemini', 'OpenAI', 'Google', 'Microsoft',
-      'Meta', 'Amazon', 'Apple', 'Nvidia', 'Startup', 'Investment', 'Research',
-      'Automation', 'Robotics', 'Neural Network', 'LLM', 'Generative AI'
-    ]
-    
-    const tags = []
-    const titleLower = title.toLowerCase()
-    
-    for (const keyword of keywords) {
-      if (titleLower.includes(keyword.toLowerCase())) {
-        tags.push(keyword)
-        if (tags.length >= 5) break
-      }
-    }
-    
-    // Si no hay tags, agregar algunos genéricos
-    if (tags.length === 0) {
-      tags.push('AI', 'Technology')
-    }
-    
-    return tags
-  }
-  
-  async getLatestNews() {
+  async getLatestNews(): Promise<NewsItem[]> {
     return this.fetchAndStoreNews()
   }
 }

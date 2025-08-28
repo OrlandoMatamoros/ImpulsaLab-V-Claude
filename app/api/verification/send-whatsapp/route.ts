@@ -22,54 +22,32 @@ export async function POST(request: NextRequest) {
     }
     
     const code = generateCode();
-    const expirationMinutes = '10';
+    console.log(`Sending SMS verification code ${code} to ${phone}`);
     
-    console.log(`Sending WhatsApp verification code ${code} to ${phone}`);
+    // SMS COMO MÉTODO ÚNICO DE VERIFICACIÓN
+    const message = await client.messages.create({
+      from: '+19296589612',
+      to: phone,
+      body: `Impulsa Lab verification code: ${code}\nValid for 10 minutes. Do not share this code.`
+    });
     
-    try {
-      const message = await client.messages.create({
-        from: 'whatsapp:+15558240286',
-        to: `whatsapp:${phone}`,
-        contentSid: 'HX03bd7f21fa662f0a6f6ac30ff1a1a44f', // SID CORRECTO
-        contentVariables: JSON.stringify({
-          '1': code,
-          '2': expirationMinutes
-        })
-      });
-      
-      console.log('✅ WhatsApp sent successfully:', message.sid);
-      
-      return NextResponse.json({
-        success: true,
-        message: 'Verification code sent via WhatsApp',
-        messageSid: message.sid,
-        channel: 'whatsapp',
-        debugCode: code
-      });
-      
-    } catch (whatsappError: any) {
-      console.error('WhatsApp failed:', whatsappError.message);
-      
-      const sms = await client.messages.create({
-        from: '+19296589612',
-        to: phone,
-        body: `Impulsa Lab - Your verification code is: ${code}\nValid for ${expirationMinutes} minutes.`
-      });
-      
-      return NextResponse.json({
-        success: true,
-        message: 'Verification code sent via SMS',
-        messageSid: sms.sid,
-        channel: 'sms',
-        fallback: true,
-        debugCode: code
-      });
-    }
+    console.log('SMS sent:', message.sid, 'Status:', message.status);
+    
+    return NextResponse.json({
+      success: true,
+      message: 'Verification code sent via SMS',
+      messageSid: message.sid,
+      channel: 'sms',
+      debugCode: code // QUITAR EN PRODUCCIÓN
+    });
     
   } catch (error: any) {
-    console.error('Error:', error);
+    console.error('SMS Error:', error.message);
     return NextResponse.json(
-      { error: 'Failed to send verification code' },
+      { 
+        error: 'Failed to send verification code. Please check your phone number.',
+        details: error.message 
+      },
       { status: 500 }
     );
   }

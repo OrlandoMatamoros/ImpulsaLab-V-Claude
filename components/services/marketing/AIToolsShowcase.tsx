@@ -2,11 +2,12 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link'
-import { Image, Video, Mic, Zap, ChevronDown, ChevronUp, Code2, ArrowRight } from 'lucide-react';
+import { Image, Video, Mic, Zap, ChevronDown, ChevronUp, Code2, ArrowRight, Copy } from 'lucide-react';
 
 const AIToolsShowcase = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [expandedPrompts, setExpandedPrompts] = useState(false);
+  const [copiedPrompt, setCopiedPrompt] = useState(null);
 
   const tools = [
     {
@@ -64,7 +65,7 @@ const AIToolsShowcase = () => {
   const categories = [
     { id: 'all', name: 'Todas', icon: '🎯' },
     { id: 'imagen', name: 'Imagen', icon: '🎨' },
-    { id: 'video', name: 'Video', icon: '🎬' },
+    { id: 'video', name: 'Video', icon: '��' },
     { id: 'audio', name: 'Audio', icon: '🎙️' },
     { id: 'automatizacion', name: 'Automatización', icon: '⚡' }
   ];
@@ -73,40 +74,132 @@ const AIToolsShowcase = () => {
     ? tools 
     : tools.filter(tool => tool.category === activeFilter);
 
-  const samplePrompts = {
-    freepik: {
-      title: "Prompt para Freepik AI",
+  const samplePrompts = [
+    {
+      title: "Professional Photography (JSON)",
       content: `{
   "style": "professional_photography",
-  "subject": "modern_office_workspace",
-  "lighting": "natural_window_light",
-  "colors": ["#667eea", "#764ba2", "white"],
-  "mood": "productive_inspiring",
-  "composition": "rule_of_thirds",
-  "details": ["minimal_desk", "laptop", "coffee", "plants"]
+  "subject": "corporate_headshot",
+  "lighting": {
+    "type": "rembrandt_lighting",
+    "temperature": "5600K",
+    "direction": "45_degrees_left"
+  },
+  "camera": {
+    "lens": "85mm_f1.4",
+    "aperture": "f/2.8",
+    "iso": 200
+  },
+  "background": "blurred_office_environment",
+  "mood": "confident_approachable"
 }`
     },
-    midjourney: {
-      title: "Prompt para Midjourney",
-      content: `/imagine prompt: ultramodern marketing agency office, 
-purple and blue gradient lighting, minimalist design, 
-glass walls, creative team brainstorming, 
-photorealistic, architectural photography, 
-8k resolution --ar 16:9 --v 6`
+    {
+      title: "Cinematic Video Scene (HTML/English)",
+      content: `<scene>
+  <setting>Modern office at golden hour</setting>
+  <camera>
+    <movement>Slow dolly in</movement>
+    <lens>24mm anamorphic</lens>
+    <frame>Wide establishing shot</frame>
+  </camera>
+  <lighting>
+    <key>Window light, 45 degrees</key>
+    <fill>LED panel, 1/4 intensity</fill>
+    <back>Practical lamps, warm tone</back>
+  </lighting>
+  <color-grade>Teal and orange, cinematic LUT</color-grade>
+</scene>`
     },
-    videoDirector: {
-      title: "Prompt Cinematográfico para Video IA",
-      content: `ESCENA: Oficina moderna al atardecer
-ILUMINACIÓN: Hora dorada, luz cálida lateral desde ventanas, 
-  contraluz suave, temperatura 3200K
-CÁMARA: Steadicam, movimiento dolly in lento
-ENCUADRE: Plano medio largo, regla de tercios
-LENTE: 50mm f/1.8, profundidad de campo baja
-MOVIMIENTO: Tracking shot lateral 5 segundos, 
-  luego zoom out suave
-ATMÓSFERA: Profesional pero cálida, productiva
-COLOR GRADE: Teal and orange, saturación media`
+    {
+      title: "Product Enhancement Prompt",
+      content: `{
+  "product": "luxury_watch",
+  "improvements": {
+    "reflections": "enhance_metallic_surfaces",
+    "shadows": "add_depth_and_dimension",
+    "background": "gradient_dark_to_light",
+    "lighting": "studio_three_point_setup"
+  },
+  "post_processing": {
+    "sharpness": 85,
+    "contrast": 120,
+    "saturation": 110,
+    "highlights": -20,
+    "shadows": +15
+  },
+  "export": "4K_resolution_sRGB"
+}`
+    },
+    {
+      title: "Social Media Campaign Visual",
+      content: `{
+  "platform": "instagram_feed",
+  "style": "modern_minimalist",
+  "color_palette": ["#667eea", "#764ba2", "#ffffff"],
+  "elements": {
+    "text": {
+      "headline": "bold_sans_serif",
+      "size": "large_readable",
+      "position": "rule_of_thirds"
+    },
+    "graphics": "geometric_shapes",
+    "spacing": "generous_white_space"
+  },
+  "dimensions": "1080x1080px",
+  "format": "carousel_ready"
+}`
+    },
+    {
+      title: "AI Avatar Video Script",
+      content: `<avatar-video>
+  <speaker>
+    <appearance>professional_female_30s</appearance>
+    <outfit>business_casual_blue</outfit>
+    <background>virtual_office</background>
+  </speaker>
+  <delivery>
+    <tone>friendly_professional</tone>
+    <pace>moderate_clear</pace>
+    <gestures>natural_hand_movements</gestures>
+  </delivery>
+  <camera>
+    <angle>eye_level</angle>
+    <framing>medium_close_up</framing>
+  </camera>
+  <duration>60_seconds</duration>
+</avatar-video>`
+    },
+    {
+      title: "Brand Identity Generation",
+      content: `{
+  "brand_name": "TechStart",
+  "industry": "fintech_startup",
+  "values": ["innovation", "trust", "simplicity"],
+  "visual_style": {
+    "logo": {
+      "type": "wordmark_with_icon",
+      "style": "modern_geometric"
+    },
+    "colors": {
+      "primary": "#0A2540",
+      "secondary": "#00D4FF",
+      "accent": "#FFB800"
+    },
+    "typography": {
+      "heading": "Inter_Bold",
+      "body": "Inter_Regular"
     }
+  },
+  "applications": ["web", "mobile", "print"]
+}`
+    }
+  ];
+
+  const handleCopyPrompt = (content, index) => {
+    navigator.clipboard.writeText(content);
+    setCopiedPrompt(index);
+    setTimeout(() => setCopiedPrompt(null), 2000);
   };
 
   return (
@@ -183,7 +276,6 @@ COLOR GRADE: Teal and orange, saturación media`
           ))}
         </div>
 
-        {/* Link a página de herramientas */}
         <div className="text-center mb-16">
           <Link 
             href="/herramientas/arsenal"
@@ -211,17 +303,24 @@ COLOR GRADE: Teal and orange, saturación media`
           
           {expandedPrompts && (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Object.values(samplePrompts).map((prompt, index) => (
+              {samplePrompts.map((prompt, index) => (
                 <div key={index} className="bg-gray-50 rounded-lg p-4">
                   <h4 className="font-semibold text-gray-900 mb-3">{prompt.title}</h4>
-                  <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-xs">
+                  <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-xs mb-3">
                     <code>{prompt.content}</code>
                   </pre>
                   <button 
-                    onClick={() => navigator.clipboard.writeText(prompt.content)}
-                    className="mt-3 text-sm text-purple-600 hover:text-purple-700 font-semibold"
+                    onClick={() => handleCopyPrompt(prompt.content, index)}
+                    className="text-sm text-purple-600 hover:text-purple-700 font-semibold flex items-center gap-2"
                   >
-                    Copiar Prompt →
+                    {copiedPrompt === index ? (
+                      <>✓ Copiado</>
+                    ) : (
+                      <>
+                        <Copy className="w-4 h-4" />
+                        Copiar Prompt
+                      </>
+                    )}
                   </button>
                 </div>
               ))}

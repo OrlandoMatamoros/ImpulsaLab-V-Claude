@@ -3,20 +3,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Bot, Loader2, RotateCcw } from 'lucide-react';
 
-type Message = {
-  type: 'bot' | 'user';
-  text?: string;
-  content?: React.ReactNode;
-  timestamp: Date;
-};
-
 const ContentStrategistChat = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const [userResponses, setUserResponses] = useState<Record<string, string>>({});
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const [userResponses, setUserResponses] = useState({});
+  const messagesEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
 
   const questions = [
     "Primero, ¿a qué industria pertenece tu negocio y qué producto o servicio principal ofreces?",
@@ -25,7 +19,13 @@ const ContentStrategistChat = () => {
   ];
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Solo hacer scroll dentro del contenedor del chat, no de toda la página
+    if (chatContainerRef.current) {
+      const chatMessages = chatContainerRef.current.querySelector('.chat-messages');
+      if (chatMessages) {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }
+    }
   };
 
   useEffect(() => {
@@ -53,15 +53,15 @@ const ContentStrategistChat = () => {
     startChat();
   }, []);
 
-  const addBotMessage = (text: string) => {
+  const addBotMessage = (text) => {
     setMessages(prev => [...prev, { type: 'bot', text, timestamp: new Date() }]);
   };
 
-  const addUserMessage = (text: string) => {
+  const addUserMessage = (text) => {
     setMessages(prev => [...prev, { type: 'user', text, timestamp: new Date() }]);
   };
 
-  const generateContentPlan = async (responses: { industry: string; idealClient: string; objective: string }) => {
+  const generateContentPlan = async (responses) => {
     const { industry, idealClient, objective } = responses;
     
     const plan = {
@@ -119,11 +119,10 @@ const ContentStrategistChat = () => {
       addBotMessage("¡Excelente! Estoy analizando tus respuestas y preparando un plan personalizado... ⚙️🧠");
       
       setTimeout(async () => {
-              const { industry, idealClient, objective } = newResponses;
-              const plan = await generateContentPlan({ industry, idealClient, objective });
-              setIsLoading(false);
-              
-              const planMessage = (
+        const plan = await generateContentPlan(newResponses);
+        setIsLoading(false);
+        
+        const planMessage = (
           <div className="bg-purple-50 rounded-lg p-4 space-y-4">
             <h3 className="text-lg font-bold text-purple-900">
               📈 Tu Plan de Contenidos Personalizado
@@ -209,7 +208,7 @@ const ContentStrategistChat = () => {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+    <div ref={chatContainerRef} className="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
       <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -231,7 +230,7 @@ const ContentStrategistChat = () => {
         </div>
       </div>
 
-      <div className="h-96 overflow-y-auto p-6 bg-gray-50">
+      <div className="chat-messages h-96 overflow-y-auto p-6 bg-gray-50">
         <div className="space-y-4">
           {messages.map((message, index) => (
             <div
@@ -274,7 +273,12 @@ const ContentStrategistChat = () => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
             placeholder="Escribe tu respuesta aquí..."
             className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-full focus:outline-none focus:border-purple-500 transition-colors"
             disabled={isLoading || messages.length === 0}

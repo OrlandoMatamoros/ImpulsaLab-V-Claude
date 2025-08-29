@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Bot, Loader2 } from 'lucide-react';
+import { Send, Bot, Loader2, RotateCcw } from 'lucide-react';
 
 type Message = {
   type: 'bot' | 'user';
@@ -15,11 +15,7 @@ const ContentStrategistChat = () => {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const [userResponses, setUserResponses] = useState<UserResponses>({
-    industry: '',
-    idealClient: '',
-    objective: ''
-  });
+  const [userResponses, setUserResponses] = useState<Record<string, string>>({});
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const questions = [
@@ -36,7 +32,12 @@ const ContentStrategistChat = () => {
     scrollToBottom();
   }, [messages]);
 
-  useEffect(() => {
+  const startChat = () => {
+    setMessages([]);
+    setCurrentStep(0);
+    setUserResponses({});
+    setInput('');
+    
     setTimeout(() => {
       addBotMessage("¡Hola! 👋 Soy el Estratega de Contenidos IA de Impulsa Lab. Estoy aquí para ayudarte a generar ideas frescas y potentes para tu marketing en menos de un minuto.");
       setTimeout(() => {
@@ -46,6 +47,10 @@ const ContentStrategistChat = () => {
         }, 1000);
       }, 1500);
     }, 500);
+  };
+
+  useEffect(() => {
+    startChat();
   }, []);
 
   const addBotMessage = (text: string) => {
@@ -56,13 +61,7 @@ const ContentStrategistChat = () => {
     setMessages(prev => [...prev, { type: 'user', text, timestamp: new Date() }]);
   };
 
-  type UserResponses = {
-    industry: string;
-    idealClient: string;
-    objective: string;
-  };
-
-  const generateContentPlan = async (responses: UserResponses) => {
+  const generateContentPlan = async (responses: { industry: string; idealClient: string; objective: string }) => {
     const { industry, idealClient, objective } = responses;
     
     const plan = {
@@ -70,28 +69,28 @@ const ContentStrategistChat = () => {
       instagram: [
         {
           type: "Carrusel Educativo",
-          content: `Los 5 errores más comunes en ${industry} y cómo evitarlos`
+          content: `"Los 5 errores más comunes en ${industry} y cómo evitarlos" - Crea un carrusel con diseño minimalista y datos impactantes`
         },
         {
           type: "Reel Detrás de Cámaras",
-          content: `Muestra cómo trabajas con clientes en ${industry}. La autenticidad vende.`
+          content: `Muestra tu proceso de trabajo en ${industry}. La autenticidad genera conexión y confianza con tu audiencia`
         },
         {
           type: "Post de Testimonio",
-          content: `Comparte el éxito de un cliente similar a "${idealClient}"`
+          content: `Comparte una historia de éxito de un cliente como "${idealClient}" con resultados medibles y específicos`
         }
       ],
       blog: [
-        `7 Estrategias Probadas para ${industry} en 2025`,
-        `Cómo ${idealClient} Puede Multiplicar Sus Resultados`
+        `"7 Estrategias Probadas para Dominar ${industry} en 2025"`,
+        `"Guía Completa: Cómo ${idealClient} Puede Multiplicar Sus Resultados en 30 Días"`
       ],
       video: {
-        title: `Mito vs Realidad en ${industry}`,
-        description: "Video de 30 segundos desmintiendo un mito común y mostrando tu solución"
+        title: `"Mito vs Realidad: La Verdad sobre ${industry}"`,
+        description: "Video de 30-60 segundos desmintiendo el mito más común de tu industria y presentando tu solución única"
       },
       email: {
-        subject: `[${idealClient}] 3 Oportunidades Que Estás Perdiendo`,
-        content: "Email de valor con CTA suave al final"
+        subject: `${idealClient}: 3 Oportunidades Que Estás Perdiendo (y Cómo Aprovecharlas)`,
+        content: "Email con valor real, casos de estudio y un CTA suave al final para agendar una consulta gratuita"
       }
     };
 
@@ -120,10 +119,11 @@ const ContentStrategistChat = () => {
       addBotMessage("¡Excelente! Estoy analizando tus respuestas y preparando un plan personalizado... ⚙️🧠");
       
       setTimeout(async () => {
-        const plan = await generateContentPlan(newResponses);
-        setIsLoading(false);
-        
-        const planMessage = (
+              const { industry, idealClient, objective } = newResponses;
+              const plan = await generateContentPlan({ industry, idealClient, objective });
+              setIsLoading(false);
+              
+              const planMessage = (
           <div className="bg-purple-50 rounded-lg p-4 space-y-4">
             <h3 className="text-lg font-bold text-purple-900">
               📈 Tu Plan de Contenidos Personalizado
@@ -132,18 +132,19 @@ const ContentStrategistChat = () => {
             <div className="space-y-3">
               <div>
                 <h4 className="font-semibold text-purple-800 mb-2">
-                  🎯 Objetivo: {plan.objective}
+                  🎯 Objetivo Principal: {plan.objective}
                 </h4>
               </div>
 
               <div>
                 <h4 className="font-semibold text-purple-800 mb-2">
-                  �� Instagram (3 posts esta semana):
+                  📱 Instagram (3 posts esta semana):
                 </h4>
-                <ul className="space-y-1 text-sm text-gray-700">
+                <ul className="space-y-2 text-sm text-gray-700">
                   {plan.instagram.map((item, i) => (
-                    <li key={i} className="pl-4">
-                      → <strong>{item.type}:</strong> {item.content}
+                    <li key={i} className="pl-4 border-l-2 border-purple-300">
+                      <strong>{item.type}:</strong><br/>
+                      {item.content}
                     </li>
                   ))}
                 </ul>
@@ -155,7 +156,7 @@ const ContentStrategistChat = () => {
                 </h4>
                 <ul className="space-y-1 text-sm text-gray-700">
                   {plan.blog.map((title, i) => (
-                    <li key={i} className="pl-4">→ "{title}"</li>
+                    <li key={i} className="pl-4">→ {title}</li>
                   ))}
                 </ul>
               </div>
@@ -165,7 +166,8 @@ const ContentStrategistChat = () => {
                   🎬 Video Viral:
                 </h4>
                 <p className="text-sm text-gray-700 pl-4">
-                  → <strong>{plan.video.title}:</strong> {plan.video.description}
+                  <strong>{plan.video.title}</strong><br/>
+                  {plan.video.description}
                 </p>
               </div>
 
@@ -174,8 +176,8 @@ const ContentStrategistChat = () => {
                   📧 Email Marketing:
                 </h4>
                 <p className="text-sm text-gray-700 pl-4">
-                  → <strong>Asunto:</strong> {plan.email.subject}<br/>
-                  → {plan.email.content}
+                  <strong>Asunto:</strong> {plan.email.subject}<br/>
+                  <strong>Contenido:</strong> {plan.email.content}
                 </p>
               </div>
             </div>
@@ -186,7 +188,7 @@ const ContentStrategistChat = () => {
                 de marketing con IA que trabajan 24/7 para hacer crecer tu negocio.
               </p>
               <a 
-                href="https://calendly.com/impulsalab/estrategia-marketing"
+                href="https://calendly.com/orlando-tuimpulsalab/30min"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 text-white px-6 py-2 rounded-full font-semibold hover:from-purple-700 hover:to-purple-800 transition-all"
@@ -209,14 +211,23 @@ const ContentStrategistChat = () => {
   return (
     <div className="w-full max-w-2xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
       <div className="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-6">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-            <Bot className="w-7 h-7" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+              <Bot className="w-7 h-7" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold">Estratega de Contenidos IA</h2>
+              <p className="text-purple-100 text-sm">Tu plan personalizado en 60 segundos</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-xl font-bold">Estratega de Contenidos IA</h2>
-            <p className="text-purple-100 text-sm">Tu plan personalizado en 60 segundos</p>
-          </div>
+          <button
+            onClick={startChat}
+            className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+            title="Reiniciar chat"
+          >
+            <RotateCcw className="w-5 h-5" />
+          </button>
         </div>
       </div>
 

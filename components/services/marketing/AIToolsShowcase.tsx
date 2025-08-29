@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState } from 'react';
-import { Image, Video, Mic, Zap, ChevronDown, ChevronUp, ExternalLink, Play, Code2 } from 'lucide-react';
+import Link from 'next/link'
+import { Image, Video, Mic, Zap, ChevronDown, ChevronUp, Code2, ArrowRight } from 'lucide-react';
 
 const AIToolsShowcase = () => {
   const [activeFilter, setActiveFilter] = useState('all');
@@ -14,8 +15,8 @@ const AIToolsShowcase = () => {
       category: 'imagen',
       description: 'Generación de imágenes profesionales con IA',
       features: ['Mockups instantáneos', 'Fondos removibles', 'Estilo consistente'],
+      pricing: 'Gratis / Pro $9/mes',
       useCase: 'Perfecto para posts de Instagram y material de marketing',
-      link: 'https://www.youtube.com/watch?v=demo1',
       icon: <Image className="w-6 h-6" />
     },
     {
@@ -24,8 +25,8 @@ const AIToolsShowcase = () => {
       category: 'video',
       description: 'Avatares digitales que hablan por tu marca',
       features: ['Avatares realistas', 'Multi-idioma', 'Sincronización labial perfecta'],
+      pricing: 'Gratis limitado / $24/mes',
       useCase: 'Ideal para videos explicativos y presentaciones',
-      link: 'https://www.youtube.com/watch?v=demo2',
       icon: <Video className="w-6 h-6" />
     },
     {
@@ -34,8 +35,8 @@ const AIToolsShowcase = () => {
       category: 'audio',
       description: 'Voces ultra-realistas para tus contenidos',
       features: ['Clonación de voz', 'Emociones ajustables', '29 idiomas'],
+      pricing: 'Gratis 10k chars / $5/mes',
       useCase: 'Podcasts, audiolibros y narraciones profesionales',
-      link: 'https://www.youtube.com/watch?v=demo3',
       icon: <Mic className="w-6 h-6" />
     },
     {
@@ -44,8 +45,8 @@ const AIToolsShowcase = () => {
       category: 'imagen',
       description: 'Arte y diseño creativo de siguiente nivel',
       features: ['Estilos artísticos únicos', 'Alta resolución', 'Personalización extrema'],
+      pricing: '$10/mes básico',
       useCase: 'Branding visual, ilustraciones y conceptos creativos',
-      link: 'https://www.youtube.com/watch?v=demo4',
       icon: <Image className="w-6 h-6" />
     },
     {
@@ -54,8 +55,8 @@ const AIToolsShowcase = () => {
       category: 'automatizacion',
       description: 'Automatización sin código para marketing',
       features: ['Workflows visuales', 'Integraciones múltiples', 'Triggers automáticos'],
+      pricing: 'Gratis / $97/mes',
       useCase: 'Automatizar campañas de email y redes sociales',
-      link: 'https://www.youtube.com/watch?v=demo5',
       icon: <Zap className="w-6 h-6" />
     }
   ];
@@ -92,6 +93,19 @@ purple and blue gradient lighting, minimalist design,
 glass walls, creative team brainstorming, 
 photorealistic, architectural photography, 
 8k resolution --ar 16:9 --v 6`
+    },
+    videoDirector: {
+      title: "Prompt Cinematográfico para Video IA",
+      content: `ESCENA: Oficina moderna al atardecer
+ILUMINACIÓN: Hora dorada, luz cálida lateral desde ventanas, 
+  contraluz suave, temperatura 3200K
+CÁMARA: Steadicam, movimiento dolly in lento
+ENCUADRE: Plano medio largo, regla de tercios
+LENTE: 50mm f/1.8, profundidad de campo baja
+MOVIMIENTO: Tracking shot lateral 5 segundos, 
+  luego zoom out suave
+ATMÓSFERA: Profesional pero cálida, productiva
+COLOR GRADE: Teal and orange, saturación media`
     }
   };
 
@@ -125,7 +139,7 @@ photorealistic, architectural photography,
           ))}
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {filteredTools.map((tool) => (
             <div
               key={tool.id}
@@ -155,25 +169,32 @@ photorealistic, architectural photography,
                 
                 <div className="bg-purple-50 rounded-lg p-3 mb-4">
                   <p className="text-sm text-purple-700">
-                    <strong>Caso de uso:</strong> {tool.useCase}
+                    <strong>Precio:</strong> {tool.pricing}
                   </p>
                 </div>
                 
-                
-                <a
-                  href={tool.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-purple-600 hover:text-purple-700 font-semibold group-hover:translate-x-1 transition-transform"
-                >
-                  Ver Demo <ExternalLink className="w-4 h-4" />
-                </a>
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <p className="text-sm text-gray-600">
+                    <strong>Ideal para:</strong> {tool.useCase}
+                  </p>
+                </div>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-16">
+        {/* Link a página de herramientas */}
+        <div className="text-center mb-16">
+          <Link 
+            href="/herramientas/arsenal"
+            className="inline-flex items-center gap-2 bg-purple-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-purple-700 transition-all transform hover:scale-105"
+          >
+            Ver Todas las Herramientas con Enlaces Directos
+            <ArrowRight className="w-5 h-5" />
+          </Link>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-2xl font-bold text-gray-900">
               <Code2 className="inline-block w-7 h-7 mr-2 text-purple-600" />
@@ -189,14 +210,17 @@ photorealistic, architectural photography,
           </div>
           
           {expandedPrompts && (
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {Object.values(samplePrompts).map((prompt, index) => (
                 <div key={index} className="bg-gray-50 rounded-lg p-4">
                   <h4 className="font-semibold text-gray-900 mb-3">{prompt.title}</h4>
-                  <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-sm">
+                  <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-xs">
                     <code>{prompt.content}</code>
                   </pre>
-                  <button className="mt-3 text-sm text-purple-600 hover:text-purple-700 font-semibold">
+                  <button 
+                    onClick={() => navigator.clipboard.writeText(prompt.content)}
+                    className="mt-3 text-sm text-purple-600 hover:text-purple-700 font-semibold"
+                  >
                     Copiar Prompt →
                   </button>
                 </div>

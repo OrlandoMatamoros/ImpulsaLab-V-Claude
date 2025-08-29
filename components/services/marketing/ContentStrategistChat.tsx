@@ -3,14 +3,27 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Bot, Loader2, RotateCcw } from 'lucide-react';
 
+type Message = {
+  type: 'bot' | 'user';
+  text?: string;
+  content?: React.ReactNode;
+  timestamp: Date;
+};
+
+type UserResponses = {
+  industry?: string;
+  idealClient?: string;
+  objective?: string;
+};
+
 const ContentStrategistChat = () => {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const [userResponses, setUserResponses] = useState({});
-  const messagesEndRef = useRef(null);
-  const chatContainerRef = useRef(null);
+  const [userResponses, setUserResponses] = useState<UserResponses>({});
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const chatContainerRef = useRef<HTMLDivElement | null>(null);
 
   const questions = [
     "Primero, ¿a qué industria pertenece tu negocio y qué producto o servicio principal ofreces?",
@@ -19,7 +32,6 @@ const ContentStrategistChat = () => {
   ];
 
   const scrollToBottom = () => {
-    // Solo hacer scroll dentro del contenedor del chat, no de toda la página
     if (chatContainerRef.current) {
       const chatMessages = chatContainerRef.current.querySelector('.chat-messages');
       if (chatMessages) {
@@ -53,19 +65,19 @@ const ContentStrategistChat = () => {
     startChat();
   }, []);
 
-  const addBotMessage = (text) => {
+  const addBotMessage = (text: string) => {
     setMessages(prev => [...prev, { type: 'bot', text, timestamp: new Date() }]);
   };
 
-  const addUserMessage = (text) => {
+  const addUserMessage = (text: string) => {
     setMessages(prev => [...prev, { type: 'user', text, timestamp: new Date() }]);
   };
 
-  const generateContentPlan = async (responses) => {
+  const generateContentPlan = async (responses: UserResponses) => {
     const { industry, idealClient, objective } = responses;
     
     const plan = {
-      objective: objective,
+      objective: objective || '',
       instagram: [
         {
           type: "Carrusel Educativo",
@@ -101,7 +113,7 @@ const ContentStrategistChat = () => {
     if (!input.trim()) return;
 
     addUserMessage(input);
-    const responseKeys = ['industry', 'idealClient', 'objective'];
+    const responseKeys = ['industry', 'idealClient', 'objective'] as const;
     const newResponses = { 
       ...userResponses, 
       [responseKeys[currentStep]]: input 

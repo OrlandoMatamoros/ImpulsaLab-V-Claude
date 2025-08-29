@@ -7,7 +7,7 @@ import { Image, Video, Mic, Zap, ChevronDown, ChevronUp, Code2, ArrowRight, Copy
 const AIToolsShowcase = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [expandedPrompts, setExpandedPrompts] = useState(false);
-  const [copiedPrompt, setCopiedPrompt] = useState(null);
+  const [copiedPrompt, setCopiedPrompt] = useState<number | null>(null);
 
   const tools = [
     {

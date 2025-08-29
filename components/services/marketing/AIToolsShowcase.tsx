@@ -196,7 +196,7 @@ const AIToolsShowcase = () => {
     }
   ];
 
-  const handleCopyPrompt = (content, index) => {
+  const handleCopyPrompt = (content: string, index: number) => {
     navigator.clipboard.writeText(content);
     setCopiedPrompt(index);
     setTimeout(() => setCopiedPrompt(null), 2000);

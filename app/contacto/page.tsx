@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   FaArrowRight, 
   FaPhone, 
@@ -13,9 +13,18 @@ import {
   FaCalendarAlt,
   FaRobot,
   FaChartLine,
-  FaBullseye
+  FaBullseye,
+  FaExclamationTriangle,
+  FaRedo,
+  FaTimes
 } from 'react-icons/fa';
 import { LINKS } from '@/lib/constants';
+
+// ⚠️ WEBHOOK URL - MISMO QUE HOMEPAGE (CRÍTICO: NO CAMBIAR)
+const WEBHOOK_URL = 'https://orlandom88.app.n8n.cloud/webhook/fa05d73f-28a6-4827-8353-5b3a5780ad11';
+
+// Rate limiting storage
+const rateLimitStorage = new Map<string, number>();
 
 export default function Contacto() {
   const [formData, setFormData] = useState({
@@ -24,47 +33,235 @@ export default function Contacto() {
     email: '',
     telefono: '',
     servicio: '',
-    mensaje: ''
+    mensaje: '',
+    honeypot: '' // Campo honeypot para anti-spam
   });
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [formStatus, setFormStatus] = useState<{
+    type: 'idle' | 'loading' | 'success' | 'error' | 'rate-limit';
+    message?: string;
+  }>({ type: 'idle' });
+
+  const [progress, setProgress] = useState(100);
+  const [retryCount, setRetryCount] = useState(0);
+  const [utmParams, setUtmParams] = useState({
+    utm_source: '',
+    utm_medium: '',
+    utm_campaign: ''
+  });
+
+  // Capturar parámetros UTM al cargar
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      setUtmParams({
+        utm_source: urlParams.get('utm_source') || '',
+        utm_medium: urlParams.get('utm_medium') || '',
+        utm_campaign: urlParams.get('utm_campaign') || ''
+      });
+    }
+  }, []);
+
+  // Progress bar para mensaje de éxito (7 segundos)
+  useEffect(() => {
+    if (formStatus.type === 'success') {
+      const interval = setInterval(() => {
+        setProgress((prev) => {
+          if (prev <= 0) {
+            clearInterval(interval);
+            setFormStatus({ type: 'idle' });
+            return 100;
+          }
+          return prev - (100 / 70); // 7 segundos
+        });
+      }, 100);
+      return () => clearInterval(interval);
+    } else {
+      setProgress(100);
+    }
+  }, [formStatus.type]);
+
+  const checkRateLimit = (email: string): boolean => {
+    const now = Date.now();
+    const lastSubmission = rateLimitStorage.get(email);
+    
+    if (lastSubmission) {
+      const timeDiff = now - lastSubmission;
+      if (timeDiff < 60000) { // 60 segundos
+        const remainingTime = Math.ceil((60000 - timeDiff) / 1000);
+        setFormStatus({
+          type: 'rate-limit',
+          message: `Por favor espera ${remainingTime} segundos antes de enviar otro mensaje.`
+        });
+        return false;
+      }
+    }
+    
+    rateLimitStorage.set(email, now);
+    return true;
+  };
+
+  const validateForm = (): boolean => {
+    // Validación de email más robusta
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setFormStatus({
+        type: 'error',
+        message: 'Por favor ingresa un email válido.'
+      });
+      return false;
+    }
+
+    // Validación de teléfono (mínimo 8 dígitos)
+    const phoneDigits = formData.telefono.replace(/\D/g, '');
+    if (phoneDigits.length < 8) {
+      setFormStatus({
+        type: 'error',
+        message: 'Por favor ingresa un número de teléfono válido (mínimo 8 dígitos).'
+      });
+      return false;
+    }
+
+    // Validación de campos requeridos
+    if (!formData.nombre || !formData.servicio || !formData.mensaje) {
+      setFormStatus({
+        type: 'error',
+        message: 'Por favor completa todos los campos requeridos.'
+      });
+      return false;
+    }
+
+    return true;
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    
+    // Limpiar error al escribir
+    if (formStatus.type === 'error') {
+      setFormStatus({ type: 'idle' });
+    }
+  };
+
+  const sendToWebhook = async (data: any, attemptNumber: number = 1): Promise<boolean> => {
+    try {
+      const response = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return true;
+    } catch (error) {
+      console.error(`Intento ${attemptNumber} falló:`, error);
+      
+      if (attemptNumber < 3) {
+        // Esperar antes de reintentar (backoff exponencial)
+        await new Promise(resolve => setTimeout(resolve, 1000 * attemptNumber));
+        return sendToWebhook(data, attemptNumber + 1);
+      }
+      
+      return false;
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     
-    // Simulación de envío - aquí iría la lógica real de envío
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setShowSuccess(true);
+    // Verificar honeypot (anti-spam)
+    if (formData.honeypot) {
+      console.warn('Bot detectado');
+      return;
+    }
+
+    // Validaciones
+    if (!validateForm()) {
+      return;
+    }
+
+    // Rate limiting
+    if (!checkRateLimit(formData.email)) {
+      return;
+    }
+
+    setFormStatus({ type: 'loading' });
+    setRetryCount(0);
+
+    // ⚠️ ESTRUCTURA CRÍTICA DEL PAYLOAD - DEBE SER EXACTAMENTE ASÍ
+    const dataToSend = {
+      name: formData.nombre,
+      email: formData.email,
+      phone: formData.telefono,
+      service: formData.servicio,
+      message: formData.mensaje,
+      company: formData.empresa || 'No especificada', // Campo adicional
+      timestamp: new Date().toISOString(),
+      source: 'ContactPage-Form', // ⚠️ CRÍTICO: DIFERENCIADOR DE LA PÁGINA (NO "ImpulsaLab-Website")
+      page: 'contacto', // ⚠️ IDENTIFICADOR DE PÁGINA
+      utm_source: utmParams.utm_source || '',
+      utm_medium: utmParams.utm_medium || '',
+      utm_campaign: utmParams.utm_campaign || ''
+    };
+
+    // Enviar con reintentos automáticos
+    const success = await sendToWebhook(dataToSend);
+
+    if (success) {
+      setFormStatus({
+        type: 'success',
+        message: '¡Mensaje enviado exitosamente!'
+      });
+      
+      // Limpiar formulario
       setFormData({
         nombre: '',
         empresa: '',
         email: '',
         telefono: '',
         servicio: '',
-        mensaje: ''
+        mensaje: '',
+        honeypot: ''
       });
-      
-      // Ocultar mensaje de éxito después de 5 segundos
-      setTimeout(() => setShowSuccess(false), 5000);
-    }, 2000);
+
+      // Rastrear conversión si GA está disponible
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        (window as any).gtag('event', 'form_submit', {
+          event_category: 'Contact',
+          event_label: 'Contact Page Form',
+          value: 1
+        });
+      }
+    } else {
+      setFormStatus({
+        type: 'error',
+        message: 'Hubo un problema al enviar tu mensaje. Por favor intenta de nuevo.'
+      });
+    }
+  };
+
+  const handleRetry = () => {
+    setFormStatus({ type: 'idle' });
+    setRetryCount(prev => prev + 1);
   };
 
   const servicios = [
+    { value: '', label: 'Selecciona un servicio' },
+    { value: 'consulta-general', label: 'Consulta General' },
     { value: 'diagnostico-3d', label: 'Diagnóstico 3D', icon: FaBullseye },
-    { value: 'finanzas', label: 'Finanzas', icon: FaChartLine },
-    { value: 'operaciones', label: 'Operaciones', icon: FaRobot },
-    { value: 'marketing', label: 'Marketing', icon: FaCalendarAlt },
-    { value: 'otro', label: 'Otro / Consultoría General', icon: FaArrowRight }
+    { value: 'marketing-digital', label: 'Marketing Digital' },
+    { value: 'desarrollo-web', label: 'Desarrollo Web' },
+    { value: 'consultoria', label: 'Consultoría', icon: FaChartLine },
+    { value: 'automatizacion-ia', label: 'Automatización con IA', icon: FaRobot },
+    { value: 'capacitacion', label: 'Capacitación' }
   ];
 
   return (
@@ -160,17 +357,75 @@ export default function Contacto() {
                   Completa el formulario y nos pondremos en contacto contigo en menos de 24 horas hábiles
                 </p>
                 
-                {showSuccess && (
-                  <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start gap-3">
-                    <FaCheckCircle className="text-green-500 mt-1" />
-                    <div>
-                      <p className="text-green-800 font-semibold">¡Mensaje enviado con éxito!</p>
-                      <p className="text-green-600 text-sm">Nos pondremos en contacto contigo pronto.</p>
+                {/* Notificaciones */}
+                {formStatus.type === 'success' && (
+                  <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <FaCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-green-800 font-semibold">¡Mensaje enviado con éxito!</p>
+                        <p className="text-green-600 text-sm mt-1">
+                          Hemos recibido tu mensaje. Nuestro equipo se pondrá en contacto contigo pronto.
+                        </p>
+                        <p className="text-green-600 text-sm mt-2">
+                          📧 Revisa tu email para la confirmación
+                        </p>
+                        <div className="mt-3 h-1 bg-green-200 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-green-500 transition-all duration-100 ease-linear"
+                            style={{ width: `${progress}%` }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {formStatus.type === 'error' && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <FaExclamationTriangle className="text-red-500 mt-1 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-red-800 font-semibold">Error al enviar</p>
+                        <p className="text-red-600 text-sm">{formStatus.message}</p>
+                        {retryCount < 3 && (
+                          <button
+                            onClick={handleRetry}
+                            className="mt-2 text-red-600 hover:text-red-700 text-sm font-medium flex items-center gap-1"
+                          >
+                            <FaRedo className="text-xs" />
+                            Reintentar
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {formStatus.type === 'rate-limit' && (
+                  <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div className="flex items-start gap-3">
+                      <FaClock className="text-yellow-600 mt-1 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-yellow-800 font-semibold">Límite de envío</p>
+                        <p className="text-yellow-600 text-sm">{formStatus.message}</p>
+                      </div>
                     </div>
                   </div>
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Honeypot field - oculto */}
+                  <input
+                    type="text"
+                    name="honeypot"
+                    value={formData.honeypot}
+                    onChange={handleChange}
+                    className="hidden"
+                    tabIndex={-1}
+                    autoComplete="off"
+                  />
+
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-2">
@@ -183,7 +438,8 @@ export default function Contacto() {
                         value={formData.nombre}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        disabled={formStatus.type === 'loading'}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                         placeholder="Juan Pérez"
                       />
                     </div>
@@ -198,7 +454,8 @@ export default function Contacto() {
                         name="empresa"
                         value={formData.empresa}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        disabled={formStatus.type === 'loading'}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                         placeholder="Mi Empresa S.A."
                       />
                     </div>
@@ -216,14 +473,15 @@ export default function Contacto() {
                         value={formData.email}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        disabled={formStatus.type === 'loading'}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                         placeholder="juan@empresa.com"
                       />
                     </div>
                     
                     <div>
                       <label htmlFor="telefono" className="block text-sm font-medium text-gray-700 mb-2">
-                        Teléfono
+                        Teléfono *
                       </label>
                       <input
                         type="tel"
@@ -231,7 +489,9 @@ export default function Contacto() {
                         name="telefono"
                         value={formData.telefono}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        required
+                        disabled={formStatus.type === 'loading'}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                         placeholder="+1 555 123 4567"
                       />
                     </div>
@@ -247,9 +507,9 @@ export default function Contacto() {
                       value={formData.servicio}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      disabled={formStatus.type === 'loading'}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all disabled:bg-gray-100 disabled:cursor-not-allowed"
                     >
-                      <option value="">Selecciona un servicio</option>
                       {servicios.map(servicio => (
                         <option key={servicio.value} value={servicio.value}>
                           {servicio.label}
@@ -268,8 +528,9 @@ export default function Contacto() {
                       value={formData.mensaje}
                       onChange={handleChange}
                       required
+                      disabled={formStatus.type === 'loading'}
                       rows={5}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none disabled:bg-gray-100 disabled:cursor-not-allowed"
                       placeholder="Describe brevemente tu proyecto, desafíos actuales y objetivos..."
                     />
                   </div>
@@ -277,11 +538,14 @@ export default function Contacto() {
                   <div className="flex flex-col sm:flex-row gap-4">
                     <button
                       type="submit"
-                      disabled={isSubmitting}
+                      disabled={formStatus.type === 'loading' || formStatus.type === 'rate-limit'}
                       className="flex-1 bg-blue-600 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                     >
-                      {isSubmitting ? (
-                        <>Enviando...</>
+                      {formStatus.type === 'loading' ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                          Enviando...
+                        </>
                       ) : (
                         <>
                           Enviar Mensaje

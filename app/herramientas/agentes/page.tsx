@@ -163,7 +163,7 @@ export default function AgentesPlayground() {
                 <div className="text-purple-200 text-sm">Usos Diarios Gratis</div>
               </div>
               <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-                <div className="text-3xl font-bold text-white">0€</div>
+                <div className="text-3xl font-bold text-white">$0</div>
                 <div className="text-purple-200 text-sm">Sin Tarjeta</div>
               </div>
             </div>

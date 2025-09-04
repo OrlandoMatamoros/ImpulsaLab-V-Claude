@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { LINKS } from '@/lib/constants'
 
 // Tipos para mejor type safety
@@ -16,23 +16,60 @@ interface FormErrors {
   [key: string]: string
 }
 
+// Función para verificar rate limiting
+const checkRateLimit = (email: string): { allowed: boolean; timeLeft?: number } => {
+  const rateLimitKey = `rateLimit_${email}`
+  const lastSubmit = localStorage.getItem(rateLimitKey)
+  
+  if (lastSubmit) {
+    const timePassed = Date.now() - parseInt(lastSubmit)
+    const timeLimit = 60000 // 1 minuto entre envíos por email
+    
+    if (timePassed < timeLimit) {
+      return { 
+        allowed: false, 
+        timeLeft: Math.ceil((timeLimit - timePassed) / 1000) // segundos restantes
+      }
+    }
+  }
+  
+  return { allowed: true }
+}
+
+// Guardar timestamp del envío
+const saveRateLimit = (email: string) => {
+  localStorage.setItem(`rateLimit_${email}`, Date.now().toString())
+}
+
 export default function ContactSection() {
   // Estados del formulario
   const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     phone: '',
-    service: 'general', // Valor por defecto
+    service: 'general',
     message: ''
   })
   
   const [formErrors, setFormErrors] = useState<FormErrors>({})
   const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [errorMessage, setErrorMessage] = useState('')
+  const [rateLimitError, setRateLimitError] = useState('')
+  const [timeLeft, setTimeLeft] = useState(0)
 
   // Webhook URL - Considera moverlo a variable de entorno en producción
   const WEBHOOK_URL = process.env.NEXT_PUBLIC_N8N_WEBHOOK_CONTACT || 
-    'https://orlandom88.app.n8n.cloud/webhook/272d180d-39d1-44f7-af8f-fec01dbad68a'
+    'https://orlandom88.app.n8n.cloud/webhook/fa05d73f-28a6-4827-8353-5b3a5780ad11'
+
+  // Timer para actualizar el contador de rate limit
+  useEffect(() => {
+    if (timeLeft > 0) {
+      const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000)
+      return () => clearTimeout(timer)
+    } else {
+      setRateLimitError('')
+    }
+  }, [timeLeft])
 
   // Validación de email
   const validateEmail = (email: string): boolean => {
@@ -93,8 +130,17 @@ export default function ContactSection() {
       return
     }
 
+    // Verificar rate limiting
+    const rateCheck = checkRateLimit(formData.email)
+    if (!rateCheck.allowed) {
+      setRateLimitError(`Por favor espera ${rateCheck.timeLeft} segundos antes de enviar otro mensaje`)
+      setTimeLeft(rateCheck.timeLeft || 0)
+      return
+    }
+
     setFormStatus('loading')
     setErrorMessage('')
+    setRateLimitError('')
 
     // Preparar datos para enviar
     const dataToSend = {
@@ -105,7 +151,7 @@ export default function ContactSection() {
       message: formData.message,
       timestamp: new Date().toISOString(),
       source: 'ImpulsaLab-Website',
-      page: 'homepage', // Puedes hacer esto dinámico según la página
+      page: 'homepage',
       // Agregar UTM parameters si existen
       ...(typeof window !== 'undefined' && {
         utm_source: new URLSearchParams(window.location.search).get('utm_source') || '',
@@ -124,9 +170,10 @@ export default function ContactSection() {
         body: JSON.stringify(dataToSend)
       })
 
-      // n8n normalmente devuelve 200 incluso para respuestas simples
       if (response.ok) {
         setFormStatus('success')
+        saveRateLimit(formData.email) // Guardar rate limit después del éxito
+        
         // Limpiar formulario
         setFormData({
           name: '',
@@ -145,8 +192,8 @@ export default function ContactSection() {
           })
         }
         
-        // Ocultar mensaje de éxito después de 5 segundos
-        setTimeout(() => setFormStatus('idle'), 5000)
+        // Ocultar mensaje de éxito después de 7 segundos
+        setTimeout(() => setFormStatus('idle'), 7000)
       } else {
         throw new Error(`Error ${response.status}: ${response.statusText}`)
       }
@@ -168,6 +215,7 @@ export default function ContactSection() {
           
           if (retryResponse.ok) {
             setFormStatus('success')
+            saveRateLimit(formData.email)
             setFormData({
               name: '',
               email: '',
@@ -175,7 +223,7 @@ export default function ContactSection() {
               service: 'general',
               message: ''
             })
-            setTimeout(() => setFormStatus('idle'), 5000)
+            setTimeout(() => setFormStatus('idle'), 7000)
           }
         } catch (retryError) {
           console.error('Retry failed:', retryError)
@@ -365,23 +413,99 @@ export default function ContactSection() {
               </a>
             </div>
 
-            {/* Mensaje de éxito */}
-            {formStatus === 'success' && (
-              <div className="mt-4 p-4 bg-green-100 text-green-700 rounded-lg 
-                            animate-fade-in flex items-center gap-2">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            {/* Mensaje de Rate Limit */}
+            {rateLimitError && (
+              <div className="mt-4 p-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-lg 
+                              animate-shake flex items-center gap-3">
+                <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" 
-                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" 
+                        d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" 
                         clipRule="evenodd" />
                 </svg>
-                ¡Gracias por tu mensaje! Te contactaremos pronto.
+                <div className="flex-1">
+                  <p className="font-medium">{rateLimitError}</p>
+                  {timeLeft > 0 && (
+                    <p className="text-sm mt-1 text-amber-700">
+                      Tiempo restante: {timeLeft} segundos
+                    </p>
+                  )}
+                </div>
               </div>
             )}
 
-            {/* Mensaje de error */}
+            {/* Mensaje de éxito mejorado */}
+            {formStatus === 'success' && (
+              <div className="mt-4 relative overflow-hidden">
+                <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 
+                                rounded-lg shadow-sm animate-slideIn">
+                  {/* Barra de progreso superior */}
+                  <div className="absolute top-0 left-0 h-1 bg-green-500 animate-shrink"></div>
+                  
+                  <div className="flex items-start gap-3">
+                    {/* Icono con animación */}
+                    <div className="flex-shrink-0 w-10 h-10 bg-green-100 rounded-full 
+                                    flex items-center justify-center animate-bounce-once">
+                      <svg className="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" 
+                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" 
+                              clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    
+                    <div className="flex-1">
+                      <h3 className="text-green-800 font-semibold text-lg">
+                        ¡Mensaje enviado exitosamente!
+                      </h3>
+                      <p className="text-green-700 mt-1">
+                        Hemos recibido tu mensaje. Nuestro equipo te contactará dentro de las próximas 
+                        <span className="font-semibold"> 24 horas hábiles</span>.
+                      </p>
+                      <p className="text-green-600 text-sm mt-2">
+                        📧 Revisa tu correo, te hemos enviado una confirmación.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Mensaje de error mejorado */}
             {formStatus === 'error' && (
-              <div className="mt-4 p-4 bg-red-100 text-red-700 rounded-lg">
-                {errorMessage}
+              <div className="mt-4 p-4 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 
+                              rounded-lg shadow-sm animate-shake">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full 
+                                  flex items-center justify-center">
+                    <svg className="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" 
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" 
+                            clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  
+                  <div className="flex-1">
+                    <h3 className="text-red-800 font-semibold">
+                      Ups, algo salió mal
+                    </h3>
+                    <p className="text-red-700 mt-1">
+                      {errorMessage}
+                    </p>
+                    <div className="mt-3 flex gap-3">
+                      <button 
+                        onClick={() => setFormStatus('idle')}
+                        type="button"
+                        className="text-sm bg-red-100 text-red-700 px-3 py-1 rounded-md 
+                                 hover:bg-red-200 transition-colors">
+                        Intentar de nuevo
+                      </button>
+                      <a href={`mailto:${LINKS.email}`} 
+                         className="text-sm bg-gray-100 text-gray-700 px-3 py-1 rounded-md 
+                                  hover:bg-gray-200 transition-colors">
+                        Contactar por email
+                      </a>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>

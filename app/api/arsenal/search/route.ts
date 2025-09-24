@@ -13,7 +13,7 @@ const workflowsData: Workflow[] = workflowsDataRaw.map((w: any) => ({
   precio_unico: w.precio_unico,
   precio_mensual: w.precio_mensual,
   plataformas: w.tags_tools || [],
-  categorias: [w.category] || [],
+  categorias: w.category ? [w.category] : [],
   integraciones: w.keywords || [],
   filename: w.filename
 }));

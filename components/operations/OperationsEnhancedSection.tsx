@@ -1,3 +1,4 @@
+'use client'
 import React, { useState, useEffect } from 'react';
 import { LINKS } from '@/lib/constants'
 import Link from 'next/link';

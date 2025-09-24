@@ -31,6 +31,7 @@ type Language = 'ES' | 'EN'
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [showMobileTools, setShowMobileTools] = useState(false)
+  const [showMobileOperations, setShowMobileOperations] = useState(false)
   const [currentLang, setCurrentLang] = useState<Language>('ES')
   const { user, userData, signOut } = useAuth()
   const router = useRouter()
@@ -85,11 +86,9 @@ export default function Header() {
     }
   ]
 
-  // Función mejorada para renderizar los items del menú
   const renderMenuItems = () => {
     const items = []
     
-    // USUARIO NORMAL (free/premium/sin rol definido)
     if (!userData?.role || userData?.role === 'free' || userData?.role === 'premium') {
       items.push(
         <DropdownMenuItem key="dashboard" onClick={() => router.push('/dashboard')}>
@@ -99,7 +98,6 @@ export default function Header() {
       )
     }
     
-    // CONSULTOR - Dashboard Chatbot apunta a /admin
     if (userData?.role === 'consultant') {
       items.push(
         <DropdownMenuItem key="chatbot" onClick={() => router.push('/admin')}>
@@ -115,7 +113,6 @@ export default function Header() {
       )
     }
     
-    // ADMIN
     if (userData?.role === 'admin') {
       items.push(
         <DropdownMenuItem key="consultant-admin" onClick={() => router.push('/consultant')}>
@@ -139,11 +136,9 @@ export default function Header() {
     return items
   }
 
-  // Función para el menú móvil
   const renderMobileMenuItems = () => {
     const items = []
     
-    // USUARIO NORMAL
     if (!userData?.role || userData?.role === 'free' || userData?.role === 'premium') {
       items.push(
         <Link 
@@ -157,7 +152,6 @@ export default function Header() {
       )
     }
     
-    // CONSULTOR - Dashboard Chatbot apunta a /admin
     if (userData?.role === 'consultant') {
       items.push(
         <Link 
@@ -181,7 +175,6 @@ export default function Header() {
       )
     }
     
-    // ADMIN
     if (userData?.role === 'admin') {
       items.push(
         <Link 
@@ -373,7 +366,8 @@ export default function Header() {
           right: 0;
           height: 10px;
         }
-                  /* Nova Finance - Gradient púrpura/azul */
+        
+        /* Nova Finance - Gradient púrpura/azul */
         .dropdown-item-nova {
           position: relative;
           overflow: hidden;
@@ -436,7 +430,6 @@ export default function Header() {
                     Herramientas
                   </Link>
                   
-                  {/* Dropdown con CSS puro */}
                   <div className="tools-dropdown-menu">
                     {toolsItems.map((item) => (
                       <Link 
@@ -452,20 +445,19 @@ export default function Header() {
 
                 {/* Finanzas con dropdown */}
                 <div className="tools-dropdown-container">
-                <Link 
-                  href="/servicios/finanzas"
-                  className="tools-link"
-                >
-                Finanzas
-                </Link>
+                  <Link 
+                    href="/servicios/finanzas"
+                    className="tools-link"
+                  >
+                    Finanzas
+                  </Link>
   
-                {/* Dropdown de Finanzas */}
-                <div className="tools-dropdown-menu">
-                <Link 
-                href="/servicios/finanzas"
-                className="dropdown-item dropdown-item-all"
-                >
-                Consultoría Financiera
+                  <div className="tools-dropdown-menu">
+                    <Link 
+                      href="/servicios/finanzas"
+                      className="dropdown-item dropdown-item-all"
+                    >
+                      Consultoría Financiera
                     </Link>
                     <Link 
                       href="https://nova.tuimpulsalab.com"
@@ -482,9 +474,56 @@ export default function Header() {
                     </Link>
                   </div>
                 </div>
-                <Link href="/servicios/operaciones" className="text-gray-700 hover:text-[#002D62] transition-colors font-medium">
-                  Operaciones
-                </Link>
+
+                {/* Operaciones con dropdown */}
+                <div className="tools-dropdown-container">
+                  <Link 
+                    href="/servicios/operaciones"
+                    className="tools-link"
+                  >
+                    Operaciones
+                  </Link>
+                  
+                  <div className="tools-dropdown-menu">
+                    <Link 
+                      href="/servicios/operaciones"
+                      className="dropdown-item dropdown-item-all"
+                    >
+                      Vista General
+                    </Link>
+                    <Link 
+                      href="/servicios/operaciones/agentes"
+                      className="dropdown-item dropdown-item-agentes"
+                    >
+                      Agente 4IA
+                    </Link>
+                    <Link 
+                      href="/servicios/operaciones/arsenal"
+                      className="dropdown-item dropdown-item-arsenal"
+                    >
+                      Arsenal 5,670+
+                    </Link>
+                    <Link 
+                      href="/servicios/operaciones/plataformas"
+                      className="dropdown-item dropdown-item-prompt"
+                    >
+                      Plataformas
+                    </Link>
+                    <Link 
+                      href="/servicios/operaciones/casos"
+                      className="dropdown-item dropdown-item-noticias"
+                    >
+                      Casos de Uso
+                    </Link>
+                    <Link 
+                      href="/servicios/operaciones/precios"
+                      className="dropdown-item dropdown-item-nova"
+                    >
+                      Planes y Precios
+                    </Link>
+                  </div>
+                </div>
+
                 <Link href="/servicios/marketing" className="text-gray-700 hover:text-[#002D62] transition-colors font-medium">
                   Marketing
                 </Link>
@@ -538,7 +577,6 @@ export default function Header() {
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       
-                      {/* Renderizar items según el rol */}
                       {renderMenuItems()}
                       
                       <DropdownMenuSeparator />
@@ -612,7 +650,6 @@ export default function Header() {
                       )}
                     </div>
                     
-                    {/* Renderizar items móviles según el rol */}
                     {renderMobileMenuItems()}
                     
                     <button
@@ -698,13 +735,90 @@ export default function Header() {
               >
                 Finanzas
               </Link>
-              <Link 
-                href="/servicios/operaciones" 
-                className="block text-gray-700 font-medium hover:text-[#002D62] py-3"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Operaciones
-              </Link>
+
+              {/* Operaciones móvil con submenu */}
+              <div>
+                <button
+                  className="flex items-center justify-between w-full text-gray-700 font-medium hover:text-[#002D62] py-3"
+                  onClick={() => setShowMobileOperations(!showMobileOperations)}
+                >
+                  <span>Operaciones</span>
+                  <svg 
+                    className={`w-5 h-5 transition-transform duration-300 ${showMobileOperations ? 'rotate-180' : ''}`} 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                
+                {showMobileOperations && (
+                  <div className="pl-4 space-y-1 mt-2">
+                    <Link
+                      href="/servicios/operaciones"
+                      className="block text-gray-600 hover:text-[#002D62] py-2 pl-4 text-sm border-b border-gray-100 pb-3 mb-2 font-medium"
+                      onClick={() => {
+                        setIsMenuOpen(false)
+                        setShowMobileOperations(false)
+                      }}
+                    >
+                      Vista General
+                    </Link>
+                    <Link
+                      href="/servicios/operaciones/agentes"
+                      className="block text-gray-600 hover:text-[#002D62] py-2 pl-4 text-sm"
+                      onClick={() => {
+                        setIsMenuOpen(false)
+                        setShowMobileOperations(false)
+                      }}
+                    >
+                      Agente 4IA
+                    </Link>
+                    <Link
+                      href="/servicios/operaciones/arsenal"
+                      className="block text-gray-600 hover:text-[#002D62] py-2 pl-4 text-sm"
+                      onClick={() => {
+                        setIsMenuOpen(false)
+                        setShowMobileOperations(false)
+                      }}
+                    >
+                      Arsenal 5,670+
+                    </Link>
+                    <Link
+                      href="/servicios/operaciones/plataformas"
+                      className="block text-gray-600 hover:text-[#002D62] py-2 pl-4 text-sm"
+                      onClick={() => {
+                        setIsMenuOpen(false)
+                        setShowMobileOperations(false)
+                      }}
+                    >
+                      Plataformas
+                    </Link>
+                    <Link
+                      href="/servicios/operaciones/casos"
+                      className="block text-gray-600 hover:text-[#002D62] py-2 pl-4 text-sm"
+                      onClick={() => {
+                        setIsMenuOpen(false)
+                        setShowMobileOperations(false)
+                      }}
+                    >
+                      Casos de Uso
+                    </Link>
+                    <Link
+                      href="/servicios/operaciones/precios"
+                      className="block text-gray-600 hover:text-[#002D62] py-2 pl-4 text-sm"
+                      onClick={() => {
+                        setIsMenuOpen(false)
+                        setShowMobileOperations(false)
+                      }}
+                    >
+                      Planes y Precios
+                    </Link>
+                  </div>
+                )}
+              </div>
+
               <Link 
                 href="/servicios/marketing" 
                 className="block text-gray-700 font-medium hover:text-[#002D62] py-3"

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Search, Filter, X, DollarSign, Clock, Zap } from 'lucide-react'
+import { Search, Filter, X, DollarSign, Clock, Zap, Tag } from 'lucide-react'
 import Link from 'next/link'
 
 interface Workflow {
@@ -25,13 +25,25 @@ export default function WorkflowArsenal() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [complexityFilter, setComplexityFilter] = useState<string>('')
+  const [categoryFilter, setCategoryFilter] = useState<string>('')
+  const [priceFilter, setPriceFilter] = useState<string>('')
   const [showFilters, setShowFilters] = useState(false)
   const [stats, setStats] = useState<any>(null)
+  const [availableCategories, setAvailableCategories] = useState<string[]>([])
 
   // Cargar workflows iniciales
   useEffect(() => {
     loadInitialWorkflows()
   }, [])
+
+  // Extraer categorías únicas cuando se cargan workflows
+  useEffect(() => {
+    const categories = new Set<string>()
+    workflows.forEach(w => {
+      w.categorias?.forEach(cat => categories.add(cat))
+    })
+    setAvailableCategories(Array.from(categories).sort())
+  }, [workflows])
 
   const loadInitialWorkflows = async () => {
     try {
@@ -64,7 +76,7 @@ export default function WorkflowArsenal() {
           precio_unico: 475,
           precio_mensual: 99,
           plataformas: ['Gmail', 'Mailchimp'],
-          categorias: ['Marketing']
+          categorias: ['Marketing', 'Email']
         },
         {
           id: '2',
@@ -75,7 +87,7 @@ export default function WorkflowArsenal() {
           precio_unico: 750,
           precio_mensual: 149,
           plataformas: ['Shopify', 'WooCommerce'],
-          categorias: ['E-commerce']
+          categorias: ['E-commerce', 'Inventario']
         },
         {
           id: '3',
@@ -86,7 +98,29 @@ export default function WorkflowArsenal() {
           precio_unico: 1250,
           precio_mensual: 249,
           plataformas: ['OpenAI', 'BigQuery'],
-          categorias: ['Analytics', 'AI']
+          categorias: ['Analytics', 'AI', 'Data']
+        },
+        {
+          id: '4',
+          nombre_es: 'Chatbot de Atención al Cliente',
+          nombre_en: 'Customer Service Chatbot',
+          descripcion_es: 'Responde automáticamente a consultas frecuentes',
+          complexity: 'medium',
+          precio_unico: 750,
+          precio_mensual: 149,
+          plataformas: ['WhatsApp', 'Telegram'],
+          categorias: ['Servicio al Cliente', 'Chat']
+        },
+        {
+          id: '5',
+          nombre_es: 'Generación de Reportes Automáticos',
+          nombre_en: 'Automated Report Generation',
+          descripcion_es: 'Crea y envía reportes personalizados automáticamente',
+          complexity: 'simple',
+          precio_unico: 475,
+          precio_mensual: 99,
+          plataformas: ['Google Sheets', 'Excel'],
+          categorias: ['Reportes', 'Analytics']
         }
       ]
       setWorkflows(sampleWorkflows)
@@ -97,44 +131,89 @@ export default function WorkflowArsenal() {
   }
 
   const handleSearch = async () => {
-    if (!searchQuery.trim() && !complexityFilter) {
-      setFilteredWorkflows(workflows)
-      return
-    }
-
     setLoading(true)
     setError(null)
 
     try {
-      const response = await fetch('/api/arsenal/search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query: searchQuery,
-          filters: complexityFilter ? { complexity: complexityFilter } : {}
-        })
-      })
+      // Aplicar filtros localmente primero
+      let filtered = [...workflows]
 
-      if (!response.ok) {
-        throw new Error('Error en la búsqueda')
+      // Filtro de búsqueda
+      if (searchQuery.trim()) {
+        filtered = filtered.filter(w => {
+          const query = searchQuery.toLowerCase()
+          return (
+            w.nombre_es?.toLowerCase().includes(query) ||
+            w.nombre_en?.toLowerCase().includes(query) ||
+            w.descripcion_es?.toLowerCase().includes(query) ||
+            w.descripcion_en?.toLowerCase().includes(query) ||
+            w.plataformas?.some(p => p.toLowerCase().includes(query)) ||
+            w.categorias?.some(c => c.toLowerCase().includes(query))
+          )
+        })
       }
 
-      const data = await response.json()
-      setFilteredWorkflows(data.results || [])
+      // Filtro de complejidad
+      if (complexityFilter) {
+        filtered = filtered.filter(w => w.complexity === complexityFilter)
+      }
+
+      // Filtro de categoría
+      if (categoryFilter) {
+        filtered = filtered.filter(w => 
+          w.categorias?.includes(categoryFilter)
+        )
+      }
+
+      // Filtro de precio
+      if (priceFilter) {
+        const [min, max] = priceFilter.split('-').map(Number)
+        filtered = filtered.filter(w => {
+          if (max) {
+            return w.precio_mensual >= min && w.precio_mensual <= max
+          } else {
+            return w.precio_mensual >= min
+          }
+        })
+      }
+
+      setFilteredWorkflows(filtered)
+
+      // Intentar búsqueda en servidor si hay query
+      if (searchQuery.trim() || complexityFilter || categoryFilter || priceFilter) {
+        const response = await fetch('/api/arsenal/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: searchQuery,
+            filters: {
+              complexity: complexityFilter,
+              category: categoryFilter,
+              priceRange: priceFilter
+            }
+          })
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          if (data.results && data.results.length > 0) {
+            setFilteredWorkflows(data.results)
+          }
+        }
+      }
     } catch (err) {
       console.error('Search error:', err)
-      // Búsqueda local como fallback
-      const filtered = workflows.filter(w => {
-        const matchesQuery = !searchQuery || 
-          w.nombre_es?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          w.nombre_en?.toLowerCase().includes(searchQuery.toLowerCase())
-        const matchesComplexity = !complexityFilter || w.complexity === complexityFilter
-        return matchesQuery && matchesComplexity
-      })
-      setFilteredWorkflows(filtered)
     } finally {
       setLoading(false)
     }
+  }
+
+  const clearFilters = () => {
+    setSearchQuery('')
+    setComplexityFilter('')
+    setCategoryFilter('')
+    setPriceFilter('')
+    setFilteredWorkflows(workflows)
   }
 
   const getComplexityBadge = (complexity: string) => {
@@ -179,7 +258,11 @@ export default function WorkflowArsenal() {
                 className="px-6 py-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition flex items-center gap-2"
               >
                 <Filter className="w-5 h-5" />
-                Filtros
+                Filtros {(complexityFilter || categoryFilter || priceFilter) && (
+                  <span className="bg-blue-600 text-white rounded-full px-2 py-0.5 text-xs">
+                    {[complexityFilter, categoryFilter, priceFilter].filter(Boolean).length}
+                  </span>
+                )}
               </button>
               <button
                 onClick={handleSearch}
@@ -192,9 +275,38 @@ export default function WorkflowArsenal() {
             {/* Filtros */}
             {showFilters && (
               <div className="border-t pt-6">
-                <div className="grid md:grid-cols-3 gap-4">
+                <div className="grid md:grid-cols-4 gap-4">
+                  {/* Filtro de Categoría */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <Tag className="inline w-4 h-4 mr-1" />
+                      Categoría
+                    </label>
+                    <select
+                      value={categoryFilter}
+                      onChange={(e) => setCategoryFilter(e.target.value)}
+                      className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Todas las categorías</option>
+                      <option value="Marketing">Marketing</option>
+                      <option value="E-commerce">E-commerce</option>
+                      <option value="Analytics">Analytics</option>
+                      <option value="AI">Inteligencia Artificial</option>
+                      <option value="Servicio al Cliente">Servicio al Cliente</option>
+                      <option value="Finanzas">Finanzas</option>
+                      <option value="Inventario">Inventario</option>
+                      <option value="Reportes">Reportes</option>
+                      <option value="CRM">CRM</option>
+                      <option value="Email">Email</option>
+                      <option value="Social Media">Redes Sociales</option>
+                      <option value="Productividad">Productividad</option>
+                    </select>
+                  </div>
+
+                  {/* Filtro de Complejidad */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <Zap className="inline w-4 h-4 mr-1" />
                       Complejidad
                     </label>
                     <select
@@ -203,28 +315,76 @@ export default function WorkflowArsenal() {
                       className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
                       <option value="">Todas</option>
-                      <option value="simple">Simple ($99/mes)</option>
-                      <option value="medium">Media ($149/mes)</option>
-                      <option value="complex">Compleja ($249/mes)</option>
+                      <option value="simple">Simple</option>
+                      <option value="medium">Media</option>
+                      <option value="complex">Compleja</option>
                     </select>
+                  </div>
+
+                  {/* Filtro de Precio */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <DollarSign className="inline w-4 h-4 mr-1" />
+                      Rango de Precio
+                    </label>
+                    <select
+                      value={priceFilter}
+                      onChange={(e) => setPriceFilter(e.target.value)}
+                      className="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="">Todos los precios</option>
+                      <option value="0-100">$0 - $100/mes</option>
+                      <option value="100-150">$100 - $150/mes</option>
+                      <option value="150-200">$150 - $200/mes</option>
+                      <option value="200-300">$200 - $300/mes</option>
+                      <option value="300">Más de $300/mes</option>
+                    </select>
+                  </div>
+
+                  {/* Botón Limpiar */}
+                  <div className="flex items-end">
+                    <button
+                      onClick={clearFilters}
+                      className="w-full p-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+                    >
+                      Limpiar Filtros
+                    </button>
                   </div>
                 </div>
               </div>
             )}
 
             {/* Stats */}
-            {stats && (
-              <div className="mt-6 flex flex-wrap gap-4 text-sm text-gray-600">
-                <span className="flex items-center gap-1">
-                  <Zap className="w-4 h-4 text-blue-500" />
-                  {stats.total || 0} workflows disponibles
+            <div className="mt-6 flex flex-wrap gap-4 text-sm text-gray-600">
+              <span className="flex items-center gap-1">
+                <Zap className="w-4 h-4 text-blue-500" />
+                {filteredWorkflows.length} de {workflows.length} workflows
+              </span>
+              {categoryFilter && (
+                <span className="flex items-center gap-1 bg-blue-50 px-3 py-1 rounded-full">
+                  <Tag className="w-4 h-4 text-blue-600" />
+                  {categoryFilter}
+                  <button
+                    onClick={() => setCategoryFilter('')}
+                    className="ml-1 text-blue-600 hover:text-blue-800"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
                 </span>
-                <span className="flex items-center gap-1">
-                  <DollarSign className="w-4 h-4 text-green-500" />
-                  Precio promedio: ${stats.avgPriceMonthly || 149}/mes
+              )}
+              {complexityFilter && (
+                <span className="flex items-center gap-1 bg-green-50 px-3 py-1 rounded-full">
+                  <Zap className="w-4 h-4 text-green-600" />
+                  {complexityFilter}
+                  <button
+                    onClick={() => setComplexityFilter('')}
+                    className="ml-1 text-green-600 hover:text-green-800"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
                 </span>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           {/* Resultados */}
@@ -237,12 +397,27 @@ export default function WorkflowArsenal() {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
               <p className="mt-4 text-gray-600">Buscando workflows...</p>
             </div>
+          ) : filteredWorkflows.length === 0 ? (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center">
+              <p className="text-yellow-800 text-lg font-semibold mb-2">
+                No se encontraron workflows con estos filtros
+              </p>
+              <p className="text-yellow-600 mb-4">
+                Intenta ajustar los filtros o términos de búsqueda
+              </p>
+              <button
+                onClick={clearFilters}
+                className="px-6 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition"
+              >
+                Limpiar Filtros
+              </button>
+            </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredWorkflows.map((workflow) => (
                 <div
                   key={workflow.id}
-                  className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition cursor-pointer"
+                  className="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition cursor-pointer transform hover:scale-105"
                   onClick={() => setSelectedWorkflow(workflow)}
                 >
                   <div className="flex justify-between items-start mb-4">
@@ -256,8 +431,20 @@ export default function WorkflowArsenal() {
                     {workflow.descripcion_es || workflow.descripcion_en || 'Automatización profesional'}
                   </p>
                   
+                  {/* Categorías */}
+                  {workflow.categorias && workflow.categorias.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {workflow.categorias.slice(0, 2).map((cat, idx) => (
+                        <span key={idx} className="px-2 py-1 bg-purple-50 text-purple-600 rounded text-xs">
+                          {cat}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  
+                  {/* Plataformas */}
                   {workflow.plataformas && workflow.plataformas.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-4">
+                    <div className="flex flex-wrap gap-1 mb-4">
                       {workflow.plataformas.slice(0, 3).map((tool, idx) => (
                         <span key={idx} className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs">
                           {tool}
@@ -305,13 +492,31 @@ export default function WorkflowArsenal() {
                 </div>
                 
                 <div className="p-6">
-                  <div className="mb-6">
+                  <div className="mb-6 flex gap-2">
                     {getComplexityBadge(selectedWorkflow.complexity)}
+                    {selectedWorkflow.categorias?.map((cat, idx) => (
+                      <span key={idx} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">
+                        {cat}
+                      </span>
+                    ))}
                   </div>
                   
                   <p className="text-gray-600 mb-6">
                     {selectedWorkflow.descripcion_es || 'Automatización profesional para optimizar tu negocio'}
                   </p>
+                  
+                  {selectedWorkflow.plataformas && selectedWorkflow.plataformas.length > 0 && (
+                    <div className="mb-6">
+                      <h4 className="font-semibold mb-2">Herramientas utilizadas:</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedWorkflow.plataformas.map((tool, idx) => (
+                          <span key={idx} className="px-3 py-1 bg-blue-50 text-blue-600 rounded">
+                            {tool}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   
                   <div className="grid md:grid-cols-2 gap-6 mb-6">
                     <div className="bg-gray-50 rounded-lg p-4">

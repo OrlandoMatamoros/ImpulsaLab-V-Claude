@@ -32,6 +32,7 @@ export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [showMobileTools, setShowMobileTools] = useState(false)
   const [showMobileOperations, setShowMobileOperations] = useState(false)
+  const [showMobileAcademy, setShowMobileAcademy] = useState(false)
   const [currentLang, setCurrentLang] = useState<Language>('ES')
   const { user, userData, signOut } = useAuth()
   const router = useRouter()
@@ -83,6 +84,26 @@ export default function Header() {
       name: 'Agente de Noticias', 
       href: '/herramientas/noticias',
       className: 'dropdown-item-noticias'
+    }
+  ]
+
+  const academyItems = [
+    { 
+      name: 'Vista General', 
+      href: '/capacitacion',
+      className: 'dropdown-item-all'
+    },
+    { 
+      name: 'Mentoría 1-a-1', 
+      href: '/capacitacion/mentoria-personalizada',
+      className: 'dropdown-item-mentoria',
+      badge: '$300'
+    },
+    { 
+      name: 'Capacitación Corporativa', 
+      href: '/capacitacion/equipos-empresariales',
+      className: 'dropdown-item-corporate',
+      badge: '$500'
     }
   ]
 
@@ -326,6 +347,72 @@ export default function Header() {
           color: #ffffff;
         }
 
+        /* Nova Finance - Gradient púrpura/azul */
+        .dropdown-item-nova {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .dropdown-item-nova:hover {
+          background: linear-gradient(135deg, #f3e8ff 0%, #dbeafe 100%);
+          color: #7c3aed;
+        }
+
+        .dropdown-item-nova::after {
+          content: '✨';
+          position: absolute;
+          right: 20px;
+          opacity: 0;
+          transition: opacity 0.2s ease;
+        }
+
+        .dropdown-item-nova:hover::after {
+          opacity: 1;
+          animation: pulse 1s infinite;
+        }
+
+        /* Impulsa Academy - Gradient verde/esmeralda */
+        .dropdown-item-mentoria {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .dropdown-item-mentoria:hover {
+          background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+          color: #065f46;
+        }
+
+        .dropdown-item-corporate {
+          position: relative;
+          overflow: hidden;
+        }
+
+        .dropdown-item-corporate:hover {
+          background: linear-gradient(135deg, #ddd6fe 0%, #c4b5fd 100%);
+          color: #5b21b6;
+        }
+
+        /* Badge en items */
+        .dropdown-item .badge {
+          position: absolute;
+          right: 20px;
+          padding: 2px 8px;
+          background: rgba(0, 0, 0, 0.1);
+          border-radius: 12px;
+          font-size: 11px;
+          font-weight: 600;
+        }
+
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.2); }
+        }
+
+        @keyframes sparkle {
+          0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+          50% { opacity: 1; transform: scale(1) rotate(180deg); }
+        }
+
         /* Link de Herramientas */
         .tools-link {
           position: relative;
@@ -365,35 +452,6 @@ export default function Header() {
           left: 0;
           right: 0;
           height: 10px;
-        }
-        
-        /* Nova Finance - Gradient púrpura/azul */
-        .dropdown-item-nova {
-          position: relative;
-          overflow: hidden;
-        }
-
-        .dropdown-item-nova:hover {
-          background: linear-gradient(135deg, #f3e8ff 0%, #dbeafe 100%);
-          color: #7c3aed;
-        }
-
-        .dropdown-item-nova::after {
-          content: '✨';
-          position: absolute;
-          right: 20px;
-          opacity: 0;
-          transition: opacity 0.2s ease;
-        }
-
-        .dropdown-item-nova:hover::after {
-          opacity: 1;
-          animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.2); }
         }
       `}</style>
 
@@ -527,6 +585,41 @@ export default function Header() {
                 <Link href="/servicios/marketing" className="text-gray-700 hover:text-[#002D62] transition-colors font-medium">
                   Marketing
                 </Link>
+
+                {/* 🎓 IMPULSA ACADEMY - NUEVO */}
+                <div className="tools-dropdown-container">
+                  <Link 
+                    href="/capacitacion"
+                    className="tools-link"
+                  >
+                    <span className="flex items-center gap-1">
+                      Impulsa Academy
+                      <span className="text-xs bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-2 py-0.5 rounded-full font-bold ml-1 animate-pulse">
+                        NUEVO
+                      </span>
+                    </span>
+                  </Link>
+                  
+                  <div className="tools-dropdown-menu">
+                    {academyItems.map((item) => (
+                      <Link 
+                        key={item.href}
+                        href={item.href} 
+                        className={`dropdown-item ${item.className}`}
+                      >
+                        <span className="flex items-center justify-between">
+                          <span>{item.name}</span>
+                          {item.badge && (
+                            <span className="badge text-emerald-700 bg-emerald-100">
+                              {item.badge}
+                            </span>
+                          )}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
                 <Link href="/#equipo" className="text-gray-700 hover:text-[#002D62] transition-colors font-medium">
                   Quiénes Somos
                 </Link>
@@ -826,6 +919,57 @@ export default function Header() {
               >
                 Marketing
               </Link>
+
+              {/* 🎓 IMPULSA ACADEMY MÓVIL - NUEVO */}
+              <div>
+                <button
+                  className="flex items-center justify-between w-full text-gray-700 font-medium hover:text-[#002D62] py-3"
+                  onClick={() => setShowMobileAcademy(!showMobileAcademy)}
+                >
+                  <span className="flex items-center gap-2">
+                    Impulsa Academy
+                    <span className="text-xs bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-2 py-0.5 rounded-full font-bold">
+                      NUEVO
+                    </span>
+                  </span>
+                  <svg 
+                    className={`w-5 h-5 transition-transform duration-300 ${showMobileAcademy ? 'rotate-180' : ''}`} 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                
+                {showMobileAcademy && (
+                  <div className="pl-4 space-y-1 mt-2">
+                    {academyItems.map((item, index) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={`block text-gray-600 hover:text-[#002D62] py-2 pl-4 text-sm ${
+                          index === 0 ? 'border-b border-gray-100 pb-3 mb-2 font-medium' : ''
+                        }`}
+                        onClick={() => {
+                          setIsMenuOpen(false)
+                          setShowMobileAcademy(false)
+                        }}
+                      >
+                        <span className="flex items-center justify-between">
+                          <span>{item.name}</span>
+                          {item.badge && (
+                            <span className="text-xs text-emerald-600 font-semibold">
+                              {item.badge}
+                            </span>
+                          )}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <Link 
                 href="/#equipo" 
                 className="block text-gray-700 font-medium hover:text-[#002D62] py-3"

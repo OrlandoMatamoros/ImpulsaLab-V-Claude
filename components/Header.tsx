@@ -96,14 +96,12 @@ export default function Header() {
     { 
       name: 'Mentoría 1-a-1', 
       href: '/capacitacion/mentoria-personalizada',
-      className: 'dropdown-item-mentoria',
-      badge: '$300'
+      className: 'dropdown-item-mentoria'
     },
     { 
       name: 'Capacitación Corporativa', 
       href: '/capacitacion/equipos-empresariales',
-      className: 'dropdown-item-corporate',
-      badge: '$500'
+      className: 'dropdown-item-corporate'
     }
   ]
 
@@ -271,7 +269,7 @@ export default function Header() {
           background: white;
           border-radius: 8px;
           box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
-          min-width: 240px;
+          min-width: 220px;
           opacity: 0;
           visibility: hidden;
           transition: all 0.2s ease;
@@ -303,7 +301,7 @@ export default function Header() {
         /* Items del dropdown */
         .dropdown-item {
           display: block;
-          padding: 10px 20px;
+          padding: 10px 16px;
           color: #374151;
           font-size: 14px;
           text-decoration: none;
@@ -315,7 +313,7 @@ export default function Header() {
           font-weight: 600;
           border-bottom: 1px solid #f3f4f6;
           margin-bottom: 4px;
-          padding-bottom: 12px;
+          padding-bottom: 10px;
         }
 
         .dropdown-item-all:hover {
@@ -361,7 +359,7 @@ export default function Header() {
         .dropdown-item-nova::after {
           content: '✨';
           position: absolute;
-          right: 20px;
+          right: 16px;
           opacity: 0;
           transition: opacity 0.2s ease;
         }
@@ -372,19 +370,9 @@ export default function Header() {
         }
 
         /* Impulsa Academy - Gradient verde/esmeralda */
-        .dropdown-item-mentoria {
-          position: relative;
-          overflow: hidden;
-        }
-
         .dropdown-item-mentoria:hover {
           background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
           color: #065f46;
-        }
-
-        .dropdown-item-corporate {
-          position: relative;
-          overflow: hidden;
         }
 
         .dropdown-item-corporate:hover {
@@ -392,25 +380,9 @@ export default function Header() {
           color: #5b21b6;
         }
 
-        /* Badge en items */
-        .dropdown-item .badge {
-          position: absolute;
-          right: 20px;
-          padding: 2px 8px;
-          background: rgba(0, 0, 0, 0.1);
-          border-radius: 12px;
-          font-size: 11px;
-          font-weight: 600;
-        }
-
         @keyframes pulse {
           0%, 100% { transform: scale(1); }
           50% { transform: scale(1.2); }
-        }
-
-        @keyframes sparkle {
-          0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
-          50% { opacity: 1; transform: scale(1) rotate(180deg); }
         }
 
         /* Link de Herramientas */
@@ -459,7 +431,7 @@ export default function Header() {
         <div className="container mx-auto px-4 py-3">
           <div className="flex justify-between items-center">
             {/* Logo */}
-            <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
+            <Link href="/" className="flex items-center hover:opacity-80 transition-opacity flex-shrink-0">
               <Image
                 src={IMAGES.isotipo}
                 alt={COMPANY_INFO.name}
@@ -473,17 +445,17 @@ export default function Header() {
             </Link>
 
             {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center gap-6">
-              <nav className="flex items-center space-x-6 lg:space-x-8">
-                <Link href="/#diagnostico" className="text-gray-700 hover:text-[#002D62] transition-colors font-medium">
+            <div className="hidden lg:flex items-center gap-4">
+              <nav className="flex items-center space-x-4 xl:space-x-6">
+                <Link href="/#diagnostico" className="text-gray-700 hover:text-[#002D62] transition-colors font-medium text-sm xl:text-base whitespace-nowrap">
                   Diagnóstico 3D
                 </Link>
                 
-                {/* Herramientas con dropdown mejorado */}
+                {/* Herramientas con dropdown */}
                 <div className="tools-dropdown-container">
                   <Link 
                     href="/herramientas"
-                    className="tools-link"
+                    className="tools-link text-sm xl:text-base"
                   >
                     Herramientas
                   </Link>
@@ -505,7 +477,7 @@ export default function Header() {
                 <div className="tools-dropdown-container">
                   <Link 
                     href="/servicios/finanzas"
-                    className="tools-link"
+                    className="tools-link text-sm xl:text-base"
                   >
                     Finanzas
                   </Link>
@@ -537,7 +509,7 @@ export default function Header() {
                 <div className="tools-dropdown-container">
                   <Link 
                     href="/servicios/operaciones"
-                    className="tools-link"
+                    className="tools-link text-sm xl:text-base"
                   >
                     Operaciones
                   </Link>
@@ -582,22 +554,17 @@ export default function Header() {
                   </div>
                 </div>
 
-                <Link href="/servicios/marketing" className="text-gray-700 hover:text-[#002D62] transition-colors font-medium">
+                <Link href="/servicios/marketing" className="text-gray-700 hover:text-[#002D62] transition-colors font-medium text-sm xl:text-base whitespace-nowrap">
                   Marketing
                 </Link>
 
-                {/* 🎓 IMPULSA ACADEMY - NUEVO */}
+                {/* 🎓 IMPULSA ACADEMY */}
                 <div className="tools-dropdown-container">
                   <Link 
                     href="/capacitacion"
-                    className="tools-link"
+                    className="tools-link text-sm xl:text-base whitespace-nowrap"
                   >
-                    <span className="flex items-center gap-1">
-                      Impulsa Academy
-                      <span className="text-xs bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-2 py-0.5 rounded-full font-bold ml-1 animate-pulse">
-                        NUEVO
-                      </span>
-                    </span>
+                    Impulsa Academy
                   </Link>
                   
                   <div className="tools-dropdown-menu">
@@ -607,45 +574,28 @@ export default function Header() {
                         href={item.href} 
                         className={`dropdown-item ${item.className}`}
                       >
-                        <span className="flex items-center justify-between">
-                          <span>{item.name}</span>
-                          {item.badge && (
-                            <span className="badge text-emerald-700 bg-emerald-100">
-                              {item.badge}
-                            </span>
-                          )}
-                        </span>
+                        {item.name}
                       </Link>
                     ))}
                   </div>
                 </div>
 
-                <Link href="/#equipo" className="text-gray-700 hover:text-[#002D62] transition-colors font-medium">
+                <Link href="/#equipo" className="text-gray-700 hover:text-[#002D62] transition-colors font-medium text-sm xl:text-base whitespace-nowrap">
                   Quiénes Somos
                 </Link>
-                <Link href="/#contacto" className="text-gray-700 hover:text-[#002D62] transition-colors font-medium">
+                <Link href="/#contacto" className="text-gray-700 hover:text-[#002D62] transition-colors font-medium text-sm xl:text-base whitespace-nowrap">
                   Contacto
                 </Link>
               </nav>
 
               {/* Auth section */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 ml-2">
                 <button 
                   onClick={handleLanguageToggle}
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-[#002D62] transition-colors"
+                  className="flex items-center gap-1 px-2 py-2 text-sm font-medium text-gray-700 hover:text-[#002D62] transition-colors"
                   title={currentLang === 'ES' ? 'Switch to English' : 'Cambiar a Español'}
                 >
-                  {currentLang === 'ES' ? (
-                    <>
-                      <span className="text-lg">🇬🇧</span>
-                      <span>English</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="text-lg">🇪🇸</span>
-                      <span>Español</span>
-                    </>
-                  )}
+                  <span className="text-lg">{currentLang === 'ES' ? '🇬🇧' : '🇪🇸'}</span>
                 </button>
                 
                 {user ? (
@@ -653,7 +603,7 @@ export default function Header() {
                     <DropdownMenuTrigger asChild>
                       <Button variant="outline" size="sm" className="flex items-center gap-2">
                         <User className="h-4 w-4" />
-                        <span className="hidden sm:inline">{userData?.name || user.email}</span>
+                        <span className="hidden xl:inline">{userData?.name || user.email}</span>
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-56">
@@ -684,13 +634,13 @@ export default function Header() {
                   <>
                     <Link 
                       href="/login"
-                      className="px-5 py-2 text-sm font-medium text-[#002D62] border-2 border-[#002D62] rounded-lg hover:bg-[#002D62] hover:text-white transition-all duration-300"
+                      className="px-4 py-2 text-sm font-medium text-[#002D62] border-2 border-[#002D62] rounded-lg hover:bg-[#002D62] hover:text-white transition-all duration-300 whitespace-nowrap"
                     >
                       {currentLang === 'ES' ? 'Iniciar sesión' : 'Login'}
                     </Link>
                     <Link 
                       href="/signup"
-                      className="px-5 py-2 text-sm font-medium text-white bg-gradient-to-r from-[#002D62] to-blue-600 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300"
+                      className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-[#002D62] to-blue-600 rounded-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 whitespace-nowrap"
                     >
                       {currentLang === 'ES' ? 'Crear cuenta' : 'Sign up'}
                     </Link>
@@ -700,7 +650,7 @@ export default function Header() {
             </div>
 
             {/* Mobile menu button */}
-            <div className="flex md:hidden items-center gap-2">
+            <div className="flex lg:hidden items-center gap-2">
               <button 
                 onClick={handleLanguageToggle}
                 className="p-2 text-2xl"
@@ -725,7 +675,7 @@ export default function Header() {
 
         {/* Mobile menu */}
         {isMenuOpen && (
-          <div className="md:hidden bg-white border-t shadow-lg">
+          <div className="lg:hidden bg-white border-t shadow-lg max-h-[calc(100vh-80px)] overflow-y-auto">
             <nav className="px-4 py-4 space-y-1">
               {/* Auth section móvil */}
               <div className="flex flex-col gap-3 pb-4 mb-4 border-b border-gray-100">
@@ -783,7 +733,7 @@ export default function Header() {
                 Diagnóstico 3D
               </Link>
               
-              {/* Herramientas móvil con todas las opciones */}
+              {/* Herramientas móvil */}
               <div>
                 <button
                   className="flex items-center justify-between w-full text-gray-700 font-medium hover:text-[#002D62] py-3"
@@ -829,7 +779,7 @@ export default function Header() {
                 Finanzas
               </Link>
 
-              {/* Operaciones móvil con submenu */}
+              {/* Operaciones móvil */}
               <div>
                 <button
                   className="flex items-center justify-between w-full text-gray-700 font-medium hover:text-[#002D62] py-3"
@@ -920,18 +870,13 @@ export default function Header() {
                 Marketing
               </Link>
 
-              {/* 🎓 IMPULSA ACADEMY MÓVIL - NUEVO */}
+              {/* 🎓 IMPULSA ACADEMY MÓVIL */}
               <div>
                 <button
                   className="flex items-center justify-between w-full text-gray-700 font-medium hover:text-[#002D62] py-3"
                   onClick={() => setShowMobileAcademy(!showMobileAcademy)}
                 >
-                  <span className="flex items-center gap-2">
-                    Impulsa Academy
-                    <span className="text-xs bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-2 py-0.5 rounded-full font-bold">
-                      NUEVO
-                    </span>
-                  </span>
+                  <span>Impulsa Academy</span>
                   <svg 
                     className={`w-5 h-5 transition-transform duration-300 ${showMobileAcademy ? 'rotate-180' : ''}`} 
                     fill="none" 
@@ -956,14 +901,7 @@ export default function Header() {
                           setShowMobileAcademy(false)
                         }}
                       >
-                        <span className="flex items-center justify-between">
-                          <span>{item.name}</span>
-                          {item.badge && (
-                            <span className="text-xs text-emerald-600 font-semibold">
-                              {item.badge}
-                            </span>
-                          )}
-                        </span>
+                        {item.name}
                       </Link>
                     ))}
                   </div>

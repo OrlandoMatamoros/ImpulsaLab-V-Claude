@@ -3,18 +3,25 @@
 import { useState } from 'react'
 import { MessageCircle, X, Phone, Bot, Send } from 'lucide-react'
 
+interface Message {
+  id: string
+  text: string
+  isUser: boolean
+  options?: string[]
+}
+
 export default function WidgetProvider() {
   const [isOpen, setIsOpen] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
   const [showWebChat, setShowWebChat] = useState(false)
-  const [messages, setMessages] = useState([])
+  const [messages, setMessages] = useState<Message[]>([])
   const [inputValue, setInputValue] = useState('')
 
   // NÚMEROS ACTUALIZADOS
   const whatsappNumber = '19295007815'  // WhatsApp con IA
   const phoneNumber = '19295001850'      // Número para llamadas
 
-  const initialMessage = {
+  const initialMessage: Message = {
     id: '1',
     text: '¡Hola! 👋 Soy el asistente de Impulsa Lab. ¿En qué puedo ayudarte?',
     isUser: false,
@@ -22,11 +29,11 @@ export default function WidgetProvider() {
       '📊 Quiero hacer el Diagnóstico 3D',
       '💡 ¿Qué es Impulsa Lab?',
       '🚀 Ver servicios disponibles',
-      '�� Hablar con Orlando'
+      '💬 Hablar con Orlando'
     ]
   }
 
-  const responses = {
+  const responses: { [key: string]: string } = {
     '📊 Quiero hacer el Diagnóstico 3D': 'El Diagnóstico 3D es una evaluación gratuita de 30 minutos donde analizamos tu negocio en 3 dimensiones: Finanzas, Operaciones y Marketing.\n\n📅 Puedes agendar aquí: https://calendly.com/orlando-tuimpulsalab/30min',
     '💡 ¿Qué es Impulsa Lab?': 'Impulsa Lab es tu socio estratégico en transformación digital. Ayudamos a negocios a automatizar procesos con IA, tomar decisiones basadas en datos y escalar operaciones eficientemente.',
     '🚀 Ver servicios disponibles': 'Ofrecemos:\n\n💰 FINANZAS: Dashboards en tiempo real\n📈 MARKETING: Estrategia de contenidos\n⚙️ OPERACIONES: Automatización con IA\n\n¿Te gustaría saber más sobre alguno?',
@@ -52,14 +59,14 @@ export default function WidgetProvider() {
     }
   }
 
-  const handleOptionClick = (option) => {
-    const userMessage = {
+  const handleOptionClick = (option: string) => {
+    const userMessage: Message = {
       id: Date.now().toString(),
       text: option,
       isUser: true
     }
     
-    const botResponse = {
+    const botResponse: Message = {
       id: (Date.now() + 1).toString(),
       text: responses[option] || 'Gracias por tu mensaje. Un especialista te contactará pronto.',
       isUser: false,
@@ -74,17 +81,17 @@ export default function WidgetProvider() {
   const handleSendMessage = () => {
     if (!inputValue.trim()) return
 
-    const userMessage = {
+    const userMessage: Message = {
       id: Date.now().toString(),
       text: inputValue,
       isUser: true
     }
 
-    const botResponse = {
+    const botResponse: Message = {
       id: (Date.now() + 1).toString(),
       text: 'Gracias por tu mensaje. Para una respuesta más completa, te recomiendo:\n\n📱 Continuar por WhatsApp con nuestra IA\n📅 Agendar una reunión con Orlando',
       isUser: false,
-      options: ['📱 Ir a WhatsApp', '�� Agendar reunión', '🔙 Menú principal']
+      options: ['📱 Ir a WhatsApp', '📅 Agendar reunión', '🔙 Menú principal']
     }
 
     setMessages(prev => [...prev, userMessage, botResponse])

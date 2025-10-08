@@ -1,302 +1,34 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { X, MessageCircle, Send, Clock, ChevronDown } from 'lucide-react'
-import { db } from '@/lib/firebase'
-import { collection, addDoc, serverTimestamp, doc, updateDoc, arrayUnion } from 'firebase/firestore'
+import { X, MessageCircle, Send } from 'lucide-react'
 
 export default function WhatsAppWidget() {
-  // Logs de depuración para Firebase
-  console.log('=== NOVA Debug Info ===');
-  console.log('Firebase config:', {
-    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY ? 'SET' : 'NOT SET',
-    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN ? 'SET' : 'NOT SET',
-    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ? 'SET' : 'NOT SET',
-    db: db ? 'INITIALIZED' : 'NOT INITIALIZED'
-  });
-  console.log('Firebase db object:', db);
-  console.log('===================');
-  
-  interface Message {
-    id: string
-    text: string
-    isUser: boolean
-    timestamp: Date
-    buttons?: string[]
-  }
-
   const [isOpen, setIsOpen] = useState(false)
-  const [messages, setMessages] = useState<Message[]>([])
-  const [inputValue, setInputValue] = useState('')
-  const [showInitialButtons, setShowInitialButtons] = useState(true)
-  const [isTyping, setIsTyping] = useState(false)
-  const [sessionId, setSessionId] = useState<string>('')
   const [mounted, setMounted] = useState(false)
-  const [businessOpen, setBusinessOpen] = useState(true)
 
-  // NÚMERO ACTUALIZADO - WhatsApp Business con Automatización IA
-  const phoneNumber = '+19295007815'
+  // NÚMERO NUEVO - WhatsApp Business con Automatización IA
+  const phoneNumber = '19295007815'  // Sin el +
   
-  const businessHours = {
-    weekdays: '9:00 AM - 8:00 PM EST',
-    saturday: '9:00 AM - 2:00 PM EST',
-    sunday: 'Cerrado'
-  }
-
-  const initialButtons = [
-    'Quiero mi Diagnóstico 3D Gratis',
-    'Información sobre servicios',
-    'Ver planes y precios',
-    'Hablar con un especialista',
-    'Tengo otra consulta'
-  ]
-
-  const responses: { [key: string]: string } = {
-    'Quiero mi Diagnóstico 3D Gratis': '¡Excelente decisión! 🎯 El Diagnóstico 3D es una sesión estratégica de 30 minutos donde analizaremos la "coordenada" de crecimiento de tu negocio en Finanzas, Operaciones y Marketing. Es el primer paso para tomar el control.\n\n📅 Puedes agendar directamente en el calendario de Orlando aquí: https://calendly.com/orlando-tuimpulsalab/30min\n\n💬 O continúa la conversación con nuestro agente IA en WhatsApp para agendar.',
-    
-    'Información sobre servicios': '¡Claro! En Impulsa Lab te ayudamos a potenciar tu negocio a través de 3 pilares:\n\n💰 **FINANZAS:** Implementamos un sistema de control para que visualices tu rentabilidad en tiempo real.\n\n⚙️ **OPERACIONES:** Automatizamos tareas repetitivas con Agentes de IA para que recuperes tu tiempo.\n\n📈 **MARKETING:** Creamos tu identidad de marca y una estrategia de contenidos para que atraigas a más clientes.\n\n🤖 Nuestro agente IA en WhatsApp puede darte información detallada sobre cada servicio.',
-    
-    'Ver planes y precios': 'Nuestros servicios están diseñados para adaptarse a la realidad de tu negocio.\n\n🚀 **Plan "Piloto Automático":** Desde $1,500\n🚀 **Plan "Cohete":** Desde $2,500 + suscripción mensual\n\n💡 Te recomiendo continuar en WhatsApp donde nuestro agente IA puede crear una propuesta personalizada basada en tus necesidades específicas.',
-    
-    'Hablar con un especialista': '¡Por supuesto! Tienes dos opciones:\n\n🤖 **Respuesta Inmediata**: Continúa en WhatsApp donde nuestro agente IA especializado puede responder todas tus preguntas al instante.\n\n👤 **Consulta Personalizada**: Agenda directamente con Orlando para una sesión estratégica en: https://calendly.com/orlando-tuimpulsalab/30min',
-    
-    'Tengo otra consulta': '¡Perfecto! 📝 Nuestro agente IA está disponible 24/7 en WhatsApp para responder cualquier pregunta sobre Impulsa Lab, nuestros servicios, o cómo podemos ayudarte a crecer tu negocio.\n\nHaz clic en "Continuar en WhatsApp" para chatear con nuestra IA especializada.'
-  }
-
-  // Función corregida para verificar horario de negocio
-  const checkBusinessOpen = () => {
-    const now = new Date();
-    
-    // Obtener hora de NY correctamente
-    const nyTimeStr = now.toLocaleString("en-US", { timeZone: "America/New_York" });
-    const nyTime = new Date(nyTimeStr);
-    
-    const day = nyTime.getDay();
-    const hours = nyTime.getHours();
-    
-    console.log('NY Time Check:', {
-      nyTime: nyTimeStr,
-      day: day,
-      hours: hours,
-      dayName: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][day]
-    });
-    
-    // Domingo cerrado
-    if (day === 0) return false;
-    
-    // Sábado: 9 AM - 2 PM
-    if (day === 6) {
-      return hours >= 9 && hours < 14;
-    }
-    
-    // Lunes a Viernes: 9 AM - 8 PM
-    return hours >= 9 && hours < 20;
-  }
-
   useEffect(() => {
     setMounted(true)
-    setBusinessOpen(checkBusinessOpen())
-    
-    const interval = setInterval(() => {
-      setBusinessOpen(checkBusinessOpen())
-    }, 60000) // Verificar cada minuto
-    
-    return () => clearInterval(interval)
+    // Limpiar caché del navegador para este componente
+    if (typeof window !== 'undefined') {
+      console.log('WhatsApp Number:', phoneNumber)
+    }
   }, [])
 
-  // Crear nueva sesión en Firebase
-  const createSession = async () => {
-    console.log('📝 Intentando crear sesión en Firebase...');
-    console.log('db está disponible?', !!db);
-    console.log('businessOpen:', businessOpen);
-    
-    try {
-      if (!db) {
-        console.error('❌ Firebase db no está inicializado');
-        return null;
-      }
-      
-      const sessionData = {
-        startedAt: serverTimestamp(),
-        lastActivity: serverTimestamp(),
-        messages: [],
-        userInfo: {
-          userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : '',
-          referrer: typeof document !== 'undefined' ? document.referrer : '',
-          url: typeof window !== 'undefined' ? window.location.href : '',
-          phoneNumber: phoneNumber
-        },
-        status: 'active',
-        isBusinessOpen: businessOpen
-      }
-
-      const docRef = await addDoc(collection(db, 'chat-sessions'), sessionData)
-      setSessionId(docRef.id)
-      console.log('✅ Sesión creada:', docRef.id)
-      
-      return docRef.id
-    } catch (error) {
-      console.error('❌ Error creando sesión:', error)
-      return null
-    }
-  }
-
-  // Función para enviar notificaciones (placeholder para implementar)
-  const sendNotification = async (title: string, body: string) => {
-    console.log(`Notificación: ${title} - ${body}`)
-  }
-
-  // Agregar mensaje a sesión existente
-  const addMessageToSession = async (message: Message, currentSessionId?: string) => {
-    const sessionToUse = currentSessionId || sessionId
-
-    console.log('💬 Intentando guardar mensaje');
-    console.log('SessionID:', sessionToUse);
-    console.log('Mensaje:', message.text);
-
-    if (!sessionToUse) {
-      console.error('❌ No hay sessionId disponible');
-      return
-    }
-
-    try {
-      const messageData = {
-        text: message.text,
-        isUser: message.isUser,
-        timestamp: new Date().toISOString()
-      }
-
-      const sessionRef = doc(db, 'chat-sessions', sessionToUse)
-      await updateDoc(sessionRef, {
-        messages: arrayUnion(messageData),
-        lastActivity: serverTimestamp()
-      })
-      console.log('✅ Mensaje guardado en Firebase')
-      
-      // Si es mensaje del usuario, enviar notificación
-      if (message.isUser) {
-        await sendNotification(
-          'Nuevo mensaje de cliente',
-          `Mensaje: "${message.text.substring(0, 100)}${message.text.length > 100 ? '...' : ''}"`
-        )
-      }
-    } catch (error) {
-      console.error('❌ Error guardando mensaje:', error)
-    }
-  }
-
-  // Inicializar chat con mensaje actualizado
-  useEffect(() => {
-    if (isOpen && messages.length === 0 && !sessionId) {
-      const initChat = async () => {
-        const newSessionId = await createSession()
-        
-        if (newSessionId) {
-          const welcomeMessage: Message = {
-            id: '1',
-            text: '¡Hola! �� Soy Nova, la asistente virtual de Impulsa Lab.\n\n🤖 Ahora puedo responder todas tus preguntas con IA especializada en WhatsApp.\n\n¿En qué podemos ayudarte hoy?',
-            isUser: false,
-            timestamp: new Date()
-          }
-          
-          setMessages([welcomeMessage])
-          await addMessageToSession(welcomeMessage, newSessionId)
-        }
-      }
-      
-      initChat()
-    }
-  }, [isOpen, sessionId])
-
-  const handleButtonClick = async (buttonText: string) => {
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text: buttonText,
-      isUser: true,
-      timestamp: new Date()
-    }
-    
-    setMessages(prev => [...prev, userMessage])
-    setShowInitialButtons(false)
-    setIsTyping(true)
-    
-    await addMessageToSession(userMessage)
-
-    setTimeout(async () => {
-      const botResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        text: responses[buttonText] || 'Gracias por tu mensaje. Te responderemos pronto.',
-        isUser: false,
-        timestamp: new Date()
-      }
-      
-      setMessages(prev => [...prev, botResponse])
-      setIsTyping(false)
-      
-      await addMessageToSession(botResponse)
-    }, 1500)
-  }
-
-  const handleSendMessage = async () => {
-    if (!inputValue.trim()) return
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      text: inputValue,
-      isUser: true,
-      timestamp: new Date()
-    }
-    
-    setMessages(prev => [...prev, userMessage])
-    setInputValue('')
-    setIsTyping(true)
-    
-    await addMessageToSession(userMessage)
-
-    setTimeout(async () => {
-      const botResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        text: '¡Gracias por tu mensaje! 🤖\n\nNuestro agente IA en WhatsApp puede darte una respuesta completa e inmediata. Haz clic en "Continuar en WhatsApp" para chatear con nuestra IA especializada.\n\n📅 O si prefieres, agenda directamente con Orlando: https://calendly.com/orlando-tuimpulsalab/30min',
-        isUser: false,
-        timestamp: new Date()
-      }
-      
-      setMessages(prev => [...prev, botResponse])
-      setIsTyping(false)
-      
-      await addMessageToSession(botResponse)
-    }, 1500)
-  }
-
   const handleWhatsAppRedirect = () => {
-    if (sessionId) {
-      updateDoc(doc(db, 'chat-sessions', sessionId), {
-        status: 'moved_to_whatsapp',
-        movedToWhatsAppAt: serverTimestamp()
-      })
-    }
-
-    const text = messages
-      .filter(m => m.isUser)
-      .map(m => m.text)
-      .join('\n')
-    const encodedText = encodeURIComponent(text || '¡Hola! Me gustaría obtener más información sobre Impulsa Lab.')
-    window.open(`https://wa.me/${phoneNumber}?text=${encodedText}`, '_blank')
-  }
-
-  const handleCloseChat = () => {
-    if (sessionId && messages.length > 1) {
-      updateDoc(doc(db, 'chat-sessions', sessionId), {
-        status: 'closed',
-        closedAt: serverTimestamp(),
-        totalMessages: messages.length
-      })
-    }
+    // Mensaje simple para activar el agente
+    const welcomeText = '¡Hola! Me gustaría conocer más sobre Impulsa Lab'
+    const encodedText = encodeURIComponent(welcomeText)
     
+    // URL correcta de WhatsApp
+    const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodedText}`
+    console.log('Redirecting to:', whatsappURL)
+    
+    window.open(whatsappURL, '_blank')
     setIsOpen(false)
-    setMessages([])
-    setSessionId('')
-    setShowInitialButtons(true)
   }
 
   return (
@@ -304,180 +36,82 @@ export default function WhatsAppWidget() {
       {/* Botón flotante */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 z-40 bg-gradient-to-r from-blue-600 to-blue-700 
+        className={`fixed bottom-6 right-6 z-40 bg-gradient-to-r from-green-500 to-green-600 
                    text-white rounded-full p-4 shadow-lg hover:shadow-xl transform 
                    transition-all duration-300 hover:scale-110 ${isOpen ? 'scale-0' : 'scale-100'}`}
-        aria-label="Abrir chat de WhatsApp"
+        aria-label="Abrir WhatsApp"
       >
-        <MessageCircle className="w-6 h-6" />
-        {mounted && !businessOpen && (
-          <span className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></span>
-        )}
+        <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+        </svg>
+        <span className="absolute -top-1 -right-1 flex h-3 w-3">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-300 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-3 w-3 bg-green-400"></span>
+        </span>
       </button>
 
-      {/* Widget de chat */}
+      {/* Widget simplificado */}
       <div className={`fixed bottom-6 right-6 z-50 transition-all duration-300 ${
         isOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'
       }`}>
-        <div className="bg-white rounded-2xl shadow-2xl w-[370px] max-w-[calc(100vw-3rem)] h-[600px] max-h-[calc(100vh-6rem)] flex flex-col overflow-hidden">
+        <div className="bg-white rounded-2xl shadow-2xl w-[350px] max-w-[calc(100vw-3rem)] p-6">
           {/* Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4 text-white">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                  <span className="text-2xl">🤖</span>
-                </div>
-                <div>
-                  <h3 className="font-semibold">Nova AI - Impulsa Lab</h3>
-                  {mounted && (
-                    <p className="text-xs opacity-90 flex items-center gap-1">
-                      <span className={`w-2 h-2 rounded-full ${businessOpen ? 'bg-green-400' : 'bg-green-400'}`}></span>
-                      Disponible 24/7 con IA
-                    </p>
-                  )}
-                </div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                </svg>
               </div>
-              <button
-                onClick={handleCloseChat}
-                className="text-white/80 hover:text-white transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            {/* Horario */}
-            <details className="text-xs">
-              <summary className="cursor-pointer opacity-80 hover:opacity-100 flex items-center gap-1">
-                <Clock className="w-3 h-3" />
-                Horario humano disponible
-                <ChevronDown className="w-3 h-3" />
-              </summary>
-              <div className="mt-2 space-y-1 ml-4">
-                <p>L-V: {businessHours.weekdays}</p>
-                <p>Sáb: {businessHours.saturday}</p>
-                <p>Dom: {businessHours.sunday}</p>
-                <p className="text-green-300 font-semibold mt-1">🤖 IA disponible 24/7</p>
+              <div>
+                <h3 className="font-semibold text-gray-800">Impulsa Lab AI</h3>
+                <p className="text-xs text-gray-500 flex items-center gap-1">
+                  <span className="w-2 h-2 bg-green-400 rounded-full"></span>
+                  Disponible 24/7
+                </p>
               </div>
-            </details>
-          </div>
-
-          {/* Mensajes - CORREGIDO PARA MÓVILES */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
-              >
-                <div 
-                  className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                    message.isUser 
-                      ? 'bg-blue-600 text-white rounded-br-none' 
-                      : 'bg-white text-gray-800 rounded-bl-none shadow-sm'
-                  }`}
-                  style={{
-                    color: message.isUser ? '#ffffff' : '#1f2937',
-                    backgroundColor: message.isUser ? '#2563eb' : '#ffffff',
-                    WebkitTextFillColor: message.isUser ? '#ffffff' : '#1f2937'
-                  }}
-                >
-                  <p className="text-sm whitespace-pre-line" 
-                     style={{ 
-                       color: 'inherit',
-                       WebkitTextFillColor: 'inherit' 
-                     }}>
-                    {message.text}
-                  </p>
-                  <p className={`text-xs mt-1 ${
-                    message.isUser ? 'text-blue-100' : 'text-gray-400'
-                  }`}
-                  style={{
-                    color: message.isUser ? '#dbeafe' : '#9ca3af',
-                    WebkitTextFillColor: message.isUser ? '#dbeafe' : '#9ca3af'
-                  }}>
-                    {message.timestamp.toLocaleTimeString('es-ES', { 
-                      hour: '2-digit', 
-                      minute: '2-digit' 
-                    })}
-                  </p>
-                </div>
-              </div>
-            ))}
-            
-            {/* Typing indicator */}
-            {isTyping && (
-              <div className="flex justify-start">
-                <div className="bg-white rounded-2xl rounded-bl-none px-4 py-3 shadow-sm">
-                  <div className="flex gap-1">
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></span>
-                    <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></span>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Botones de opciones - CORREGIDO PARA MÓVILES */}
-            {showInitialButtons && messages.length === 1 && !isTyping && (
-              <div className="space-y-2">
-                {initialButtons.map((button) => (
-                  <button
-                    key={button}
-                    onClick={() => handleButtonClick(button)}
-                    className="w-full text-left bg-white hover:bg-gray-50 text-gray-700 
-                             px-4 py-3 rounded-xl shadow-sm transition-all duration-200 
-                             hover:shadow-md text-sm border border-gray-100"
-                    style={{
-                      color: '#374151',
-                      backgroundColor: '#ffffff',
-                      WebkitTextFillColor: '#374151'
-                    }}
-                  >
-                    {button}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Input - YA CORREGIDO */}
-          <div className="p-4 bg-white border-t border-gray-100">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                placeholder="Escribe tu mensaje..."
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-full 
-                         bg-white text-gray-900 placeholder-gray-500
-                         focus:outline-none focus:border-blue-500 focus:ring-2 
-                         focus:ring-blue-200 text-sm"
-                style={{
-                  WebkitTextFillColor: '#111827',
-                  opacity: 1
-                }}
-              />
-              <button
-                onClick={handleSendMessage}
-                className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 
-                         transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={!inputValue.trim()}
-              >
-                <Send className="w-4 h-4" />
-              </button>
             </div>
             <button
-              onClick={handleWhatsAppRedirect}
-              className="w-full mt-2 text-xs text-gray-500 hover:text-gray-700 
-                       transition-colors flex items-center justify-center gap-1 
-                       bg-green-50 hover:bg-green-100 py-2 rounded-lg"
+              onClick={() => setIsOpen(false)}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
             >
-              <span className="font-semibold">Continuar en WhatsApp con IA 24/7</span>
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-              </svg>
+              <X className="w-5 h-5" />
             </button>
           </div>
+
+          {/* Mensaje */}
+          <div className="mb-4">
+            <p className="text-gray-700 text-sm leading-relaxed">
+              ¡Hola! 👋 Soy el asistente IA de Impulsa Lab.
+            </p>
+            <p className="text-gray-700 text-sm leading-relaxed mt-2">
+              Puedo ayudarte con:
+            </p>
+            <ul className="mt-2 space-y-1 text-sm text-gray-600">
+              <li>✅ Diagnóstico gratuito de tu negocio</li>
+              <li>✅ Información sobre nuestros servicios</li>
+              <li>✅ Agendar una reunión con Orlando</li>
+              <li>✅ Responder todas tus preguntas</li>
+            </ul>
+          </div>
+
+          {/* Botón CTA */}
+          <button
+            onClick={handleWhatsAppRedirect}
+            className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4 
+                     rounded-xl font-semibold hover:from-green-600 hover:to-green-700 
+                     transition-all duration-300 transform hover:scale-105 flex items-center 
+                     justify-center gap-2 shadow-lg"
+          >
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+            </svg>
+            Chatear por WhatsApp
+          </button>
+
+          <p className="text-xs text-gray-400 text-center mt-3">
+            Respuesta inmediata con IA
+          </p>
         </div>
       </div>
     </>

@@ -34,7 +34,9 @@ export default function WhatsAppWidget() {
   const [mounted, setMounted] = useState(false)
   const [businessOpen, setBusinessOpen] = useState(true)
 
-  const phoneNumber = '+13479043169'
+  // NÚMERO ACTUALIZADO - WhatsApp Business con Automatización IA
+  const phoneNumber = '+19295007815'
+  
   const businessHours = {
     weekdays: '9:00 AM - 8:00 PM EST',
     saturday: '9:00 AM - 2:00 PM EST',
@@ -50,15 +52,15 @@ export default function WhatsAppWidget() {
   ]
 
   const responses: { [key: string]: string } = {
-    'Quiero mi Diagnóstico 3D Gratis': '¡Excelente decisión! 🎯 El Diagnóstico 3D es una sesión estratégica de 30 minutos donde analizaremos la "coordenada" de crecimiento de tu negocio en Finanzas, Operaciones y Marketing. Es el primer paso para tomar el control.\n\n📅 Puedes agendar directamente en el calendario de Orlando aquí: https://calendly.com/orlando-tuimpulsalab/30min',
+    'Quiero mi Diagnóstico 3D Gratis': '¡Excelente decisión! 🎯 El Diagnóstico 3D es una sesión estratégica de 30 minutos donde analizaremos la "coordenada" de crecimiento de tu negocio en Finanzas, Operaciones y Marketing. Es el primer paso para tomar el control.\n\n📅 Puedes agendar directamente en el calendario de Orlando aquí: https://calendly.com/orlando-tuimpulsalab/30min\n\n💬 O continúa la conversación con nuestro agente IA en WhatsApp para agendar.',
     
-    'Información sobre servicios': '¡Claro! En Impulsa Lab te ayudamos a potenciar tu negocio a través de 3 pilares:\n\n💰 **FINANZAS:** Implementamos un sistema de control para que visualices tu rentabilidad en tiempo real.\n\n⚙️ **OPERACIONES:** Automatizamos tareas repetitivas con Agentes de IA para que recuperes tu tiempo.\n\n📈 **MARKETING:** Creamos tu identidad de marca y una estrategia de contenidos para que atraigas a más clientes.\n\n¿Te gustaría profundizar en alguno de ellos?',
+    'Información sobre servicios': '¡Claro! En Impulsa Lab te ayudamos a potenciar tu negocio a través de 3 pilares:\n\n💰 **FINANZAS:** Implementamos un sistema de control para que visualices tu rentabilidad en tiempo real.\n\n⚙️ **OPERACIONES:** Automatizamos tareas repetitivas con Agentes de IA para que recuperes tu tiempo.\n\n📈 **MARKETING:** Creamos tu identidad de marca y una estrategia de contenidos para que atraigas a más clientes.\n\n🤖 Nuestro agente IA en WhatsApp puede darte información detallada sobre cada servicio.',
     
-    'Ver planes y precios': 'Nuestros servicios están diseñados para adaptarse a la realidad de tu negocio. El primer paso recomendado es la "Auditoría de Potencial de Crecimiento".\n\nNuestros planes de implementación comienzan en:\n\n🚀 **Plan "Piloto Automático":** Desde $1,500\n🚀 **Plan "Cohete":** Desde $2,500 + suscripción mensual\n\n💡 Solo a través del diagnóstico podemos crear una propuesta real y a tu medida, que incluso podría tener un costo menor dependiendo de tus necesidades específicas.',
+    'Ver planes y precios': 'Nuestros servicios están diseñados para adaptarse a la realidad de tu negocio.\n\n🚀 **Plan "Piloto Automático":** Desde $1,500\n🚀 **Plan "Cohete":** Desde $2,500 + suscripción mensual\n\n💡 Te recomiendo continuar en WhatsApp donde nuestro agente IA puede crear una propuesta personalizada basada en tus necesidades específicas.',
     
-    'Hablar con un especialista': 'Por supuesto. Por favor, deja tu mensaje y uno de nuestros especialistas te responderá dentro de nuestro horario de atención:\n\n🕐 L-V: 9am-8pm EST\n🕐 Sáb: 9am-2pm EST\n\nSi es urgente, la forma más rápida de conectar es agendando un Diagnóstico 3D en nuestro calendario.',
+    'Hablar con un especialista': '¡Por supuesto! Tienes dos opciones:\n\n🤖 **Respuesta Inmediata**: Continúa en WhatsApp donde nuestro agente IA especializado puede responder todas tus preguntas al instante.\n\n👤 **Consulta Personalizada**: Agenda directamente con Orlando para una sesión estratégica en: https://calendly.com/orlando-tuimpulsalab/30min',
     
-    'Tengo otra consulta': 'Entendido. Por favor, escribe tu pregunta a continuación y te responderemos a la brevedad posible durante nuestro horario de atención. 📝'
+    'Tengo otra consulta': '¡Perfecto! 📝 Nuestro agente IA está disponible 24/7 en WhatsApp para responder cualquier pregunta sobre Impulsa Lab, nuestros servicios, o cómo podemos ayudarte a crecer tu negocio.\n\nHaz clic en "Continuar en WhatsApp" para chatear con nuestra IA especializada.'
   }
 
   // Función corregida para verificar horario de negocio
@@ -121,7 +123,8 @@ export default function WhatsAppWidget() {
         userInfo: {
           userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : '',
           referrer: typeof document !== 'undefined' ? document.referrer : '',
-          url: typeof window !== 'undefined' ? window.location.href : ''
+          url: typeof window !== 'undefined' ? window.location.href : '',
+          phoneNumber: phoneNumber
         },
         status: 'active',
         isBusinessOpen: businessOpen
@@ -182,7 +185,7 @@ export default function WhatsAppWidget() {
     }
   }
 
-  // Inicializar chat
+  // Inicializar chat con mensaje actualizado
   useEffect(() => {
     if (isOpen && messages.length === 0 && !sessionId) {
       const initChat = async () => {
@@ -191,7 +194,7 @@ export default function WhatsAppWidget() {
         if (newSessionId) {
           const welcomeMessage: Message = {
             id: '1',
-            text: '¡Hola! 👋 Soy Nova, la asistente virtual de Impulsa Lab. Gracias por visitarnos. ¿En qué podemos ayudarte hoy?',
+            text: '¡Hola! �� Soy Nova, la asistente virtual de Impulsa Lab.\n\n🤖 Ahora puedo responder todas tus preguntas con IA especializada en WhatsApp.\n\n¿En qué podemos ayudarte hoy?',
             isUser: false,
             timestamp: new Date()
           }
@@ -253,7 +256,7 @@ export default function WhatsAppWidget() {
     setTimeout(async () => {
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
-        text: 'Gracias por tu mensaje. Un especialista de Impulsa Lab te responderá dentro de nuestro horario de atención. Si necesitas una respuesta inmediata, puedes agendar una llamada en: https://calendly.com/orlando-tuimpulsalab/30min',
+        text: '¡Gracias por tu mensaje! 🤖\n\nNuestro agente IA en WhatsApp puede darte una respuesta completa e inmediata. Haz clic en "Continuar en WhatsApp" para chatear con nuestra IA especializada.\n\n📅 O si prefieres, agenda directamente con Orlando: https://calendly.com/orlando-tuimpulsalab/30min',
         isUser: false,
         timestamp: new Date()
       }
@@ -325,11 +328,11 @@ export default function WhatsAppWidget() {
                   <span className="text-2xl">🤖</span>
                 </div>
                 <div>
-                  <h3 className="font-semibold">Nova - Impulsa Lab</h3>
+                  <h3 className="font-semibold">Nova AI - Impulsa Lab</h3>
                   {mounted && (
                     <p className="text-xs opacity-90 flex items-center gap-1">
-                      <span className={`w-2 h-2 rounded-full ${businessOpen ? 'bg-green-400' : 'bg-yellow-400'}`}></span>
-                      {businessOpen ? 'En línea' : 'Fuera de horario'}
+                      <span className={`w-2 h-2 rounded-full ${businessOpen ? 'bg-green-400' : 'bg-green-400'}`}></span>
+                      Disponible 24/7 con IA
                     </p>
                   )}
                 </div>
@@ -346,13 +349,14 @@ export default function WhatsAppWidget() {
             <details className="text-xs">
               <summary className="cursor-pointer opacity-80 hover:opacity-100 flex items-center gap-1">
                 <Clock className="w-3 h-3" />
-                Horario de atención
+                Horario humano disponible
                 <ChevronDown className="w-3 h-3" />
               </summary>
               <div className="mt-2 space-y-1 ml-4">
                 <p>L-V: {businessHours.weekdays}</p>
                 <p>Sáb: {businessHours.saturday}</p>
                 <p>Dom: {businessHours.sunday}</p>
+                <p className="text-green-300 font-semibold mt-1">🤖 IA disponible 24/7</p>
               </div>
             </details>
           </div>
@@ -371,7 +375,6 @@ export default function WhatsAppWidget() {
                       : 'bg-white text-gray-800 rounded-bl-none shadow-sm'
                   }`}
                   style={{
-                    // FIX PARA MÓVILES - Forzar colores
                     color: message.isUser ? '#ffffff' : '#1f2937',
                     backgroundColor: message.isUser ? '#2563eb' : '#ffffff',
                     WebkitTextFillColor: message.isUser ? '#ffffff' : '#1f2937'
@@ -466,10 +469,11 @@ export default function WhatsAppWidget() {
             <button
               onClick={handleWhatsAppRedirect}
               className="w-full mt-2 text-xs text-gray-500 hover:text-gray-700 
-                       transition-colors flex items-center justify-center gap-1"
+                       transition-colors flex items-center justify-center gap-1 
+                       bg-green-50 hover:bg-green-100 py-2 rounded-lg"
             >
-              Continuar en WhatsApp
-              <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+              <span className="font-semibold">Continuar en WhatsApp con IA 24/7</span>
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
               </svg>
             </button>

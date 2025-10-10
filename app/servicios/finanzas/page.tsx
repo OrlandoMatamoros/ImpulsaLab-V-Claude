@@ -522,7 +522,7 @@ export default function FinanzasPage() {
 
               {/* CTA específico */}
               <div className="text-center">
-                <Link href="https://wa.me/13479043169?text=Hola!%20Vi%20los%20dashboards%20de%20Impulsa%20Lab%20y%20quiero%20ver%20mis%20números%20claramente.%20¿Podrían%20ayudarme%20a%20tener%20control%20de%20mis%20finanzas?"
+                <Link href="https://wa.me/19295007815?text=Hola!%20Vi%20los%20dashboards%20de%20Impulsa%20Lab%20y%20quiero%20ver%20mis%20números%20claramente.%20¿Podrían%20ayudarme%20a%20tener%20control%20de%20mis%20finanzas?"
                   target="_blank"
                   className="inline-flex items-center bg-green-600 text-white px-8 py-4 rounded-full 
                font-semibold text-lg transition-all duration-300 

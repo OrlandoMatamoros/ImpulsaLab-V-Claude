@@ -267,7 +267,7 @@ export default function MentoriaPersonalizadaPage() {
                 Agendar mi Mentoría
               </Link>
               <a 
-                href="https://wa.me/1234567890"
+                href="https://wa.me/19295007815"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-8 py-4 bg-emerald-800/50 backdrop-blur text-white rounded-xl font-semibold text-lg border-2 border-white/20 hover:bg-emerald-800 transition-all duration-300 flex items-center justify-center gap-2"

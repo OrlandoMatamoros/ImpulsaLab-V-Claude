@@ -23,10 +23,10 @@ export default function ProteccionDatos() {
   const [activeSection, setActiveSection] = useState('politica');
 
   const sections = [
-    { id: 'politica', label: 'Política de Privacidad', icon: FaFileContract },
-    { id: 'derechos', label: 'Tus Derechos GDPR', icon: FaUserShield },
-    { id: 'procedimientos', label: 'Procedimientos', icon: FaUserCog },
-    { id: 'contacto', label: 'Contacto DPO', icon: FaEnvelope }
+    { id: 'politica', label: 'Privacy Policy', icon: FaFileContract },
+    { id: 'derechos', label: 'Your GDPR Rights', icon: FaUserShield },
+    { id: 'procedimientos', label: 'Procedures', icon: FaUserCog },
+    { id: 'contacto', label: 'DPO Contact', icon: FaEnvelope }
   ];
 
   return (
@@ -36,14 +36,14 @@ export default function ProteccionDatos() {
         <div className="container mx-auto px-4 py-4">
           <nav className="text-sm">
             <Link href="/" className="text-gray-500 hover:text-gray-700 transition-colors">
-              Inicio
+              Home
             </Link>
             <span className="mx-2 text-gray-400">/</span>
             <Link href="/legal" className="text-gray-500 hover:text-gray-700 transition-colors">
               Legal
             </Link>
             <span className="mx-2 text-gray-400">/</span>
-            <span className="text-gray-900 font-medium">Protección de Datos</span>
+            <span className="text-gray-900 font-medium">Data Protection</span>
           </nav>
         </div>
       </div>
@@ -56,20 +56,20 @@ export default function ProteccionDatos() {
               <FaShieldAlt className="text-4xl" />
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
-              Protección de Datos y Privacidad
+              Data Protection and Privacy
             </h1>
             <p className="text-xl mb-8 text-blue-50">
-              Tu privacidad es nuestra prioridad. Conoce cómo protegemos tus datos 
-              y cuáles son tus derechos bajo el GDPR y las regulaciones locales.
+              Your privacy is our priority. Learn how we protect your data
+              and what your rights are under GDPR and local regulations.
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-sm">
               <div className="bg-white/10 px-4 py-2 rounded-full">
                 <FaClock className="inline mr-2" />
-                Última actualización: Julio 2025
+                Last updated: July 2025
               </div>
               <div className="bg-white/10 px-4 py-2 rounded-full">
                 <FaBalanceScale className="inline mr-2" />
-                Cumplimiento GDPR
+                GDPR Compliant
               </div>
             </div>
           </div>
@@ -103,40 +103,40 @@ export default function ProteccionDatos() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
             
-            {/* Política de Privacidad */}
+            {/* Privacy Policy */}
             {activeSection === 'politica' && (
               <div className="space-y-8">
                 <div className="bg-white rounded-xl shadow-lg p-8">
                   <h2 className="text-3xl font-bold mb-6 text-gray-900">
-                    Política de Privacidad
+                    Privacy Policy
                   </h2>
-                  
+
                   <div className="space-y-6 text-gray-700">
                     <div>
                       <h3 className="text-xl font-semibold mb-3 flex items-center gap-2">
                         <FaDatabase className="text-blue-600" />
-                        1. Información que Recopilamos
+                        1. Information We Collect
                       </h3>
                       <p className="mb-3">
-                        En Impulsa Lab recopilamos únicamente la información necesaria para 
-                        brindarte nuestros servicios de consultoría y transformación digital:
+                        At Impulsa Lab, we collect only the information necessary to
+                        provide you with our consulting and digital transformation services:
                       </p>
                       <ul className="space-y-2 ml-4">
                         <li className="flex items-start gap-2">
                           <FaCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
-                          <span><strong>Datos de Contacto:</strong> Nombre, email, teléfono, dirección de tu empresa</span>
+                          <span><strong>Contact Information:</strong> Name, email, phone number, company address</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <FaCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
-                          <span><strong>Datos Empresariales:</strong> Información sobre tu negocio, sector, tamaño, necesidades</span>
+                          <span><strong>Business Information:</strong> Information about your business, industry, size, needs</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <FaCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
-                          <span><strong>Datos de Uso:</strong> Interacciones con nuestra plataforma y herramientas de IA</span>
+                          <span><strong>Usage Data:</strong> Interactions with our platform and AI tools</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <FaCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
-                          <span><strong>Datos Financieros:</strong> Información necesaria para procesar pagos (procesada por PayPal)</span>
+                          <span><strong>Financial Data:</strong> Information necessary to process payments (processed by PayPal)</span>
                         </li>
                       </ul>
                     </div>
@@ -144,31 +144,31 @@ export default function ProteccionDatos() {
                     <div>
                       <h3 className="text-xl font-semibold mb-3 flex items-center gap-2">
                         <FaLock className="text-blue-600" />
-                        2. Cómo Usamos tu Información
+                        2. How We Use Your Information
                       </h3>
                       <p className="mb-3">
-                        Utilizamos tus datos exclusivamente para:
+                        We use your data exclusively to:
                       </p>
                       <ul className="space-y-2 ml-4">
                         <li className="flex items-start gap-2">
                           <FaCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
-                          <span>Realizar el Diagnóstico 3D de tu negocio</span>
+                          <span>Perform the 3D Diagnosis of your business</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <FaCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
-                          <span>Personalizar soluciones de IA para tu empresa</span>
+                          <span>Customize AI solutions for your company</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <FaCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
-                          <span>Comunicarnos contigo sobre nuestros servicios</span>
+                          <span>Communicate with you about our services</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <FaCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
-                          <span>Mejorar nuestras herramientas y metodologías</span>
+                          <span>Improve our tools and methodologies</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <FaCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
-                          <span>Cumplir con obligaciones legales y fiscales</span>
+                          <span>Comply with legal and tax obligations</span>
                         </li>
                       </ul>
                     </div>
@@ -176,20 +176,20 @@ export default function ProteccionDatos() {
                     <div>
                       <h3 className="text-xl font-semibold mb-3 flex items-center gap-2">
                         <FaGlobe className="text-blue-600" />
-                        3. Compartir Información
+                        3. Information Sharing
                       </h3>
                       <div className="bg-blue-50 border-l-4 border-blue-600 p-4 rounded">
                         <p className="font-semibold mb-2">
                           <FaExclamationTriangle className="inline text-blue-600 mr-2" />
-                          Nunca vendemos tus datos
+                          We never sell your data
                         </p>
                         <p>
-                          Tu información es confidencial. Solo la compartimos con:
+                          Your information is confidential. We only share it with:
                         </p>
                         <ul className="mt-2 space-y-1 ml-4">
-                          <li>• Proveedores de servicios esenciales (hosting, procesamiento de pagos)</li>
-                          <li>• Autoridades cuando la ley lo requiera</li>
-                          <li>• Terceros con tu consentimiento explícito</li>
+                          <li>• Essential service providers (hosting, payment processing)</li>
+                          <li>• Authorities when required by law</li>
+                          <li>• Third parties with your explicit consent</li>
                         </ul>
                       </div>
                     </div>
@@ -197,27 +197,27 @@ export default function ProteccionDatos() {
                     <div>
                       <h3 className="text-xl font-semibold mb-3 flex items-center gap-2">
                         <FaShieldAlt className="text-blue-600" />
-                        4. Seguridad de los Datos
+                        4. Data Security
                       </h3>
                       <p>
-                        Implementamos medidas de seguridad técnicas y organizativas líderes en la industria:
+                        We implement industry-leading technical and organizational security measures:
                       </p>
                       <ul className="mt-3 space-y-2 ml-4">
                         <li className="flex items-start gap-2">
                           <FaCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
-                          <span>Encriptación SSL/TLS en todas las transmisiones</span>
+                          <span>SSL/TLS encryption on all transmissions</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <FaCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
-                          <span>Almacenamiento cifrado en servidores seguros</span>
+                          <span>Encrypted storage on secure servers</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <FaCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
-                          <span>Acceso restringido solo a personal autorizado</span>
+                          <span>Restricted access to authorized personnel only</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <FaCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
-                          <span>Auditorías de seguridad periódicas</span>
+                          <span>Periodic security audits</span>
                         </li>
                       </ul>
                     </div>
@@ -236,17 +236,17 @@ export default function ProteccionDatos() {
               </div>
             )}
 
-            {/* Derechos GDPR */}
+            {/* GDPR Rights */}
             {activeSection === 'derechos' && (
               <div className="space-y-8">
                 <div className="bg-white rounded-xl shadow-lg p-8">
                   <h2 className="text-3xl font-bold mb-6 text-gray-900">
-                    Tus Derechos bajo el GDPR
+                    Your Rights under GDPR
                   </h2>
-                  
+
                   <p className="text-lg text-gray-700 mb-8">
-                    Como titular de los datos, tienes derechos fundamentales sobre tu información personal. 
-                    En Impulsa Lab respetamos y facilitamos el ejercicio de todos tus derechos:
+                    As a data subject, you have fundamental rights over your personal information.
+                    At Impulsa Lab, we respect and facilitate the exercise of all your rights:
                   </p>
 
                   <div className="grid md:grid-cols-2 gap-6">
@@ -256,9 +256,9 @@ export default function ProteccionDatos() {
                           <FaUserShield className="text-xl" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-lg mb-2">Derecho de Acceso</h3>
+                          <h3 className="font-semibold text-lg mb-2">Right of Access</h3>
                           <p className="text-gray-700">
-                            Puedes solicitar una copia de todos los datos personales que tenemos sobre ti.
+                            You can request a copy of all personal data we have about you.
                           </p>
                         </div>
                       </div>
@@ -270,9 +270,9 @@ export default function ProteccionDatos() {
                           <FaUserCog className="text-xl" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-lg mb-2">Derecho de Rectificación</h3>
+                          <h3 className="font-semibold text-lg mb-2">Right to Rectification</h3>
                           <p className="text-gray-700">
-                            Tienes derecho a corregir datos inexactos o completar datos incompletos.
+                            You have the right to correct inaccurate data or complete incomplete data.
                           </p>
                         </div>
                       </div>
@@ -284,9 +284,9 @@ export default function ProteccionDatos() {
                           <FaDatabase className="text-xl" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-lg mb-2">Derecho al Olvido</h3>
+                          <h3 className="font-semibold text-lg mb-2">Right to Erasure</h3>
                           <p className="text-gray-700">
-                            Puedes solicitar que eliminemos tus datos personales bajo ciertas circunstancias.
+                            You can request that we delete your personal data under certain circumstances.
                           </p>
                         </div>
                       </div>
@@ -298,9 +298,9 @@ export default function ProteccionDatos() {
                           <FaLock className="text-xl" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-lg mb-2">Derecho de Restricción</h3>
+                          <h3 className="font-semibold text-lg mb-2">Right to Restriction</h3>
                           <p className="text-gray-700">
-                            Puedes limitar cómo procesamos tus datos en situaciones específicas.
+                            You can limit how we process your data in specific situations.
                           </p>
                         </div>
                       </div>
@@ -312,9 +312,9 @@ export default function ProteccionDatos() {
                           <FaGlobe className="text-xl" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-lg mb-2">Derecho a la Portabilidad</h3>
+                          <h3 className="font-semibold text-lg mb-2">Right to Data Portability</h3>
                           <p className="text-gray-700">
-                            Puedes recibir tus datos en un formato estructurado y transferirlos a otro servicio.
+                            You can receive your data in a structured format and transfer it to another service.
                           </p>
                         </div>
                       </div>
@@ -326,9 +326,9 @@ export default function ProteccionDatos() {
                           <FaExclamationTriangle className="text-xl" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-lg mb-2">Derecho de Oposición</h3>
+                          <h3 className="font-semibold text-lg mb-2">Right to Object</h3>
                           <p className="text-gray-700">
-                            Puedes oponerte al procesamiento de tus datos para marketing directo.
+                            You can object to the processing of your data for direct marketing.
                           </p>
                         </div>
                       </div>
@@ -338,33 +338,33 @@ export default function ProteccionDatos() {
                   <div className="mt-8 bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded">
                     <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
                       <FaBalanceScale className="text-yellow-600" />
-                      Tiempo de Respuesta
+                      Response Time
                     </h3>
                     <p className="text-gray-700">
-                      Respondemos a todas las solicitudes de derechos GDPR dentro de <strong>30 días calendario</strong>. 
-                      En casos complejos, podemos extender este plazo hasta 60 días adicionales, notificándote 
-                      oportunamente sobre la extensión y sus razones.
+                      We respond to all GDPR rights requests within <strong>30 calendar days</strong>.
+                      In complex cases, we may extend this period up to 60 additional days, promptly notifying
+                      you about the extension and its reasons.
                     </p>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Procedimientos */}
+            {/* Procedures */}
             {activeSection === 'procedimientos' && (
               <div className="space-y-8">
                 <div className="bg-white rounded-xl shadow-lg p-8">
                   <h2 className="text-3xl font-bold mb-6 text-gray-900">
-                    Procedimientos de Solicitud
+                    Request Procedures
                   </h2>
-                  
+
                   <div className="space-y-8">
                     <div>
                       <h3 className="text-2xl font-semibold mb-4 text-gray-800">
-                        Cómo Ejercer tus Derechos
+                        How to Exercise Your Rights
                       </h3>
                       <p className="text-gray-700 mb-6">
-                        Hemos simplificado el proceso para que puedas ejercer tus derechos de manera fácil y segura:
+                        We have simplified the process so you can exercise your rights easily and securely:
                       </p>
 
                       <div className="space-y-4">
@@ -374,10 +374,10 @@ export default function ProteccionDatos() {
                               1
                             </div>
                             <div className="flex-1">
-                              <h4 className="font-semibold text-lg mb-2">Identifica tu Solicitud</h4>
+                              <h4 className="font-semibold text-lg mb-2">Identify Your Request</h4>
                               <p className="text-gray-700">
-                                Determina qué derecho deseas ejercer: acceso, rectificación, eliminación, 
-                                restricción, portabilidad u oposición.
+                                Determine which right you wish to exercise: access, rectification, erasure,
+                                restriction, portability, or objection.
                               </p>
                             </div>
                           </div>
@@ -389,15 +389,15 @@ export default function ProteccionDatos() {
                               2
                             </div>
                             <div className="flex-1">
-                              <h4 className="font-semibold text-lg mb-2">Prepara tu Solicitud</h4>
+                              <h4 className="font-semibold text-lg mb-2">Prepare Your Request</h4>
                               <p className="text-gray-700 mb-3">
-                                Incluye la siguiente información:
+                                Include the following information:
                               </p>
                               <ul className="space-y-1 ml-4 text-gray-600">
-                                <li>• Tu nombre completo y datos de contacto</li>
-                                <li>• Descripción clara del derecho que deseas ejercer</li>
-                                <li>• Cualquier información adicional relevante</li>
-                                <li>• Copia de tu identificación (para verificación)</li>
+                                <li>• Your full name and contact details</li>
+                                <li>• Clear description of the right you wish to exercise</li>
+                                <li>• Any additional relevant information</li>
+                                <li>• Copy of your identification (for verification)</li>
                               </ul>
                             </div>
                           </div>
@@ -409,9 +409,9 @@ export default function ProteccionDatos() {
                               3
                             </div>
                             <div className="flex-1">
-                              <h4 className="font-semibold text-lg mb-2">Envía tu Solicitud</h4>
+                              <h4 className="font-semibold text-lg mb-2">Submit Your Request</h4>
                               <p className="text-gray-700 mb-3">
-                                Puedes enviarnos tu solicitud por cualquiera de estos medios:
+                                You can send us your request through any of these channels:
                               </p>
                               <div className="space-y-2">
                                 <div className="flex items-center gap-2">
@@ -420,7 +420,7 @@ export default function ProteccionDatos() {
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <FaPhone className="text-blue-600" />
-                                  <span>Teléfono: +1 929 500 1850</span>
+                                  <span>Phone: +1 929 500 1850</span>
                                 </div>
                               </div>
                             </div>
@@ -433,10 +433,10 @@ export default function ProteccionDatos() {
                               4
                             </div>
                             <div className="flex-1">
-                              <h4 className="font-semibold text-lg mb-2">Confirmación y Procesamiento</h4>
+                              <h4 className="font-semibold text-lg mb-2">Confirmation and Processing</h4>
                               <p className="text-gray-700">
-                                Recibirás una confirmación de recepción en 48 horas. Procesaremos tu 
-                                solicitud y te responderemos dentro del plazo legal de 30 días.
+                                You will receive a confirmation of receipt within 48 hours. We will process your
+                                request and respond within the legal deadline of 30 days.
                               </p>
                             </div>
                           </div>
@@ -447,23 +447,23 @@ export default function ProteccionDatos() {
                     <div className="bg-blue-50 border-l-4 border-blue-600 p-6 rounded">
                       <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
                         <FaFileContract className="text-blue-600" />
-                        Formularios y Plantillas
+                        Forms and Templates
                       </h3>
                       <p className="text-gray-700 mb-4">
-                        Para facilitar tu solicitud, puedes descargar nuestras plantillas prediseñadas:
+                        To facilitate your request, you can download our pre-designed templates:
                       </p>
                       <div className="space-y-2">
                         <button className="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2">
                           <FaArrowRight />
-                          Plantilla de Solicitud de Acceso a Datos
+                          Data Access Request Template
                         </button>
                         <button className="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2">
                           <FaArrowRight />
-                          Plantilla de Solicitud de Eliminación
+                          Deletion Request Template
                         </button>
                         <button className="text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2">
                           <FaArrowRight />
-                          Plantilla de Solicitud de Portabilidad
+                          Data Portability Request Template
                         </button>
                       </div>
                     </div>
@@ -471,18 +471,18 @@ export default function ProteccionDatos() {
                     <div className="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded">
                       <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
                         <FaExclamationTriangle className="text-yellow-600" />
-                        Importante
+                        Important
                       </h3>
                       <ul className="space-y-2 text-gray-700">
                         <li>
-                          • No cobramos ninguna tarifa por procesar solicitudes de derechos GDPR
+                          • We do not charge any fee for processing GDPR rights requests
                         </li>
                         <li>
-                          • Podemos solicitar información adicional para verificar tu identidad
+                          • We may request additional information to verify your identity
                         </li>
                         <li>
-                          • En caso de solicitudes excesivas o infundadas, nos reservamos el derecho 
-                          de cobrar una tarifa administrativa o rechazar la solicitud
+                          • In case of excessive or unfounded requests, we reserve the right
+                          to charge an administrative fee or reject the request
                         </li>
                       </ul>
                     </div>
@@ -491,14 +491,14 @@ export default function ProteccionDatos() {
               </div>
             )}
 
-            {/* Contacto DPO */}
+            {/* DPO Contact */}
             {activeSection === 'contacto' && (
               <div className="space-y-8">
                 <div className="bg-white rounded-xl shadow-lg p-8">
                   <h2 className="text-3xl font-bold mb-6 text-gray-900">
-                    Oficial de Protección de Datos (DPO)
+                    Data Protection Officer (DPO)
                   </h2>
-                  
+
                   <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-8 rounded-xl border border-blue-200 mb-8">
                     <div className="text-center mb-6">
                       <div className="inline-flex items-center justify-center w-24 h-24 bg-blue-600 text-white rounded-full mb-4">
@@ -512,7 +512,7 @@ export default function ProteccionDatos() {
                       <div className="bg-white p-4 rounded-lg">
                         <div className="flex items-center gap-3 mb-2">
                           <FaEnvelope className="text-blue-600 text-xl" />
-                          <span className="font-semibold">Email Directo</span>
+                          <span className="font-semibold">Direct Email</span>
                         </div>
                         <a href="mailto:privacidad@tuimpulsalab.com" className="text-blue-600 hover:text-blue-800">
                           privacidad@tuimpulsalab.com
@@ -522,7 +522,7 @@ export default function ProteccionDatos() {
                       <div className="bg-white p-4 rounded-lg">
                         <div className="flex items-center gap-3 mb-2">
                           <FaPhone className="text-blue-600 text-xl" />
-                          <span className="font-semibold">Teléfono</span>
+                          <span className="font-semibold">Phone</span>
                         </div>
                         <a href="tel:+19295001850" className="text-blue-600 hover:text-blue-800">
                           +1 929 500 1850
@@ -533,95 +533,95 @@ export default function ProteccionDatos() {
                     <div className="bg-white p-4 rounded-lg">
                       <div className="flex items-center gap-3 mb-2">
                         <FaGlobe className="text-blue-600 text-xl" />
-                        <span className="font-semibold">Dirección Postal</span>
+                        <span className="font-semibold">Mailing Address</span>
                       </div>
                       <address className="not-italic text-gray-700">
                         Impulsa Lab LLC<br />
                         Attn: Data Protection Officer<br />
                         Brooklyn, NY<br />
-                        Estados Unidos
+                        United States
                       </address>
                     </div>
                   </div>
 
                   <div className="space-y-6">
                     <div>
-                      <h3 className="text-xl font-semibold mb-3">¿Cuándo Contactar al DPO?</h3>
+                      <h3 className="text-xl font-semibold mb-3">When to Contact the DPO?</h3>
                       <p className="text-gray-700 mb-4">
-                        Puedes contactar a nuestro Oficial de Protección de Datos para:
+                        You can contact our Data Protection Officer to:
                       </p>
                       <ul className="space-y-2">
                         <li className="flex items-start gap-2">
                           <FaCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
-                          <span>Ejercer cualquiera de tus derechos de protección de datos</span>
+                          <span>Exercise any of your data protection rights</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <FaCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
-                          <span>Reportar una brecha de seguridad o incidente de privacidad</span>
+                          <span>Report a security breach or privacy incident</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <FaCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
-                          <span>Hacer preguntas sobre nuestras prácticas de privacidad</span>
+                          <span>Ask questions about our privacy practices</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <FaCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
-                          <span>Solicitar aclaraciones sobre esta política</span>
+                          <span>Request clarifications about this policy</span>
                         </li>
                         <li className="flex items-start gap-2">
                           <FaCheckCircle className="text-green-500 mt-1 flex-shrink-0" />
-                          <span>Presentar una queja sobre el manejo de tus datos</span>
+                          <span>File a complaint about the handling of your data</span>
                         </li>
                       </ul>
                     </div>
 
                     <div className="bg-gray-50 p-6 rounded-xl">
-                      <h3 className="text-xl font-semibold mb-3">Horario de Atención</h3>
+                      <h3 className="text-xl font-semibold mb-3">Office Hours</h3>
                       <div className="grid md:grid-cols-2 gap-4">
                         <div>
-                          <p className="font-medium text-gray-700 mb-2">Lunes a Viernes</p>
+                          <p className="font-medium text-gray-700 mb-2">Monday to Friday</p>
                           <p className="text-gray-600">9:00 AM - 6:00 PM EST</p>
                         </div>
                         <div>
-                          <p className="font-medium text-gray-700 mb-2">Respuesta por Email</p>
-                          <p className="text-gray-600">Dentro de 48 horas hábiles</p>
+                          <p className="font-medium text-gray-700 mb-2">Email Response</p>
+                          <p className="text-gray-600">Within 48 business hours</p>
                         </div>
                       </div>
                     </div>
 
                     <div className="bg-blue-50 border-l-4 border-blue-600 p-6 rounded">
-                      <h3 className="font-semibold text-lg mb-2">Compromiso de Privacidad</h3>
+                      <h3 className="font-semibold text-lg mb-2">Privacy Commitment</h3>
                       <p className="text-gray-700">
-                        Nuestro DPO está comprometido a proteger tu privacidad y garantizar que 
-                        tus datos se manejen de acuerdo con las mejores prácticas y regulaciones 
-                        aplicables. Todas las comunicaciones con el DPO son confidenciales y 
-                        serán tratadas con la máxima seriedad.
+                        Our DPO is committed to protecting your privacy and ensuring that
+                        your data is handled in accordance with best practices and applicable
+                        regulations. All communications with the DPO are confidential and
+                        will be treated with the utmost seriousness.
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Autoridades de Supervisión */}
+                {/* Supervisory Authorities */}
                 <div className="bg-white rounded-xl shadow-lg p-8">
                   <h3 className="text-2xl font-bold mb-4 text-gray-900">
-                    Autoridades de Supervisión
+                    Supervisory Authorities
                   </h3>
                   <p className="text-gray-700 mb-6">
-                    Si no estás satisfecho con nuestra respuesta, tienes derecho a presentar 
-                    una queja ante las autoridades de protección de datos:
+                    If you are not satisfied with our response, you have the right to file
+                    a complaint with the data protection authorities:
                   </p>
-                  
+
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="bg-gray-50 p-6 rounded-xl">
-                      <h4 className="font-semibold text-lg mb-3">Estados Unidos</h4>
+                      <h4 className="font-semibold text-lg mb-3">United States</h4>
                       <p className="text-gray-700 mb-2">Federal Trade Commission (FTC)</p>
                       <a href="https://www.ftc.gov" className="text-blue-600 hover:text-blue-800 flex items-center gap-2">
                         www.ftc.gov
                         <FaArrowRight />
                       </a>
                     </div>
-                    
+
                     <div className="bg-gray-50 p-6 rounded-xl">
-                      <h4 className="font-semibold text-lg mb-3">Unión Europea</h4>
+                      <h4 className="font-semibold text-lg mb-3">European Union</h4>
                       <p className="text-gray-700 mb-2">European Data Protection Board</p>
                       <a href="https://edpb.europa.eu" className="text-blue-600 hover:text-blue-800 flex items-center gap-2">
                         edpb.europa.eu
@@ -640,10 +640,10 @@ export default function ProteccionDatos() {
       <section className="bg-gradient-to-br from-blue-600 to-purple-600 text-white py-16">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-4">
-            ¿Tienes Preguntas sobre tu Privacidad?
+            Questions About Your Privacy?
           </h2>
           <p className="text-xl mb-8 text-blue-50">
-            Estamos aquí para ayudarte a entender y ejercer tus derechos
+            We're here to help you understand and exercise your rights
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
@@ -651,13 +651,13 @@ export default function ProteccionDatos() {
               className="inline-flex items-center gap-2 bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
             >
               <FaEnvelope />
-              Contactar al DPO
+              Contact DPO
             </a>
             <Link
               href="/contacto"
               className="inline-flex items-center gap-2 bg-blue-500 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-400 transition-colors"
             >
-              Contacto General
+              General Contact
               <FaArrowRight />
             </Link>
           </div>

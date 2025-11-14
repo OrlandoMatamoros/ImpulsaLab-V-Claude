@@ -221,6 +221,16 @@ export default function ProteccionDatos() {
                         </li>
                       </ul>
                     </div>
+
+                    <div>
+                      <h3 className="text-xl font-semibold mb-3 flex items-center gap-2">
+                        <FaPhone className="text-blue-600" />
+                        5. Mobile Data Use & SMS Compliance
+                      </h3>
+                      <p>
+                        We do not share mobile contact information with third parties or affiliates for marketing or promotional purposes. Information may be shared with subcontractors in support services (e.g., customer service). All other categories exclude text-messaging originator opt-in data and consent. This information will not be shared with any third parties.
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>

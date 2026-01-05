@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import Script from 'next/script'
 import './globals.css'
 import { FirebaseAuthProvider } from '@/contexts/FirebaseAuthContext'
 import { AuthTokenProvider } from '@/components/AuthTokenProvider'
@@ -26,6 +27,20 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={inter.className}>
+        {/* Google Ads (gtag.js) */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-17854811161"
+          strategy="afterInteractive"
+        />
+        <Script id="google-ads-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-17854811161');
+          `}
+        </Script>
+
         <FirebaseAuthProvider>
           <AuthTokenProvider>
             <Header />

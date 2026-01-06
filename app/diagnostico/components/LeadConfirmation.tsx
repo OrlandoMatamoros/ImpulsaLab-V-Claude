@@ -100,6 +100,11 @@ export function LeadConfirmation({
         if (onSubmitSuccess) {
           onSubmitSuccess(true)
         }
+
+        // Redirigir a página de gracias después de 1.5 segundos para que vean el mensaje de éxito
+        setTimeout(() => {
+          router.push('/gracias')
+        }, 1500)
       } else {
         const errorData = await response.json()
         setErrors({ submit: errorData.message || 'Error al enviar el reporte. Intenta nuevamente.' })

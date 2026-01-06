@@ -8,6 +8,14 @@ export async function POST(request: NextRequest) {
   try {
     const { leadData, clientInfo, scores, responses } = await request.json()
 
+    console.log('📥 Datos recibidos en send-report API')
+    console.log('Lead Data:', {
+      nombre: leadData?.nombre,
+      email: leadData?.email,
+      empresa: leadData?.empresa,
+      scores: `${leadData?.score_finanzas}/${leadData?.score_operaciones}/${leadData?.score_marketing}`
+    })
+
     if (!leadData || !leadData.email || !leadData.nombre) {
       return NextResponse.json(
         { error: 'Datos incompletos' },
@@ -133,9 +141,10 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. CORREO AL ADMIN (Con JSON estructurado para CRM)
+    console.log('📧 Enviando correo al admin...')
     const adminEmailResult = await resend.emails.send({
       from: 'Impulsa Lab Leads <noreply@tuimpulsalab.com>',
-      to: 'leads@tuimpulsalab.com',
+      to: ['leads@tuimpulsalab.com', 'orlando@tuimpulsalab.com'], // Enviar a ambos emails
       replyTo: leadData.email,
       subject: `🎯 Nuevo Lead: ${leadData.nombre} - Score: ${leadData.score_promedio}/100`,
       html: `
@@ -222,8 +231,12 @@ ${JSON.stringify(leadData, null, 2)}
     })
 
     if (adminEmailResult.error) {
-      console.error('Error enviando correo al admin:', adminEmailResult.error)
+      console.error('❌ Error enviando correo al admin:', adminEmailResult.error)
+      console.error('Detalles del error:', JSON.stringify(adminEmailResult.error, null, 2))
       // No retornamos error aquí porque el correo al usuario ya se envió
+    } else {
+      console.log('✅ Correo al admin enviado exitosamente')
+      console.log('ID del email:', adminEmailResult.data?.id)
     }
 
     // 3. ESCRIBIR DIRECTAMENTE EN GOOGLE SHEETS (Automatización CRM)

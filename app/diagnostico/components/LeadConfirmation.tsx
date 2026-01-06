@@ -15,13 +15,15 @@ interface LeadConfirmationProps {
   }
   responses: any[]
   onConfirm: () => void
+  onSubmitSuccess?: (submitted: boolean) => void
 }
 
 export function LeadConfirmation({
   clientInfo,
   scores,
   responses,
-  onConfirm
+  onConfirm,
+  onSubmitSuccess
 }: LeadConfirmationProps) {
   const router = useRouter()
   const [formData, setFormData] = useState({
@@ -94,8 +96,10 @@ export function LeadConfirmation({
         setIsSubmitted(true)
         setIsSubmitting(false)
 
-        // Notificar al wizard que puede continuar
-        // El usuario verá los resultados antes de ir a /gracias
+        // Notificar al wizard que se envió exitosamente para desbloquear botón "Siguiente"
+        if (onSubmitSuccess) {
+          onSubmitSuccess(true)
+        }
       } else {
         const errorData = await response.json()
         setErrors({ submit: errorData.message || 'Error al enviar el reporte. Intenta nuevamente.' })

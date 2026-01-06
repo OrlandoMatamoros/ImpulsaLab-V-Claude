@@ -27,6 +27,7 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [canNavigate, setCanNavigate] = useState(true);
+  const [confirmationSubmitted, setConfirmationSubmitted] = useState(false);
   
   const {
     clientInfo,
@@ -246,6 +247,7 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
               ...allResponses.marketing
             ]}
             onConfirm={handleNext}
+            onSubmitSuccess={(submitted) => setConfirmationSubmitted(submitted)}
           />
         );
       case 6:
@@ -393,7 +395,7 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
           </Button>
 
           <div className="flex gap-2">
-            {currentStep < steps.length - 1 && currentStep !== 5 && (
+            {currentStep < steps.length - 1 && (currentStep !== 5 || confirmationSubmitted) && (
               <Button
                 onClick={() => handleJumpToStep(steps.length - 1)}
                 disabled={!completedSteps.has(steps.length - 2)}
@@ -404,7 +406,7 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
               </Button>
             )}
 
-            {currentStep < steps.length - 1 && currentStep !== 5 && (
+            {currentStep < steps.length - 1 && (currentStep !== 5 || confirmationSubmitted) && (
               <Button
                 onClick={handleNext}
                 className="flex items-center gap-2"
@@ -414,7 +416,7 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
               </Button>
             )}
 
-            {currentStep === 5 && (
+            {currentStep === 5 && !confirmationSubmitted && (
               <div className="text-sm text-gray-500 italic">
                 Completa la confirmación para continuar
               </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Button, Card, CardContent, CardHeader, CardTitle, Progress } from '@/components/ui/index';
 import { useDiagnosticStore } from '@/store/diagnosticStore';
 import { ClientInfoStep } from './ClientInfoStep';
@@ -23,6 +24,9 @@ interface DiagnosticWizardProps {
 }
 
 export default function DiagnosticWizard({ consultantId, isInternalMode = false }: DiagnosticWizardProps) {
+  const searchParams = useSearchParams();
+  const showResults = searchParams.get('showResults') === 'true';
+
   const [currentStep, setCurrentStep] = useState(0);
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
@@ -66,8 +70,16 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
     const savedProgress = localStorage.getItem('diagnosticProgress');
     if (savedProgress) {
       const progress = JSON.parse(savedProgress);
-      setCurrentStep(progress.currentStep || 0);
-      setCompletedSteps(new Set(progress.completedSteps || []));
+
+      // Si viene con parámetro showResults=true, ir directo al paso 6 (Resultados)
+      if (showResults && progress.scores) {
+        setCurrentStep(6);
+        setCompletedSteps(new Set([0, 1, 2, 3, 4, 5]));
+      } else {
+        setCurrentStep(progress.currentStep || 0);
+        setCompletedSteps(new Set(progress.completedSteps || []));
+      }
+
       if (progress.scores) {
         setFinanceScore(progress.scores.finance || 50);
         setOperationsScore(progress.scores.operations || 50);
@@ -78,7 +90,7 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
         setAllResponses(progress.allResponses);
       }
     }
-  }, []);
+  }, [showResults]);
 
   const saveProgress = () => {
     const progress = {

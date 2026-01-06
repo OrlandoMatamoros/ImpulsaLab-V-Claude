@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
+import { appendToGoogleSheet } from '@/lib/google-sheets'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -225,9 +226,20 @@ ${JSON.stringify(leadData, null, 2)}
       // No retornamos error aquí porque el correo al usuario ya se envió
     }
 
+    // 3. ESCRIBIR DIRECTAMENTE EN GOOGLE SHEETS (Automatización CRM)
+    const sheetsResult = await appendToGoogleSheet(leadData)
+
+    if (sheetsResult.success) {
+      console.log('✅ Lead guardado en Google Sheets exitosamente')
+    } else {
+      console.warn('⚠️ No se pudo guardar en Google Sheets:', sheetsResult.error)
+      // No retornamos error porque los correos ya se enviaron
+    }
+
     return NextResponse.json({
       success: true,
-      message: 'Reporte enviado exitosamente'
+      message: 'Reporte enviado exitosamente',
+      sheetsSaved: sheetsResult.success
     })
 
   } catch (error: any) {

@@ -393,7 +393,7 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
           </Button>
 
           <div className="flex gap-2">
-            {currentStep < steps.length - 1 && (
+            {currentStep < steps.length - 1 && currentStep !== 5 && (
               <Button
                 onClick={() => handleJumpToStep(steps.length - 1)}
                 disabled={!completedSteps.has(steps.length - 2)}
@@ -403,8 +403,8 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
                 Ir a Resultados
               </Button>
             )}
-            
-            {currentStep < steps.length - 1 && (
+
+            {currentStep < steps.length - 1 && currentStep !== 5 && (
               <Button
                 onClick={handleNext}
                 className="flex items-center gap-2"
@@ -412,6 +412,12 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
                 <span className="hidden sm:inline">Siguiente</span>
                 <ChevronRight className="w-4 h-4" />
               </Button>
+            )}
+
+            {currentStep === 5 && (
+              <div className="text-sm text-gray-500 italic">
+                Completa la confirmación para continuar
+              </div>
             )}
           </div>
         </div>

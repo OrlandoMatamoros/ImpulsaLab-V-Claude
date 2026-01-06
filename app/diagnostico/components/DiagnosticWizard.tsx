@@ -6,6 +6,7 @@ import { useDiagnosticStore } from '@/store/diagnosticStore';
 import { ClientInfoStep } from './ClientInfoStep';
 import { PreAssessment } from './PreAssessment';
 import { AdaptiveQuestions } from './AdaptiveQuestions';
+import { LeadConfirmation } from './LeadConfirmation';
 import { ResultsDashboard } from './ResultsDashboard';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { ChevronLeft, ChevronRight, RotateCcw, Home } from 'lucide-react';
@@ -55,7 +56,8 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
     { id: 2, name: 'Finanzas', icon: '💰' },
     { id: 3, name: 'Operaciones', icon: '⚙️' },
     { id: 4, name: 'Marketing', icon: '📈' },
-    { id: 5, name: 'Resultados', icon: '📊' },
+    { id: 5, name: 'Confirmación', icon: '✉️' },
+    { id: 6, name: 'Resultados', icon: '📊' },
   ];
 
   // Guardar progreso en localStorage
@@ -230,6 +232,23 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
           />
         );
       case 5:
+        return (
+          <LeadConfirmation
+            clientInfo={localClientInfo}
+            scores={{
+              finance: financeScore,
+              operations: operationsScore,
+              marketing: marketingScore,
+            }}
+            responses={[
+              ...allResponses.finance,
+              ...allResponses.operations,
+              ...allResponses.marketing
+            ]}
+            onConfirm={handleNext}
+          />
+        );
+      case 6:
         return (
           <ResultsDashboard
             scores={{

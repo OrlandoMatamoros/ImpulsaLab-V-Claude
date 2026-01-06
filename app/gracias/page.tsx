@@ -1,8 +1,9 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { FaCheckCircle } from 'react-icons/fa'
+import { FaCheckCircle, FaCalendarAlt, FaEnvelope } from 'react-icons/fa'
+import { InlineWidget } from 'react-calendly'
 
 declare global {
   interface Window {
@@ -12,6 +13,8 @@ declare global {
 }
 
 export default function GraciasPage() {
+  const [showCalendly, setShowCalendly] = useState(false)
+
   useEffect(() => {
     // Disparar evento de conversión de Google Ads cuando la página cargue
     if (typeof window !== 'undefined' && window.gtag) {
@@ -41,9 +44,17 @@ export default function GraciasPage() {
           Tu camino hacia la inteligencia de negocio comienza ahora.
         </p>
 
+        {/* Mensaje de reporte enviado */}
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 flex items-center justify-center gap-3">
+          <FaEnvelope className="text-green-600 text-2xl" />
+          <p className="text-green-800 font-semibold">
+            ✓ Tu reporte ha sido enviado a tu correo
+          </p>
+        </div>
+
         {/* Mensaje secundario */}
         <p className="text-lg text-gray-600 mb-10">
-          Te contactaremos en breve para agendar tu <span className="font-semibold" style={{ color: '#002D62' }}>Diagnóstico 3D</span>
+          Revisa tu bandeja de entrada para ver el análisis completo de tu <span className="font-semibold" style={{ color: '#002D62' }}>Diagnóstico 3D</span>
         </p>
 
         {/* Decoración visual */}
@@ -57,23 +68,57 @@ export default function GraciasPage() {
           <ul className="text-left text-gray-700 space-y-2 max-w-md mx-auto">
             <li className="flex items-start">
               <span className="text-green-600 mr-2">✓</span>
-              <span>Revisaremos tu información</span>
+              <span>Revisa tu reporte completo en tu email</span>
             </li>
             <li className="flex items-start">
               <span className="text-green-600 mr-2">✓</span>
-              <span>Te contactaremos en las próximas 24 horas</span>
+              <span>Agenda una consulta gratuita de 30 minutos</span>
             </li>
             <li className="flex items-start">
               <span className="text-green-600 mr-2">✓</span>
-              <span>Agendaremos tu Diagnóstico 3D personalizado</span>
+              <span>Recibe un plan de acción personalizado</span>
             </li>
           </ul>
         </div>
 
+        {/* CTA para agendar consulta */}
+        <div className="mb-8">
+          {!showCalendly ? (
+            <button
+              onClick={() => setShowCalendly(true)}
+              className="inline-flex items-center gap-3 px-8 py-4 text-white font-semibold text-lg rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+              style={{ backgroundColor: '#002D62' }}
+            >
+              <FaCalendarAlt className="text-xl" />
+              Agendar Consulta Gratuita (30 min)
+            </button>
+          ) : (
+            <button
+              onClick={() => setShowCalendly(false)}
+              className="inline-block px-6 py-3 text-sm text-gray-700 border-2 border-gray-300 font-semibold rounded-lg hover:bg-gray-50 transition-all duration-200 mb-4"
+            >
+              Cerrar Calendario
+            </button>
+          )}
+        </div>
+
+        {/* Widget de Calendly */}
+        {showCalendly && (
+          <div className="mb-8 bg-white rounded-lg shadow-xl overflow-hidden">
+            <InlineWidget
+              url="https://calendly.com/orlando-tuimpulsalab/30min"
+              styles={{
+                height: '700px',
+                minWidth: '100%'
+              }}
+            />
+          </div>
+        )}
+
         {/* Botón para volver al inicio */}
         <Link
           href="/"
-          className="inline-block px-8 py-4 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+          className="inline-block px-8 py-4 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 mb-8"
           style={{ backgroundColor: '#002D62' }}
         >
           Volver al Inicio
@@ -83,11 +128,11 @@ export default function GraciasPage() {
         <p className="text-sm text-gray-500 mt-8">
           ¿Tienes alguna pregunta? Contáctanos en{' '}
           <a
-            href="mailto:contacto@impulsalab.com"
+            href="mailto:contacto@tuimpulsalab.com"
             className="underline hover:text-blue-600"
             style={{ color: '#002D62' }}
           >
-            contacto@impulsalab.com
+            contacto@tuimpulsalab.com
           </a>
         </p>
       </div>

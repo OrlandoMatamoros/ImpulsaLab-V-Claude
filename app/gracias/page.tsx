@@ -115,14 +115,23 @@ export default function GraciasPage() {
           </div>
         )}
 
-        {/* Botón para volver al inicio */}
-        <Link
-          href="/"
-          className="inline-block px-8 py-4 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 mb-8"
-          style={{ backgroundColor: '#002D62' }}
-        >
-          Volver al Inicio
-        </Link>
+        {/* Botones de acción */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+          <Link
+            href="/diagnostico"
+            className="inline-block px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+          >
+            📊 Ver Resultados Completos
+          </Link>
+
+          <Link
+            href="/"
+            className="inline-block px-8 py-4 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+            style={{ backgroundColor: '#002D62' }}
+          >
+            Volver al Inicio
+          </Link>
+        </div>
 
         {/* Mensaje de soporte */}
         <p className="text-sm text-gray-500 mt-8">

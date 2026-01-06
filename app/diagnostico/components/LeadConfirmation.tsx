@@ -15,13 +15,15 @@ interface LeadConfirmationProps {
   }
   responses: any[]
   onConfirm: () => void
+  onSubmitSuccess?: (submitted: boolean) => void
 }
 
 export function LeadConfirmation({
   clientInfo,
   scores,
   responses,
-  onConfirm
+  onConfirm,
+  onSubmitSuccess
 }: LeadConfirmationProps) {
   const router = useRouter()
   const [formData, setFormData] = useState({
@@ -30,6 +32,7 @@ export function LeadConfirmation({
   })
   const [errors, setErrors] = useState<any>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
 
   const validateForm = () => {
     const newErrors: any = {}
@@ -89,8 +92,14 @@ export function LeadConfirmation({
       })
 
       if (response.ok) {
-        // Redirigir a página de gracias para conversión
-        router.push('/gracias')
+        // Marcar como enviado exitosamente
+        setIsSubmitted(true)
+        setIsSubmitting(false)
+
+        // Notificar al wizard que se envió exitosamente para desbloquear botón "Siguiente"
+        if (onSubmitSuccess) {
+          onSubmitSuccess(true)
+        }
       } else {
         const errorData = await response.json()
         setErrors({ submit: errorData.message || 'Error al enviar el reporte. Intenta nuevamente.' })
@@ -109,6 +118,48 @@ export function LeadConfirmation({
     if (errors[name]) {
       setErrors((prev: any) => ({ ...prev, [name]: undefined }))
     }
+  }
+
+  // Si ya se envió exitosamente, mostrar mensaje de confirmación
+  if (isSubmitted) {
+    return (
+      <div className="max-w-2xl mx-auto space-y-6">
+        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300">
+          <CardContent className="pt-6 pb-6 text-center">
+            <div className="flex flex-col items-center gap-4">
+              <div className="bg-green-100 rounded-full p-4 animate-pulse">
+                <CheckCircle className="w-16 h-16 text-green-600" />
+              </div>
+              <div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-3">
+                  ✅ ¡Reporte Enviado Exitosamente!
+                </h2>
+                <p className="text-lg text-gray-700 mb-4 leading-relaxed">
+                  Hemos enviado tu diagnóstico completo a <strong>{formData.email}</strong>
+                </p>
+                <div className="bg-white border border-green-200 rounded-lg p-4 mb-6 inline-block">
+                  <p className="text-sm text-gray-600 mb-2">📧 Revisa tu bandeja de entrada</p>
+                  <p className="text-xs text-gray-500">(También verifica tu carpeta de SPAM)</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 space-y-3">
+              <p className="text-gray-600 font-semibold">
+                Ahora puedes ver tu análisis detallado completo
+              </p>
+              <Button
+                onClick={onConfirm}
+                size="lg"
+                className="bg-[#002D62] hover:bg-[#001d42] text-white font-semibold px-8 py-4 text-lg"
+              >
+                Ver Resultados Completos →
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
   }
 
   return (

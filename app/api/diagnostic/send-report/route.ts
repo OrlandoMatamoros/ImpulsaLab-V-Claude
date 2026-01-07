@@ -184,6 +184,10 @@ export async function POST(request: NextRequest) {
                   <td style="padding: 8px 0; color: #666; font-weight: 600;">Empleados:</td>
                   <td style="padding: 8px 0; color: #333;">${leadData.empleados}</td>
                 </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #666; font-weight: 600;">Facturación Anual:</td>
+                  <td style="padding: 8px 0; color: #333;">${leadData.facturacion_anual ? `$${leadData.facturacion_anual.toLocaleString()} USD` : 'No especificada'}</td>
+                </tr>
               </table>
             </div>
 

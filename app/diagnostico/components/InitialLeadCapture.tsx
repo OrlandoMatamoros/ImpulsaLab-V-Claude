@@ -10,6 +10,8 @@ interface InitialLeadCaptureProps {
     email: string;
     telefono?: string;
     negocio: string;
+    industria: string;
+    empleados: number;
   }) => void;
 }
 
@@ -19,6 +21,8 @@ export function InitialLeadCapture({ onComplete }: InitialLeadCaptureProps) {
     email: '',
     telefono: '',
     negocio: '',
+    industria: '',
+    empleados: '',
   });
   const [errors, setErrors] = useState<any>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,6 +45,19 @@ export function InitialLeadCapture({ onComplete }: InitialLeadCaptureProps) {
 
     if (!formData.negocio.trim()) {
       newErrors.negocio = 'El nombre del negocio es requerido';
+    }
+
+    if (!formData.industria) {
+      newErrors.industria = 'Selecciona tu industria';
+    }
+
+    if (!formData.empleados || formData.empleados === '0') {
+      newErrors.empleados = 'Ingresa el número de empleados';
+    } else {
+      const empleadosNum = parseInt(formData.empleados);
+      if (isNaN(empleadosNum) || empleadosNum < 1) {
+        newErrors.empleados = 'Debe ser un número mayor a 0';
+      }
     }
 
     setErrors(newErrors);
@@ -79,6 +96,8 @@ export function InitialLeadCapture({ onComplete }: InitialLeadCaptureProps) {
         email: formData.email,
         telefono: formData.telefono || undefined,
         negocio: formData.negocio,
+        industria: formData.industria,
+        empleados: parseInt(formData.empleados),
       });
 
     } catch (error) {
@@ -89,13 +108,15 @@ export function InitialLeadCapture({ onComplete }: InitialLeadCaptureProps) {
         email: formData.email,
         telefono: formData.telefono || undefined,
         negocio: formData.negocio,
+        industria: formData.industria,
+        empleados: parseInt(formData.empleados),
       });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
 
@@ -199,6 +220,66 @@ export function InitialLeadCapture({ onComplete }: InitialLeadCaptureProps) {
               {errors.negocio && (
                 <p className="text-red-500 text-sm mt-1">{errors.negocio}</p>
               )}
+            </div>
+
+            {/* Industria */}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">
+                Industria *
+              </label>
+              <select
+                name="industria"
+                value={formData.industria}
+                onChange={handleChange}
+                className={`w-full px-4 py-3 text-base border-2 rounded-lg
+                  focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900
+                  transition-all duration-200 appearance-none ${
+                  errors.industria ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
+                }`}
+                disabled={isSubmitting}
+              >
+                <option value="">Selecciona tu industria</option>
+                <option value="Tecnología">Tecnología</option>
+                <option value="Retail">Retail / Comercio</option>
+                <option value="Servicios">Servicios Profesionales</option>
+                <option value="Manufactura">Manufactura</option>
+                <option value="Salud">Salud y Bienestar</option>
+                <option value="Educación">Educación</option>
+                <option value="Alimentos">Alimentos y Restaurantes</option>
+                <option value="Construcción">Construcción</option>
+                <option value="Turismo">Turismo y Hospitalidad</option>
+                <option value="Otro">Otro</option>
+              </select>
+              {errors.industria && (
+                <p className="text-red-500 text-sm mt-1">{errors.industria}</p>
+              )}
+            </div>
+
+            {/* Número de Empleados */}
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">
+                Número de Empleados *
+              </label>
+              <input
+                type="number"
+                name="empleados"
+                value={formData.empleados}
+                onChange={handleChange}
+                className={`w-full px-4 py-3 text-base border-2 rounded-lg
+                  focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-gray-900
+                  transition-all duration-200 ${
+                  errors.empleados ? 'border-red-500' : 'border-gray-300 hover:border-gray-400'
+                }`}
+                placeholder="Ej: 10"
+                min="1"
+                disabled={isSubmitting}
+              />
+              {errors.empleados && (
+                <p className="text-red-500 text-sm mt-1">{errors.empleados}</p>
+              )}
+              <p className="text-xs text-gray-500">
+                Esto nos ayuda a personalizar el diagnóstico para tu empresa
+              </p>
             </div>
 
             {/* Teléfono (Opcional) */}

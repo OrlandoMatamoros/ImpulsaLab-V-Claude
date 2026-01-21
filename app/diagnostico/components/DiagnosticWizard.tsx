@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Button, Card, CardContent, CardHeader, CardTitle, Progress } from '@/components/ui/index';
 import { useDiagnosticStore } from '@/store/diagnosticStore';
-import { ClientInfoStep } from './ClientInfoStep';
+import { InitialLeadCapture } from './InitialLeadCapture';
 import { PreAssessment } from './PreAssessment';
 import { AdaptiveQuestions } from './AdaptiveQuestions';
+import { AutoProcessing } from './AutoProcessing';
 import { ResultsDashboard } from './ResultsDashboard';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { ChevronLeft, ChevronRight, RotateCcw, Home } from 'lucide-react';
@@ -22,10 +24,21 @@ interface DiagnosticWizardProps {
 }
 
 export default function DiagnosticWizard({ consultantId, isInternalMode = false }: DiagnosticWizardProps) {
+  const searchParams = useSearchParams();
+  const showResults = searchParams.get('showResults') === 'true';
+
   const [currentStep, setCurrentStep] = useState(0);
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [canNavigate, setCanNavigate] = useState(true);
+
+  // Estado para datos capturados al inicio (Lead Gate)
+  const [initialLeadData, setInitialLeadData] = useState<{
+    nombre: string;
+    email: string;
+    telefono?: string;
+    negocio: string;
+  } | null>(null);
   
   const {
     clientInfo,
@@ -50,12 +63,13 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
   });
 
   const steps = [
-    { id: 0, name: 'Información', icon: '📋' },
+    { id: 0, name: 'Registro', icon: '📝' },
     { id: 1, name: 'Evaluación Inicial', icon: '🎯' },
     { id: 2, name: 'Finanzas', icon: '💰' },
     { id: 3, name: 'Operaciones', icon: '⚙️' },
     { id: 4, name: 'Marketing', icon: '📈' },
-    { id: 5, name: 'Resultados', icon: '📊' },
+    { id: 5, name: 'Procesando', icon: '⚡' },
+    { id: 6, name: 'Resultados', icon: '📊' },
   ];
 
   // Guardar progreso en localStorage
@@ -63,8 +77,16 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
     const savedProgress = localStorage.getItem('diagnosticProgress');
     if (savedProgress) {
       const progress = JSON.parse(savedProgress);
-      setCurrentStep(progress.currentStep || 0);
-      setCompletedSteps(new Set(progress.completedSteps || []));
+
+      // Si viene con parámetro showResults=true, ir directo al paso 6 (Resultados)
+      if (showResults && progress.scores) {
+        setCurrentStep(6);
+        setCompletedSteps(new Set([0, 1, 2, 3, 4, 5]));
+      } else {
+        setCurrentStep(progress.currentStep || 0);
+        setCompletedSteps(new Set(progress.completedSteps || []));
+      }
+
       if (progress.scores) {
         setFinanceScore(progress.scores.finance || 50);
         setOperationsScore(progress.scores.operations || 50);
@@ -75,7 +97,7 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
         setAllResponses(progress.allResponses);
       }
     }
-  }, []);
+  }, [showResults]);
 
   const saveProgress = () => {
     const progress = {
@@ -175,18 +197,37 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
     switch (currentStep) {
       case 0:
         return (
-          <ClientInfoStep
-            clientInfo={localClientInfo}
-            onUpdate={(info) => {
-              setLocalClientInfo(info);
-              setClientInfo(info);
-              // Guardar info del cliente en respuestas
-              setAllResponses(prev => ({ 
-                ...prev, 
-                clientInfo: info 
+          <InitialLeadCapture
+            onComplete={(leadData) => {
+              console.log('✅ Lead capturado:', leadData);
+              // Guardar datos del lead para usar al final
+              setInitialLeadData(leadData);
+              // También guardar en clientInfo para compatibilidad
+              setLocalClientInfo({
+                contactName: leadData.nombre,
+                email: leadData.email,
+                phone: leadData.telefono,
+                companyName: leadData.negocio,
+              });
+              setClientInfo({
+                contactName: leadData.nombre,
+                email: leadData.email,
+                phone: leadData.telefono,
+                companyName: leadData.negocio,
+              });
+              // Guardar en allResponses
+              setAllResponses(prev => ({
+                ...prev,
+                clientInfo: {
+                  contactName: leadData.nombre,
+                  email: leadData.email,
+                  phone: leadData.telefono,
+                  companyName: leadData.negocio,
+                }
               }));
+              // Avanzar al siguiente step
+              handleNext();
             }}
-            onNext={handleNext}
           />
         );
       case 1:
@@ -230,6 +271,32 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
           />
         );
       case 5:
+        // AutoProcessing: Procesamiento automático al terminar el quiz
+        if (!initialLeadData) {
+          return (
+            <div className="text-center py-20">
+              <p className="text-red-600 font-semibold">
+                Error: No se encontraron datos del lead. Por favor, reinicia el diagnóstico.
+              </p>
+            </div>
+          );
+        }
+        return (
+          <AutoProcessing
+            leadData={initialLeadData}
+            scores={{
+              finance: financeScore,
+              operations: operationsScore,
+              marketing: marketingScore,
+            }}
+            responses={[
+              ...allResponses.finance,
+              ...allResponses.operations,
+              ...allResponses.marketing
+            ]}
+          />
+        );
+      case 6:
         return (
           <ResultsDashboard
             scores={{
@@ -365,7 +432,7 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
         <div className="mt-6 flex justify-between items-center">
           <Button
             onClick={handlePrevious}
-            disabled={currentStep === 0}
+            disabled={currentStep === 0 || currentStep === 5}
             variant="outline"
             className="flex items-center gap-2"
           >
@@ -374,7 +441,7 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
           </Button>
 
           <div className="flex gap-2">
-            {currentStep < steps.length - 1 && (
+            {currentStep < steps.length - 1 && currentStep !== 5 && ![2, 3, 4].includes(currentStep) && (
               <Button
                 onClick={() => handleJumpToStep(steps.length - 1)}
                 disabled={!completedSteps.has(steps.length - 2)}
@@ -384,8 +451,8 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
                 Ir a Resultados
               </Button>
             )}
-            
-            {currentStep < steps.length - 1 && (
+
+            {currentStep < steps.length - 1 && currentStep !== 5 && ![2, 3, 4].includes(currentStep) && (
               <Button
                 onClick={handleNext}
                 className="flex items-center gap-2"
@@ -393,6 +460,12 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
                 <span className="hidden sm:inline">Siguiente</span>
                 <ChevronRight className="w-4 h-4" />
               </Button>
+            )}
+
+            {currentStep === 5 && (
+              <div className="text-sm text-gray-500 italic">
+                Procesamiento automático en curso...
+              </div>
             )}
           </div>
         </div>

@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowLeft, Zap } from 'lucide-react'
+import { ArrowLeft, Zap, Clock, Check } from 'lucide-react'
 import { LINKS } from '@/lib/constants'
 
 export default function ProcesoPage() {

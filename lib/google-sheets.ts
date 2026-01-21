@@ -43,18 +43,19 @@ export async function appendToGoogleSheet(leadData: any) {
       leadData.empresa,                // E: Empresa
       leadData.industria,              // F: Industria
       leadData.empleados,              // G: Empleados
-      leadData.score_finanzas,         // H: Score Finanzas
-      leadData.score_operaciones,      // I: Score Operaciones
-      leadData.score_marketing,        // J: Score Marketing
-      leadData.score_promedio,         // K: Score Promedio
-      leadData.origen,                 // L: Origen
-      new Date().toISOString(),        // M: Timestamp de creación
+      leadData.facturacion_anual || 'No especificada',  // H: Facturación Anual
+      leadData.score_finanzas,         // I: Score Finanzas
+      leadData.score_operaciones,      // J: Score Operaciones
+      leadData.score_marketing,        // K: Score Marketing
+      leadData.score_promedio,         // L: Score Promedio
+      leadData.origen,                 // M: Origen
+      new Date().toISOString(),        // N: Timestamp de creación
     ]]
 
     // Insertar en Google Sheets
     const response = await sheets.spreadsheets.values.append({
       spreadsheetId,
-      range: 'Leads!A:M', // Nombre de la hoja y rango de columnas
+      range: 'Leads!A:N', // Nombre de la hoja y rango de columnas (actualizado a N)
       valueInputOption: 'USER_ENTERED',
       requestBody: {
         values,
@@ -101,6 +102,7 @@ export async function initializeGoogleSheetHeaders() {
       'Empresa',
       'Industria',
       'Empleados',
+      'Facturación Anual (USD)',
       'Score Finanzas',
       'Score Operaciones',
       'Score Marketing',
@@ -111,7 +113,7 @@ export async function initializeGoogleSheetHeaders() {
 
     await sheets.spreadsheets.values.update({
       spreadsheetId,
-      range: 'Leads!A1:M1',
+      range: 'Leads!A1:N1',
       valueInputOption: 'USER_ENTERED',
       requestBody: {
         values: headers,

@@ -124,14 +124,14 @@ curl -X POST https://tuimpulsalab.com/api/diagnostic/init-sheets \
 
 Después de inicializar, tu sheet tendrá estas columnas:
 
-| A | B | C | D | E | F | G | H | I | J | K | L | M |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| Fecha | Nombre | Email | Teléfono | Empresa | Industria | Empleados | Score Finanzas | Score Operaciones | Score Marketing | Score Promedio | Origen | Timestamp Creación |
+| A | B | C | D | E | F | G | H | I | J | K | L | M | N |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Fecha | Nombre | Email | Teléfono | Empresa | Industria | Empleados | Facturación Anual (USD) | Score Finanzas | Score Operaciones | Score Marketing | Score Promedio | Origen | Timestamp Creación |
 
 ### Ejemplo de datos:
-| Fecha | Nombre | Email | Teléfono | Empresa | Industria | Empleados | Score Finanzas | Score Operaciones | Score Marketing | Score Promedio | Origen | Timestamp |
-|-------|--------|-------|----------|---------|-----------|-----------|----------------|-------------------|-----------------|----------------|--------|-----------|
-| 2026-01-06 | Juan Pérez | juan@example.com | 555-1234 | Antology | Alimentos | 50 | 75 | 82 | 68 | 75 | Registrado | 2026-01-06T10:30:00Z |
+| Fecha | Nombre | Email | Teléfono | Empresa | Industria | Empleados | Facturación Anual | Score Finanzas | Score Operaciones | Score Marketing | Score Promedio | Origen | Timestamp |
+|-------|--------|-------|----------|---------|-----------|-----------|-------------------|----------------|-------------------|-----------------|----------------|--------|-----------|
+| 2026-01-06 | Juan Pérez | juan@example.com | 555-1234 | Antology | Alimentos | 50 | $500000 | 75 | 82 | 68 | 75 | Registrado | 2026-01-06T10:30:00Z |
 
 ---
 

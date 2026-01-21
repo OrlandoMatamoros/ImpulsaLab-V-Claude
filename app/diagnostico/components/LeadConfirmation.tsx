@@ -79,6 +79,7 @@ export function LeadConfirmation({
             empresa: clientInfo?.companyName || 'No proporcionado',
             industria: clientInfo?.industry || 'No especificada',
             empleados: clientInfo?.employeeCount || 0,
+            facturacion_anual: clientInfo?.annualRevenue || null,
             score_finanzas: Math.round(scores.finance),
             score_operaciones: Math.round(scores.operations),
             score_marketing: Math.round(scores.marketing),
@@ -150,16 +151,14 @@ export function LeadConfirmation({
             </div>
 
             <div className="mt-6 space-y-3">
-              <p className="text-gray-600 font-semibold">
-                Ahora puedes ver tu análisis detallado completo
-              </p>
-              <Button
-                onClick={onConfirm}
-                size="lg"
-                className="bg-[#002D62] hover:bg-[#001d42] text-white font-semibold px-8 py-4 text-lg"
-              >
-                Ver Resultados Completos →
-              </Button>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 inline-block">
+                <p className="text-gray-700 font-semibold mb-2">
+                  🚀 Redirigiendo a tu página de resultados...
+                </p>
+                <p className="text-sm text-gray-600">
+                  Allí podrás agendar tu consulta gratuita y ver el análisis completo
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>

@@ -38,6 +38,8 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
     email: string;
     telefono?: string;
     negocio: string;
+    industria: string;
+    empleados: number;
   } | null>(null);
   
   const {
@@ -208,12 +210,16 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
                 email: leadData.email,
                 phone: leadData.telefono,
                 companyName: leadData.negocio,
+                industry: leadData.industria,
+                employeeCount: leadData.empleados,
               });
               setClientInfo({
                 contactName: leadData.nombre,
                 email: leadData.email,
                 phone: leadData.telefono,
                 companyName: leadData.negocio,
+                industry: leadData.industria,
+                employeeCount: leadData.empleados,
               });
               // Guardar en allResponses
               setAllResponses(prev => ({
@@ -223,6 +229,8 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
                   email: leadData.email,
                   phone: leadData.telefono,
                   companyName: leadData.negocio,
+                  industry: leadData.industria,
+                  employeeCount: leadData.empleados,
                 }
               }));
               // Avanzar al siguiente step

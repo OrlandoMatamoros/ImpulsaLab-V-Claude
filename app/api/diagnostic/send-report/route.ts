@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { appendToGoogleSheet } from '@/lib/google-sheets'
+import {
+  getIndustryComparison,
+  getIndustryRecommendations,
+  type IndustryType
+} from '@/lib/industry-benchmarks'
+import {
+  getCompanySizeProfile,
+  getSizeSpecificRecommendations,
+  getPriorityActions
+} from '@/lib/company-size'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -22,6 +32,29 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       )
     }
+
+    // Generar contexto de industria y tamaño de empresa
+    const industria = (leadData.industria || 'Otro') as IndustryType
+    const empleados = leadData.empleados || 0
+    const finalScores = {
+      finance: leadData.score_finanzas,
+      operations: leadData.score_operaciones,
+      marketing: leadData.score_marketing
+    }
+
+    // Obtener perfil de empresa
+    const companyProfile = empleados > 0 ? getCompanySizeProfile(empleados) : null
+
+    // Obtener comparaciones de industria
+    const industryComparisons = {
+      finance: getIndustryComparison(finalScores.finance, 'finance', industria),
+      operations: getIndustryComparison(finalScores.operations, 'operations', industria),
+      marketing: getIndustryComparison(finalScores.marketing, 'marketing', industria)
+    }
+
+    // Obtener recomendaciones
+    const industryRecs = getIndustryRecommendations(finalScores, industria)
+    const priorityActions = empleados > 0 ? getPriorityActions(empleados, finalScores) : []
 
     // 1. CORREO AL USUARIO (Diseño amigable con resumen)
     const userEmailResult = await resend.emails.send({
@@ -92,6 +125,80 @@ export async function POST(request: NextRequest) {
                   </div>
                 </div>
               </div>
+
+              <!-- Perfil de Empresa -->
+              ${companyProfile ? `
+              <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 10px; padding: 25px; margin: 30px 0; border: 2px solid #0284c7;">
+                <h3 style="color: #0284c7; margin-top: 0; margin-bottom: 15px; font-size: 20px;">
+                  ${companyProfile.icon} Tu Perfil Empresarial
+                </h3>
+                <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+                  <div style="background: white; border-radius: 8px; padding: 12px; flex: 1; min-width: 150px;">
+                    <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">Clasificación</div>
+                    <div style="color: #0284c7; font-weight: 700; font-size: 16px;">${companyProfile.label}</div>
+                  </div>
+                  <div style="background: white; border-radius: 8px; padding: 12px; flex: 1; min-width: 150px;">
+                    <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">Empleados</div>
+                    <div style="color: #0284c7; font-weight: 700; font-size: 16px;">${empleados} (${companyProfile.employeeRange})</div>
+                  </div>
+                  <div style="background: white; border-radius: 8px; padding: 12px; flex: 1; min-width: 150px;">
+                    <div style="color: #64748b; font-size: 13px; margin-bottom: 4px;">Industria</div>
+                    <div style="color: #0284c7; font-weight: 700; font-size: 16px;">${industria}</div>
+                  </div>
+                </div>
+                <p style="color: #475569; font-size: 14px; line-height: 1.6; margin: 0;">
+                  <strong>${companyProfile.description}</strong>
+                </p>
+              </div>
+              ` : ''}
+
+              <!-- Comparación con tu Industria -->
+              <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 10px; padding: 25px; margin: 30px 0; border: 2px solid #f59e0b;">
+                <h3 style="color: #92400e; margin-top: 0; margin-bottom: 15px; font-size: 20px;">
+                  📊 Comparación con tu Industria (${industria})
+                </h3>
+                <div style="background: white; border-radius: 8px; padding: 15px; margin-bottom: 12px;">
+                  <div style="color: #4f46e5; font-weight: 600; margin-bottom: 6px;">💰 Finanzas</div>
+                  <div style="color: #475569; font-size: 14px; line-height: 1.5;">${industryComparisons.finance}</div>
+                </div>
+                <div style="background: white; border-radius: 8px; padding: 15px; margin-bottom: 12px;">
+                  <div style="color: #10b981; font-weight: 600; margin-bottom: 6px;">⚙️ Operaciones</div>
+                  <div style="color: #475569; font-size: 14px; line-height: 1.5;">${industryComparisons.operations}</div>
+                </div>
+                <div style="background: white; border-radius: 8px; padding: 15px;">
+                  <div style="color: #8b5cf6; font-weight: 600; margin-bottom: 6px;">📈 Marketing</div>
+                  <div style="color: #475569; font-size: 14px; line-height: 1.5;">${industryComparisons.marketing}</div>
+                </div>
+              </div>
+
+              <!-- Acciones Prioritarias -->
+              ${priorityActions.length > 0 ? `
+              <div style="background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%); border-radius: 10px; padding: 25px; margin: 30px 0; border: 2px solid #a855f7;">
+                <h3 style="color: #6b21a8; margin-top: 0; margin-bottom: 15px; font-size: 20px;">
+                  🎯 Acciones Prioritarias para tu Empresa
+                </h3>
+                ${priorityActions.slice(0, 3).map((action, idx) => `
+                  <div style="background: white; border-left: 4px solid ${
+                    action.priority === 'alta' ? '#ef4444' :
+                    action.priority === 'media' ? '#f59e0b' : '#10b981'
+                  }; border-radius: 6px; padding: 15px; margin-bottom: 12px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                      <span style="background: ${
+                        action.priority === 'alta' ? '#fee2e2' :
+                        action.priority === 'media' ? '#fef3c7' : '#d1fae5'
+                      }; color: ${
+                        action.priority === 'alta' ? '#991b1b' :
+                        action.priority === 'media' ? '#92400e' : '#065f46'
+                      }; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase;">
+                        ${action.priority}
+                      </span>
+                      <span style="color: #64748b; font-size: 12px; font-weight: 600;">${action.axis}</span>
+                    </div>
+                    <div style="color: #1e293b; font-size: 14px; line-height: 1.5;">${action.action}</div>
+                  </div>
+                `).join('')}
+              </div>
+              ` : ''}
 
               <!-- Próximos Pasos -->
               <div style="background: linear-gradient(135deg, #EBF4FF 0%, #E0F2FE 100%); border-left: 4px solid #002D62; border-radius: 8px; padding: 20px; margin: 30px 0;">
@@ -217,6 +324,74 @@ export async function POST(request: NextRequest) {
               <p style="margin: 0; color: #856404; font-weight: 600;">⚡ Fecha: ${leadData.fecha}</p>
               <p style="margin: 5px 0 0 0; color: #856404;">📍 Origen: ${leadData.origen}</p>
             </div>
+
+            <!-- Perfil de Empresa & Contexto -->
+            ${companyProfile ? `
+            <div style="background: #e8f5e9; border-radius: 6px; padding: 20px; margin: 20px 0;">
+              <h3 style="margin-top: 0; color: #2e7d32;">🏢 Perfil de Empresa</h3>
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 8px 0; color: #666; font-weight: 600;">Clasificación:</td>
+                  <td style="padding: 8px 0; color: #2e7d32; font-weight: 700; font-size: 16px;">${companyProfile.icon} ${companyProfile.label}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #666; font-weight: 600;">Rango de Empleados:</td>
+                  <td style="padding: 8px 0; color: #333;">${companyProfile.employeeRange}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #666; font-weight: 600;">Descripción:</td>
+                  <td style="padding: 8px 0; color: #333;">${companyProfile.description}</td>
+                </tr>
+              </table>
+            </div>
+            ` : ''}
+
+            <!-- Comparación con Industria -->
+            <div style="background: #fff9e6; border-radius: 6px; padding: 20px; margin: 20px 0;">
+              <h3 style="margin-top: 0; color: #f57c00;">📊 Comparación con Industria (${industria})</h3>
+              <div style="margin-bottom: 10px; padding: 10px; background: white; border-radius: 4px;">
+                <strong style="color: #4f46e5;">💰 Finanzas:</strong>
+                <p style="margin: 5px 0 0 0; color: #555; font-size: 14px;">${industryComparisons.finance}</p>
+              </div>
+              <div style="margin-bottom: 10px; padding: 10px; background: white; border-radius: 4px;">
+                <strong style="color: #10b981;">⚙️ Operaciones:</strong>
+                <p style="margin: 5px 0 0 0; color: #555; font-size: 14px;">${industryComparisons.operations}</p>
+              </div>
+              <div style="padding: 10px; background: white; border-radius: 4px;">
+                <strong style="color: #8b5cf6;">📈 Marketing:</strong>
+                <p style="margin: 5px 0 0 0; color: #555; font-size: 14px;">${industryComparisons.marketing}</p>
+              </div>
+            </div>
+
+            <!-- Acciones Prioritarias para Follow-up -->
+            ${priorityActions.length > 0 ? `
+            <div style="background: #f3e5f5; border-radius: 6px; padding: 20px; margin: 20px 0;">
+              <h3 style="margin-top: 0; color: #7b1fa2;">🎯 Acciones Prioritarias (para follow-up)</h3>
+              ${priorityActions.slice(0, 3).map((action, idx) => `
+                <div style="margin-bottom: 15px; padding: 12px; background: white; border-left: 4px solid ${
+                  action.priority === 'alta' ? '#ef4444' :
+                  action.priority === 'media' ? '#f59e0b' : '#10b981'
+                }; border-radius: 4px;">
+                  <div style="margin-bottom: 6px;">
+                    <span style="background: ${
+                      action.priority === 'alta' ? '#fee2e2' :
+                      action.priority === 'media' ? '#fef3c7' : '#d1fae5'
+                    }; color: ${
+                      action.priority === 'alta' ? '#991b1b' :
+                      action.priority === 'media' ? '#92400e' : '#065f46'
+                    }; padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-right: 8px;">
+                      ${action.priority}
+                    </span>
+                    <strong style="color: #666; font-size: 13px;">${action.axis}</strong>
+                  </div>
+                  <p style="margin: 0; color: #333; font-size: 14px;">${action.action}</p>
+                </div>
+              `).join('')}
+              <p style="margin: 15px 0 0 0; padding: 10px; background: #fff3e0; border-radius: 4px; color: #e65100; font-size: 13px;">
+                💡 <strong>Tip de Ventas:</strong> Enfoca la conversación en estas acciones prioritarias durante el follow-up. Son específicas para su tamaño e industria.
+              </p>
+            </div>
+            ` : ''}
 
             <hr style="border: none; border-top: 2px dashed #dee2e6; margin: 30px 0;">
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Button, Card, CardContent, CardHeader, CardTitle, Progress } from '@/components/ui/index';
 import { useDiagnosticStore } from '@/store/diagnosticStore';
@@ -74,6 +74,23 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
     { id: 6, name: 'Resultados', icon: '📊' },
   ];
 
+  // Función para guardar progreso en localStorage
+  const saveProgress = useCallback(() => {
+    const progress = {
+      currentStep,
+      completedSteps: Array.from(completedSteps),
+      scores: {
+        finance: financeScore,
+        operations: operationsScore,
+        marketing: marketingScore,
+      },
+      allResponses: allResponses, // Guardar respuestas también
+      initialLeadData: initialLeadData, // Guardar datos de lead capture
+      timestamp: new Date().toISOString(),
+    };
+    localStorage.setItem('diagnosticProgress', JSON.stringify(progress));
+  }, [currentStep, completedSteps, financeScore, operationsScore, marketingScore, allResponses, initialLeadData]);
+
   // Guardar progreso en localStorage
   useEffect(() => {
     const savedProgress = localStorage.getItem('diagnosticProgress');
@@ -98,23 +115,19 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
       if (progress.allResponses) {
         setAllResponses(progress.allResponses);
       }
+      // Restaurar initialLeadData si existe
+      if (progress.initialLeadData) {
+        setInitialLeadData(progress.initialLeadData);
+      }
     }
   }, [showResults]);
 
-  const saveProgress = () => {
-    const progress = {
-      currentStep,
-      completedSteps: Array.from(completedSteps),
-      scores: {
-        finance: financeScore,
-        operations: operationsScore,
-        marketing: marketingScore,
-      },
-      allResponses: allResponses, // Guardar respuestas también
-      timestamp: new Date().toISOString(),
-    };
-    localStorage.setItem('diagnosticProgress', JSON.stringify(progress));
-  };
+  // Guardar automáticamente cuando initialLeadData cambie
+  useEffect(() => {
+    if (initialLeadData) {
+      saveProgress();
+    }
+  }, [initialLeadData, saveProgress]);
 
   const handleNext = () => {
     setCompletedSteps(prev => new Set([...prev, currentStep]));
@@ -148,6 +161,7 @@ export default function DiagnosticWizard({ consultantId, isInternalMode = false 
     setFinanceScore(50);
     setOperationsScore(50);
     setMarketingScore(50);
+    setInitialLeadData(null); // Limpiar datos de lead capture
     setAllResponses({
       clientInfo: {},
       preAssessment: {},

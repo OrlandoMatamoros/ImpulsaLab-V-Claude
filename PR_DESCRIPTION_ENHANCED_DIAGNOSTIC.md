@@ -85,11 +85,28 @@ This PR enhances the Diagnóstico 3D system with industry-specific benchmarking,
 - ✅ **Zero friction** - No account creation needed
 - ✅ **Backward compatible** - Authenticated users still work
 
+### 6. Bug Fix: localStorage Persistence 🐛
+**Modified**: `app/diagnostico/components/DiagnosticWizard.tsx`
+
+**Problem**: Users completing diagnostic without login encountered "Error: No se encontraron datos del lead" at AutoProcessing step.
+
+**Root Cause**: `initialLeadData` state was not being saved to localStorage, causing data loss on navigation/refresh.
+
+**Solution**:
+- ✅ Added `initialLeadData` to `saveProgress()` function
+- ✅ Added restoration from localStorage on mount
+- ✅ Added auto-save via `useEffect` when `initialLeadData` changes
+- ✅ Converted `saveProgress` to `useCallback` for proper dependency handling
+- ✅ Added cleanup in `handleReset()`
+
+**Impact**: Diagnostic now works seamlessly without login, no data loss
+
 ## 📊 Commits in This PR
 
 1. **`38c8a4d`** - feat: Add industria and empleados fields to initial lead capture
 2. **`7e689c2`** - feat: Add industry benchmarks and company size analysis to diagnostic
 3. **`d47fde2`** - feat: Remove login requirement for diagnostic - make it public access
+4. **`f725480`** - fix: Persist initialLeadData in localStorage to prevent data loss
 
 ## 🎯 Business Impact
 
@@ -113,15 +130,17 @@ This PR enhances the Diagnóstico 3D system with industry-specific benchmarking,
 
 ## 🧪 Testing Checklist
 
-### Public Access Flow:
+### Public Access Flow (CRITICAL - Bug Fix Included):
 - [ ] Visit `/diagnostico` without being logged in
 - [ ] Verify form shows immediately (no login prompt)
 - [ ] Fill form with: nombre, email, teléfono, negocio, industria, empleados
-- [ ] Complete all diagnostic questions
+- [ ] Complete all diagnostic questions (steps 1-4)
+- [ ] **CRITICAL**: Verify step 5 (AutoProcessing) does NOT show "Error: No se encontraron datos del lead"
+- [ ] Verify processing bar shows: "Calculando scores → Enviando reporte → Guardando en CRM → Completado"
 - [ ] Verify results page displays with company profile section
 - [ ] Check industry comparisons appear for all 3 axes
 - [ ] Verify priority actions show with urgency badges
-- [ ] Confirm emails received (user + admin)
+- [ ] Confirm emails received (user + admin) with industry context
 
 ### Industry Benchmarks:
 - [ ] Test with different industries (Tecnología, Retail, Alimentos, etc.)
@@ -148,6 +167,18 @@ This PR enhances the Diagnóstico 3D system with industry-specific benchmarking,
 - [ ] Verify consultantId is populated with UID
 - [ ] Confirm all features still work
 
+### localStorage Persistence Test (Bug Fix Verification):
+- [ ] Fill initial form (step 0) with test data
+- [ ] Advance to step 1 or 2
+- [ ] Open DevTools → Console
+- [ ] Run: `JSON.parse(localStorage.getItem('diagnosticProgress'))`
+- [ ] Verify `initialLeadData` object exists with: nombre, email, negocio, industria, empleados
+- [ ] Refresh page (F5)
+- [ ] Verify you return to the same step
+- [ ] Complete diagnostic to end
+- [ ] Verify NO error at step 5
+- [ ] Verify emails sent successfully
+
 ## 🔧 Technical Details
 
 ### Code Quality:
@@ -158,8 +189,9 @@ This PR enhances the Diagnóstico 3D system with industry-specific benchmarking,
 
 ### Files Changed:
 - **+2 new files**: `lib/industry-benchmarks.ts`, `lib/company-size.ts`
-- **+3 modified files**: `ResultsDashboard.tsx`, `send-report/route.ts`, `diagnostico/page.tsx`
-- **+1,027 lines added**, **-71 lines removed**
+- **+4 modified files**: `ResultsDashboard.tsx`, `send-report/route.ts`, `diagnostico/page.tsx`, `DiagnosticWizard.tsx`
+- **+1,056 lines added**, **-86 lines removed**
+- **Net**: +970 lines of production code
 
 ### Security:
 - ✅ Middleware already allowed public access (`/diagnostico` in `publicRoutes`)

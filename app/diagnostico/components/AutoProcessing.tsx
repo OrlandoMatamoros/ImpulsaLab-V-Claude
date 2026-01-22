@@ -11,6 +11,8 @@ interface AutoProcessingProps {
     email: string;
     telefono?: string;
     negocio: string;
+    industria: string;
+    empleados: number;
   };
   scores: {
     finance: number;
@@ -51,8 +53,8 @@ export function AutoProcessing({ leadData, scores, responses }: AutoProcessingPr
               email: leadData.email,
               telefono: leadData.telefono || 'No proporcionado',
               empresa: leadData.negocio,
-              industria: 'No especificada', // No lo pedimos en el formulario inicial
-              empleados: 0, // No lo pedimos en el formulario inicial
+              industria: leadData.industria,
+              empleados: leadData.empleados,
               facturacion_anual: null, // No lo pedimos en el formulario inicial
               score_finanzas: Math.round(scores.finance),
               score_operaciones: Math.round(scores.operations),

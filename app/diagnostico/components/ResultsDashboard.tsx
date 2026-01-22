@@ -4,12 +4,29 @@
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/index';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, Download, Calendar, ArrowRight, Share2, Award, Target, AlertTriangle, CheckCircle, Clock, DollarSign, FileText, Lock } from 'lucide-react';
+import { TrendingUp, Download, Calendar, ArrowRight, Share2, Award, Target, AlertTriangle, CheckCircle, Clock, DollarSign, FileText, Lock, Users, Building2 } from 'lucide-react';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from 'recharts';
 import { ProfessionalRecommendations } from './ProfessionalRecommendations';
 import Link from 'next/link';
 import { PDFGenerator } from './pdf/PDFGenerator';
 import { useAuth } from '@/contexts/FirebaseAuthContext';
+import {
+  getIndustryComparison,
+  getIndustryRecommendations,
+  getStrengthAreas,
+  getImprovementAreas,
+  getIndustryDescription,
+  getBenchmarkThreshold,
+  type IndustryType
+} from '@/lib/industry-benchmarks';
+import {
+  getCompanySizeProfile,
+  getSizeSpecificRecommendations,
+  getGrowthStageMessage,
+  compareToMaturityLevel,
+  getPriorityActions,
+  getSizeBenchmarkMessage
+} from '@/lib/company-size';
 
 interface ResultsDashboardProps {
   scores: {
@@ -22,18 +39,6 @@ interface ResultsDashboardProps {
   onScheduleConsultation: () => void;
   isInternalMode?: boolean;
 }
-
-// Datos de benchmarking por industria
-const industryBenchmarks: { [key: string]: { finance: number; operations: number; marketing: number } } = {
-  'Tecnología': { finance: 75, operations: 80, marketing: 70 },
-  'Retail': { finance: 65, operations: 70, marketing: 75 },
-  'Servicios': { finance: 70, operations: 65, marketing: 65 },
-  'Manufactura': { finance: 70, operations: 75, marketing: 60 },
-  'Salud': { finance: 80, operations: 75, marketing: 55 },
-  'Educación': { finance: 60, operations: 65, marketing: 60 },
-  'Alimentos': { finance: 65, operations: 70, marketing: 65 },
-  'Otro': { finance: 65, operations: 70, marketing: 60 }
-};
 
 export function ResultsDashboard({ 
   scores: rawScores, 
@@ -66,10 +71,36 @@ export function ResultsDashboard({
   };
 
   const averageScore = Math.round((finalScores.finance + finalScores.operations + finalScores.marketing) / 3);
-  
-  // Obtener benchmarks de la industria
-  const industryName = clientInfo?.industry || 'Otro';
-  const benchmarks = industryBenchmarks[industryName] || industryBenchmarks['Otro'];
+
+  // Obtener datos de industria y tamaño de empresa
+  const industryName = (clientInfo?.industry || 'Otro') as IndustryType;
+  const employeeCount = clientInfo?.employeeCount || 0;
+
+  // Obtener benchmarks de la industria usando helper
+  const benchmarks = {
+    finance: getBenchmarkThreshold('finance', industryName, 'average'),
+    operations: getBenchmarkThreshold('operations', industryName, 'average'),
+    marketing: getBenchmarkThreshold('marketing', industryName, 'average')
+  };
+
+  // Obtener perfil de tamaño de empresa
+  const companyProfile = employeeCount > 0 ? getCompanySizeProfile(employeeCount) : null;
+
+  // Obtener comparaciones de industria
+  const industryComparisons = {
+    finance: getIndustryComparison(finalScores.finance, 'finance', industryName),
+    operations: getIndustryComparison(finalScores.operations, 'operations', industryName),
+    marketing: getIndustryComparison(finalScores.marketing, 'marketing', industryName)
+  };
+
+  // Obtener recomendaciones específicas de industria y tamaño
+  const industryRecs = getIndustryRecommendations(finalScores, industryName);
+  const sizeRecs = employeeCount > 0 ? getSizeSpecificRecommendations(employeeCount, finalScores) : [];
+  const priorityActions = employeeCount > 0 ? getPriorityActions(employeeCount, finalScores) : [];
+
+  // Obtener áreas de fortaleza y mejora
+  const strengthAreas = getStrengthAreas(finalScores, industryName);
+  const improvementAreas = getImprovementAreas(finalScores, industryName);
 
   // Determinar el estado general
   const getBusinessStage = (avg: number) => {
@@ -200,6 +231,112 @@ export function ResultsDashboard({
           </div>
         </div>
       </div>
+
+      {/* Company Profile & Industry Context */}
+      {companyProfile && (
+        <Card className="border-2 border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50">
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Company Size Profile */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-3 bg-blue-100 rounded-lg">
+                    <Building2 className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-gray-800">Perfil de Empresa</h3>
+                    <p className="text-sm text-gray-600">Contexto para tu diagnóstico</p>
+                  </div>
+                </div>
+                <div className="bg-white rounded-lg p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Clasificación:</span>
+                    <span className="font-bold text-blue-600">{companyProfile.icon} {companyProfile.label}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Empleados:</span>
+                    <span className="font-semibold text-gray-800">{employeeCount} ({companyProfile.employeeRange})</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-600">Industria:</span>
+                    <span className="font-semibold text-gray-800">{industryName}</span>
+                  </div>
+                </div>
+                <div className="bg-blue-100 rounded-lg p-3">
+                  <p className="text-sm text-blue-900">{getGrowthStageMessage(employeeCount)}</p>
+                </div>
+              </div>
+
+              {/* Priority Actions */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-3 bg-purple-100 rounded-lg">
+                    <Target className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg text-gray-800">Acciones Prioritarias</h3>
+                    <p className="text-sm text-gray-600">Para tu tamaño e industria</p>
+                  </div>
+                </div>
+                <div className="bg-white rounded-lg p-4 space-y-3">
+                  {priorityActions.slice(0, 3).map((action, idx) => (
+                    <div key={idx} className="flex items-start gap-3">
+                      <div className={`mt-0.5 px-2 py-0.5 rounded text-xs font-bold ${
+                        action.priority === 'alta' ? 'bg-red-100 text-red-700' :
+                        action.priority === 'media' ? 'bg-yellow-100 text-yellow-700' :
+                        'bg-green-100 text-green-700'
+                      }`}>
+                        {action.priority.toUpperCase()}
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-xs text-gray-500 font-semibold">{action.axis}</div>
+                        <div className="text-sm text-gray-700">{action.action}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="bg-purple-100 rounded-lg p-3">
+                  <p className="text-xs text-purple-900 font-semibold">
+                    {getSizeBenchmarkMessage(employeeCount, averageScore)}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Strengths & Improvement Areas */}
+            {(strengthAreas.length > 0 || improvementAreas.length > 0) && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 pt-6 border-t border-blue-200">
+                {strengthAreas.length > 0 && (
+                  <div className="bg-green-50 rounded-lg p-4">
+                    <h4 className="font-semibold text-green-800 mb-2 flex items-center gap-2">
+                      <CheckCircle className="w-5 h-5" />
+                      Tus Fortalezas en {industryName}
+                    </h4>
+                    <div className="space-y-1">
+                      {strengthAreas.map((area, idx) => (
+                        <div key={idx} className="text-sm text-green-700">{area}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {improvementAreas.length > 0 && (
+                  <div className="bg-orange-50 rounded-lg p-4">
+                    <h4 className="font-semibold text-orange-800 mb-2 flex items-center gap-2">
+                      <AlertTriangle className="w-5 h-5" />
+                      Oportunidades de Mejora
+                    </h4>
+                    <div className="space-y-1">
+                      {improvementAreas.map((area, idx) => (
+                        <div key={idx} className="text-sm text-orange-700">{area}</div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Tabs de navegación mejorados para móvil */}
       <div className="flex gap-1 md:gap-2 border-b overflow-x-auto">
@@ -432,6 +569,17 @@ export function ResultsDashboard({
                 </div>
                 
                 <div className="space-y-4">
+                  {/* Industry Comparison */}
+                  <div className="bg-gradient-to-r from-blue-100 to-indigo-100 p-4 rounded-lg border-2 border-blue-300">
+                    <h4 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5" />
+                      Comparación con {industryName}
+                    </h4>
+                    <p className="text-blue-800 text-sm md:text-base font-medium">
+                      {industryComparisons.finance}
+                    </p>
+                  </div>
+
                   <div className="bg-blue-50 p-4 rounded-lg">
                     <h4 className="font-semibold text-gray-800 mb-2">Diagnóstico:</h4>
                     <p className="text-gray-700 text-sm md:text-base">
@@ -498,8 +646,19 @@ export function ResultsDashboard({
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="space-y-4">
+                  {/* Industry Comparison */}
+                  <div className="bg-gradient-to-r from-green-100 to-emerald-100 p-4 rounded-lg border-2 border-green-300">
+                    <h4 className="font-semibold text-green-900 mb-2 flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5" />
+                      Comparación con {industryName}
+                    </h4>
+                    <p className="text-green-800 text-sm md:text-base font-medium">
+                      {industryComparisons.operations}
+                    </p>
+                  </div>
+
                   <div className="bg-green-50 p-4 rounded-lg">
                     <h4 className="font-semibold text-gray-800 mb-2">Diagnóstico:</h4>
                     <p className="text-gray-700 text-sm md:text-base">
@@ -566,8 +725,19 @@ export function ResultsDashboard({
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="space-y-4">
+                  {/* Industry Comparison */}
+                  <div className="bg-gradient-to-r from-purple-100 to-pink-100 p-4 rounded-lg border-2 border-purple-300">
+                    <h4 className="font-semibold text-purple-900 mb-2 flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5" />
+                      Comparación con {industryName}
+                    </h4>
+                    <p className="text-purple-800 text-sm md:text-base font-medium">
+                      {industryComparisons.marketing}
+                    </p>
+                  </div>
+
                   <div className="bg-purple-50 p-4 rounded-lg">
                     <h4 className="font-semibold text-gray-800 mb-2">Diagnóstico:</h4>
                     <p className="text-gray-700 text-sm md:text-base">

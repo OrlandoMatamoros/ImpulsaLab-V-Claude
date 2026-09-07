@@ -1,0 +1,103 @@
+---
+title: "Money keeps disappearing from the register and I don't know where: how to find the leak before blaming an employee"
+excerpt: "El tema no es contabilidad ni software de punto de venta caro; es un método casero de tres días para descubrir si la plata se va en descuentos no registrados, cambio mal dado, o inventario que sale sin cobrarse, antes de sospechar de alguien sin pruebas."
+author: "Orlando Matamoros"
+date: "2026-09-07"
+image: "/blog/se-me-pierde-dinero-de-la-caja-y-no-se-donde-como-encontrar-la-fuga-an.jpg"
+category: "AI & Automation"
+readTime: "9 min"
+slug: "se-me-pierde-dinero-de-la-caja-y-no-se-donde-como-encontrar-la-fuga-an"
+featured: false
+---
+
+## My cash register is short and I don't know where: how to find the leak before blaming an employee
+
+You have a bodega, a restaurant or a bakery. You open in the morning, close at night, count the cash and something doesn't add up. It's not much: five dollars one day, ten the next, sometimes twenty. By the end of the month, you're missing 200-300 dollars and you don't know where they went. Your first reaction is to think about the employee who closes on Sundays, but you have no proof. You just have a feeling that the money isn't where it should be.
+
+At Impulsa Lab we've seen this in businesses that handle 3,000-8,000 dollars in cash per week. The difference is usually between 1% and 3% of cash sales, and most of the time it's not theft. It's human error: wrong change given, incorrectly registered transaction or lost credit card receipt ([patriotsoftware.com](https://www.patriotsoftware.com/blog/accounting/cash-drawer/)). Before spending on cameras, software or uncomfortable conversations with your staff, you need to know if the gap is real and where it is.
+
+## What changed in 2026
+
+Consumers increasingly prefer cashless payments like credit cards, debit and digital services like Venmo, Zelle, PayPal and Apple Pay, but a portion of shoppers still prefer to use cash ([apprissretail.com](https://apprissretail.com/blog/getting-to-the-bottom-of-register-discrepancies/)). That creates a problem: the less cash you handle, the more visible any discrepancy becomes.
+
+The changes this year:
+
+- Register discrepancies occur when the actual cash in the register doesn't match the expected amount according to transaction records ([apprissretail.com](https://apprissretail.com/blog/getting-to-the-bottom-of-register-discrepancies/)). In bodegas and bakeries, where each transaction lasts 30-90 seconds and the cashier serves 80-150 customers per shift, a single incorrectly registered transaction can generate a shortage that isn't discovered until closing.
+
+- Manual cash handling is prone to errors, especially if you operate a busy store or restaurant; when peak hours become chaotic, it's easy for human error to get in the way ([loomis.us](https://www.loomis.us/resources/insights/10-cash-handling-mistakes-your-business-may-be-making)).
+
+- External factors beyond the cashier's control can also cause register discrepancies: for example, a shortage can result from a manager's error when filling the register, or in more serious cases, intentional theft by a manager seeking to blame the cashier; discrepancies can also occur if a cashier from the previous shift steals money, leaving the register short ([apprissretail.com](https://apprissretail.com/blog/getting-to-the-bottom-of-register-discrepancies/)).
+
+- Identifying the root cause of register discrepancies can be challenging, especially in environments where multiple cashiers share registers and reconciliation is infrequent ([apprissretail.com](https://apprissretail.com/blog/getting-to-the-bottom-of-register-discrepancies/)).
+
+## What this looks like in practice
+
+The three-day method we run with cash-handling businesses doesn't require new software or equipment. You need a notebook, a pencil and a timer on your phone.
+
+**Day 1: Establish the starting amount**
+
+You decide how much cash starts in the register each morning. Let's say it's 150 dollars: five 20-dollar bills, two 10s, six 5s and the rest in 1-dollar bills and change. You write that in the notebook with date and time. Every time someone touches the register during the day to remove large bills or add change, you note it in the notebook with the exact time and who did it.
+
+**Day 2: Count against the register total at closing**
+
+At the end of the shift, before anyone leaves, you count the physical cash in the register. You separate bills by denomination, coins by type. Then you print the closing report from your register (or write it down by hand if your register doesn't print). That report tells you how many cash sales you registered.
+
+The formula is simple: starting cash + cash sales for the day = cash that should be in the register. If you started with 150 dollars and sold 890 in cash, you should have 1,040 dollars. If you only count 1,022, you're missing 18 dollars. You note that difference.
+
+**Day 3: Review transaction by transaction from the day with the largest difference**
+
+If one day you lost 18 dollars and another day you lost 4, you focus on the 18-dollar day. You print or review each cash transaction from that shift. You look for three things:
+
+- Transactions where the total is a suspicious round number (a customer bought 37.45 but the ticket says 40.00)
+- Voided or discounted transactions that don't have your written authorization
+- Sales where you gave change for a 50 or 100 bill without noting the amount on the receipt
+
+Train employees to register every transaction: there's no exception for "it's just a small sale"; omitted transactions create overages in the register that mask theft or discrepancies elsewhere; require managers to review transaction logs weekly for unusual patterns, such as excessive voids, discounts or no-sale drawer openings ([kolibriusa.com](https://kolibriusa.com/blogs/news/retail-cash-management)).
+
+In most cases, you find that the cashier gave change for 20 when the customer paid with 10, or registered a 15-dollar sale as 1.50. There was no theft. There was rush.
+
+## When NOT to use this method
+
+This homemade three-day method works if you meet these three conditions:
+
+1. Your daily shortage is between 5 and 50 dollars. If you lose 200 dollars all at once in a single day, it's not a counting problem: it's direct theft or a transaction that never entered the system.
+
+2. You already have a register or a cash box that at least prints a receipt with the day's total sales. If you sell everything "from memory" and have no record, this method won't work for you: first you need to start writing down each sale in a notebook before you can compare anything.
+
+3. A single person handles the register per shift. Although sharing registers saves time, the risks outweigh the rewards; the small amount of time saved by allowing cashiers to work from the same register comes with a significant price: it includes less accountability, difficulty tracking cash flow and an increase in theft ([pbsoffice.com](https://www.pbsoffice.com/pages/5-cash-handling-errors-and-how-to-avoid-them)).
+
+If your business already balances the register penny by penny every night without differences, congratulations: this article isn't for you. If three people touch the register in the same shift and you don't know who made each sale, the three-day method won't work for you because you can't isolate where the error comes from.
+
+## The stack we use at Impulsa Lab
+
+When a business has already confirmed it has a real (not imagined) cash leak and wants to move from the notebook to a system that records automatically, we run this stack:
+
+- **Square Register or Clover Station** (hardware): 799-1,299 USD one-time. Register with touchscreen that prints receipts, opens cash drawer only when a sale is registered, and generates automatic closing reports at the end of the shift. Square charges 2.6% + 10¢ per card transaction; Clover charges similar rate but requires processing contract.
+
+- **Shared Google Sheets spreadsheet** (free): one column per day, one row per shift. The manager notes starting amount, final physical amount, final amount according to the system and difference. If the difference is greater than 10 dollars, write a note about what happened.
+
+- **Airtable base for tracking discrepancies** (free plan up to 1,000 records/month): we connect the Google Sheets spreadsheet with Airtable through Zapier (free plan, 100 tasks/month). Each difference greater than 10 dollars becomes a record in Airtable with date, shift, cashier and amount. That allows us to see if a specific cashier has recurring differences or if the problem is widespread.
+
+We don't use cameras pointing at the register until we confirm the problem isn't operational. Cameras cost between 150-400 dollars per unit plus 15-30 dollars per month for cloud storage, and they don't tell you anything if the error is in how the sale is registered, not in who touches the cash.
+
+## The most common mistake
+
+The owner counts the register only once a week or once a month. When they finally count, they're missing 300 dollars and have no way to know if it was 10 dollars per day for 30 days or 300 dollars in a single day. Without that data, you can't distinguish between operational error and theft.
+
+Waiting too long to reconcile allows small discrepancies to become bigger problems ([us.brinks.com](https://us.brinks.com/-/cash-handling)). If you count every day for a week and discover you lose 8-12 dollars daily Monday through Friday but 35 dollars on Saturday, you already know where to focus: Saturday's shift has something different (more volume, different cashier, or customer rush that causes transactions to be hurried).
+
+The second mistake is assuming every discrepancy is theft. In the National Retail Federation's 2023 security survey, internal theft (by employees) accounted for 29% of inventory shrinkage loss in retail ([nextinsurance.com](https://www.nextinsurance.com/blog/retail-loss-prevention-guide-2/)). That means the remaining 71% comes from other causes. Before accusing someone without proof, verify if the problem is that you give wrong change, register wrong prices or have products that leave without being charged.
+
+Count how many consecutive days you have differences greater than 10 dollars. If it's more than five days in a month, you have an operational problem that requires process, not surveillance. If it's only two days and always with the same cashier, then it's worth investigating more deeply.
+
+## Sources
+
+- patriotsoftware.com — Balancing Your Cash Drawer | Steps, Tips, and More: https://www.patriotsoftware.com/blog/accounting/cash-drawer/
+- apprissretail.com — Cash Register Discrepancies: Causes, Consequences, and Prevention for Retailers | Appriss Retail: https://apprissretail.com/blog/getting-to-the-bottom-of-register-discrepancies/
+- loomis.us — 10 Cash Handling Mistakes Your Business May Be Making | Loomis US: https://www.loomis.us/resources/insights/10-cash-handling-mistakes-your-business-may-be-making
+- kolibriusa.com — Retail Cash Management: A Guide to Reducing Shrinkage: https://kolibriusa.com/blogs/news/retail-cash-management
+- pbsoffice.com — 5 Cash Handling Errors and How to Avoid Them – Progressive Business Systems, Inc.: https://www.pbsoffice.com/pages/5-cash-handling-errors-and-how-to-avoid-them
+- us.brinks.com — Cash handling best practices: a complete guide to avoiding ...: https://us.brinks.com/-/cash-handling
+- nextinsurance.com — Retail Theft and Loss Prevention: How to Protect Your Small Business | NEXT: https://www.nextinsurance.com/blog/retail-loss-prevention-guide-2/
+
+Data consulted on 2026-09-07. Some of these sources are publications from companies that sell software in the sector: the data may be correct and commercial interest also exists, which is why the source is visible in each statement. Third-party figures may have changed since that date.

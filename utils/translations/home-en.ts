@@ -145,7 +145,7 @@ export const homeEN = {
     titulo: "Your Strategic Growth Ally",
     descripcion: "Impulsa Lab was born from a simple observation: small businesses don't need more theoretical plans, they need a partner who 'gets their hands dirty' with them. I know firsthand the challenges you face, because I've seen them as a consultant and lived them as an entrepreneur, with the successes and failures that only this path teaches. Our commitment is not just to deliver a tech solution, but to be the expert team that guides you through implementation to achieve real, measurable results.",
     mision: "Our Mission",
-    misionDesc: "Democratize business intelligence for small and medium business owners in New York. We achieve this by diagnosing their development stage and implementing practical, affordable AI solutions across their three fundamental pillars: Finance, Operations, and Marketing.",
+    misionDesc: "Democratize business intelligence for small and medium business owners in New York. We achieve this by diagnosing their development stage and implementing practical, affordable AI solutions across their three fundamental pillars: Finance, Operations, and Marketing. As your AI marketing, finance, and operations consultant in New York, our job is to make sure your customers find you first.",
     vision: "Our Vision",
     visionDesc: "We aspire to be the innovation lab and strategic navigation system of reference for the SMB ecosystem in New York. We seek to create a future where any entrepreneur can access the same business intelligence as large corporations to compete, thrive, and achieve exponential growth.",
     conoceEquipo: "Meet Your Team",

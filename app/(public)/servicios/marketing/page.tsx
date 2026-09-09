@@ -76,6 +76,23 @@ export default function MarketingPage() {
 
  return (
    <div className="min-h-screen bg-white">
+     {/* Breadcrumb visible — antes solo existia el BreadcrumbList JSON-LD en
+         servicios/layout.tsx sin nav real en el DOM (AUDIT-SEO 2026-09-09).
+         Mismo patron que /nosotros: enlace interno real hacia la home, que
+         hoy rankea #1 en "marketing consultant near me". */}
+     <div className="bg-white border-b border-gray-100">
+       <div className="container mx-auto px-4 py-3">
+         <nav className="text-sm" aria-label="breadcrumb">
+           <Link href="/" className="text-gray-500 hover:text-purple-700">
+             {t.common.inicio}
+           </Link>
+           <span className="mx-2 text-gray-400" aria-hidden="true">/</span>
+           <span className="text-gray-500">{t.nav.servicios}</span>
+           <span className="mx-2 text-gray-400" aria-hidden="true">/</span>
+           <span className="text-gray-900">{t.nav.marketing}</span>
+         </nav>
+       </div>
+     </div>
      {/* Hero Section MEJORADO */}
      <section className="relative bg-gradient-to-br from-purple-900 to-purple-700 text-white py-20 overflow-hidden">
        <div className="absolute inset-0 opacity-10">

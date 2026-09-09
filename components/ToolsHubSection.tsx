@@ -35,6 +35,19 @@ const PromptIcon = ({ className }: { className?: string }) => (
   </svg>
 )
 
+// Plan de Negocios con IA — reforzada 2026-09-09 (AUDIT-SEO): la home no
+// enlazaba en el cuerpo hacia /herramientas/plan-de-negocios (solo vive en
+// el dropdown del nav). Se agrega tarjeta contextual con anchor descriptivo
+// para empujar "plan de negocios ia" (hoy pos 14,9) a primera pagina.
+const PlanIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M9 3h6a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/>
+    <line x1="9" y1="8" x2="15" y2="8"/>
+    <line x1="9" y1="12" x2="15" y2="12"/>
+    <line x1="9" y1="16" x2="12" y2="16"/>
+  </svg>
+)
+
 export default function ToolsHubSection() {
   const { t } = useLanguage()
   const prefersReduced = useReducedMotion()
@@ -87,6 +100,18 @@ export default function ToolsHubSection() {
       name: t.hero.promptDesigner,
       desc: t.hero.promptDesc,
       meta: t.hero.promptMeta,
+    },
+    {
+      href: '/herramientas/plan-de-negocios',
+      gradient: 'from-cyan-600 to-teal-600',
+      border: 'border-cyan-500 hover:border-cyan-300',
+      shadow: 'hover:shadow-cyan-500/50',
+      badge: t.hero.gratis,
+      badgeColor: 'text-cyan-700',
+      icon: PlanIcon,
+      name: t.hero.planNegocios,
+      desc: <><span className="font-bold text-white">{t.hero.planNegociosDesc}</span> {t.hero.planNegociosDescFull}</>,
+      meta: t.hero.planNegociosMeta,
     },
   ]
 
